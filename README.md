@@ -1,0 +1,4 @@
+hdnet
+=====
+
+Hopfield denoising network
