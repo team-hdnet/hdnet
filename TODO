@@ -1,0 +1,23 @@
+Major
+=====
+
+
+Minor
+=====
+
+
+
+No-brainer
+==========
+- Use /tmp in unit tests as path (see test_learner.py)
+- Use os.path.join for joining paths/filenames
+
+
+
+
+Bugs
+====
+
+- Pattern needs superfluous Learner for some parameters
+- Untangle Counter and Patterns
+- Rotate parameter for chomp routines: grab from class parameters
