@@ -1,10 +1,40 @@
-Todo
+TODO
 ====
 
-- [Felix] Include KlustaKwick reader
-- [Felix] Include plotting functionality
-- Use /tmp in unit tests as path (see test_learner.py)
-- Use os.path.join for joining paths/filenames
+- Null models module
+  * Fix Ising model (Swensen-Wang)
+  * Non-stationary Bernoulli
+  * Dichotomized Gaussian
+    http://bethgelab.org/software/mvd/
+  * GLM [statsmodels]
+    http://statsmodels.sourceforge.net/devel/examples/notebooks/generated/glm.html
+  * Random sparse patterns
+
+- Stats module
+  * entropy estimation [PyEntropy]
+
+- Data module
+  * Preprocessing
+  * Discretization
+  * Binning <-> spike times
+  * Saving [in custom formats]
+  * [Felix] Include KlustaKwick reader
+  * PCA
+  * ICA
+
+- Stimulus module
+  * STAs
+  * Reverse correlation
+  * Trial-based
+
+- Visualization value
+  * [Felix] Include plotting functionality
+  * Raster plots
+  * Rank plots (patterns)
+
+- Misc
+ * Use /tmp in unit tests as path (see test_learner.py)
+ * Use os.path.join for joining paths/filenames
 
 
 Bugs
