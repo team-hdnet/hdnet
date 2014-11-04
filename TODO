@@ -21,3 +21,12 @@ Bugs
 - Pattern needs superfluous Learner for some parameters
 - Untangle Counter and Patterns
 - Rotate parameter for chomp routines: grab from class parameters
+
+
+Documentation
+=============
+
+Use sphinx
+https://pythonhosted.org/an_example_pypi_project/sphinx.html
+http://raxcloud.blogspot.de/2013/02/documenting-python-code-using-sphinx.html
+
