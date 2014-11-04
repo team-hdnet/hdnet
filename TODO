@@ -1,18 +1,10 @@
-Major
-=====
+Todo
+====
 
-
-Minor
-=====
-
-
-
-No-brainer
-==========
+- [Felix] Include KlustaKwick reader
+- [Felix] Include plotting functionality
 - Use /tmp in unit tests as path (see test_learner.py)
 - Use os.path.join for joining paths/filenames
-
-
 
 
 Bugs
@@ -21,6 +13,7 @@ Bugs
 - Pattern needs superfluous Learner for some parameters
 - Untangle Counter and Patterns
 - Rotate parameter for chomp routines: grab from class parameters
+- Investiage file reading bug on 64 bit linux machines
 
 
 Documentation
