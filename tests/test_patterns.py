@@ -10,7 +10,6 @@
 """
 
 import os
-import unittest
 import shutil
 import numpy as np
 
@@ -19,21 +18,19 @@ from hdnet.learner import Learner
 from hdnet.patterns import Patterns
 from hdnet.counter import Counter
 
+from test_tmppath import TestTmpPath
 
-class TestPatterns(unittest.TestCase):
+
+class TestPatterns(TestTmpPath):
 
     def setUp(self):
-        os.chdir(os.path.dirname(__file__))
-        if os.path.exists("patterns"):
-            shutil.rmtree("patterns")
-        os.mkdir("patterns")
+        super(TestPatterns, self).setUp()
 
     def tearDown(self):
-        if os.path.exists("patterns"):
-            shutil.rmtree("patterns")
+        super(TestPatterns, self).tearDown()
 
     def test_basic(self):
-        spikes = Spikes(npz_file='test_data/tiny_spikes.npz')
+        spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))
         learner = Learner(spikes)
         learner.learn_from_spikes(spikes)
 
@@ -44,8 +41,8 @@ class TestPatterns(unittest.TestCase):
         # print "%d fixed-points (entropy H = %1.3f):" % (len(patterns), patterns.entropy())
         # print map(patterns.reverse_key, patterns.counts.keys())
 
-        patterns.save('patterns/patterns')
-        patterns.load('patterns/patterns')
+        patterns.save(os.path.join(self.TMP_PATH, 'patterns'))
+        patterns.load(os.path.join(self.TMP_PATH, 'patterns'))
         self.assertEqual(len(patterns), 3)
 
         learner.learn_from_spikes(spikes, window_size=3)
@@ -69,14 +66,14 @@ class TestPatterns(unittest.TestCase):
         self.assertEqual(len(patterns), 2)
 
         # test recording fixed-points
-        spikes = Spikes(npz_file='test_data/spikes_trials.npz')
+        spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/spikes_trials.npz'))
         learner = Learner(spikes)
         learner.learn_from_spikes(spikes)
         patterns = Patterns(learner, save_fp_sequence=True)
         patterns.chomp_spikes(spikes)
         self.assertEqual(patterns.sequence, [0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1])
 
-        spikes = Spikes(npz_file='test_data/spikes_trials.npz')
+        spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/spikes_trials.npz'))
         learner = Learner(spikes)
         learner.learn_from_spikes(spikes, window_size=2)
         patterns = Patterns(learner, save_fp_sequence=True)

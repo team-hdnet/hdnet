@@ -21,23 +21,13 @@ from hdnet.spikes_model import SpikeModel, Shuffled, Bernoulli
 
 class TestSpikeModel(unittest.TestCase):
 
-    def setUp(self):
-        os.chdir(os.path.dirname(__file__))
-        if os.path.exists("spike_model"):
-            shutil.rmtree("spike_model")
-        os.mkdir("spike_model")
-
-    def tearDown(self):
-        if os.path.exists("spike_model"):
-            shutil.rmtree("spike_model")
-
     def test_basic(self):
         # spikes = Spikes(npz_file='test_data/tiny_spikes.npz')
         # spike_model = SpikeModel(spikes=spikes)
         # spike_model.fit()
         # spike_model.chomp()
 
-        spikes = Spikes(npz_file='test_data/spikes_trials.npz')
+        spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/spikes_trials.npz'))
         spike_model = SpikeModel(spikes=spikes)
         spike_model.fit(remove_zeros=True)
         spike_model.chomp()

@@ -10,9 +10,8 @@
 """
 
 import os
-import unittest
-import shutil
 import numpy as np
+import unittest
 
 from hdnet.spikes import Spikes
 from hdnet.counter import Counter
@@ -20,18 +19,8 @@ from hdnet.counter import Counter
 
 class TestCounter(unittest.TestCase):
 
-    def setUp(self):
-        os.chdir(os.path.dirname(__file__))
-        if os.path.exists("counter"):
-            shutil.rmtree("counter")
-        os.mkdir("counter")
-
-    def tearDown(self):
-        if os.path.exists("counter"):
-            shutil.rmtree("counter")
-
     def test_basic(self):
-        spikes = Spikes(npz_file='test_data/tiny_spikes.npz')
+        spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))
         print spikes.spikes_arr
         counter = Counter()
         counter.chomp_spikes(spikes)
@@ -42,7 +31,7 @@ class TestCounter(unittest.TestCase):
         counter.chomp_spikes(spikes, window_size=3)
         self.assertEqual(len(counter), 4)
 
-        spikes = Spikes(npz_file='test_data/spikes_trials.npz')
+        spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/spikes_trials.npz'))
         counter = Counter()
         counter.chomp_spikes(spikes, window_size=3)
         self.assertEqual(len(counter), 9)
@@ -65,7 +54,7 @@ class TestCounter(unittest.TestCase):
         self.assertEqual(len(counter4.counts.keys()), 5)
         self.assertEqual(len(counter4.fp_list), 5)
 
-        spikes = Spikes(npz_file='test_data/spikes_trials.npz')
+        spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/spikes_trials.npz'))
         counter = Counter(save_fp_sequence=True)
         counter.chomp_spikes(spikes)
         self.assertEqual(counter.sequence, [0, 1, 0, 2, 3, 4, 1, 5, 4, 6, 2, 0, 6, 2, 2])

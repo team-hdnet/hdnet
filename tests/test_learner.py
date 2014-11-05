@@ -10,29 +10,24 @@
 """
 
 import os
-import unittest
 import shutil
 
 from hdnet.spikes import Spikes
 from hdnet.learner import Learner
 
+from test_tmppath import TestTmpPath
 
-class TestLearner(unittest.TestCase):
 
-    TMPPATH = '/tmp/hdnettest'
+class TestLearner(TestTmpPath):
 
     def setUp(self):
-        os.chdir(os.path.dirname(__file__))
-        if os.path.exists(self.TMPPATH):
-            shutil.rmtree(self.TMPPATH)
-        os.mkdir(self.TMPPATH)
+        super(TestLearner, self).setUp()
 
     def tearDown(self):
-        if os.path.exists(self.TMPPATH):
-            shutil.rmtree(self.TMPPATH)
+        super(TestLearner, self).tearDown()
 
     def test_basic(self):
-        spikes = Spikes(npz_file='test_data/tiny_spikes.npz')
+        spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))
         learner = Learner(spikes)
         self.assertEqual(learner.spikes.N, 3)
 
@@ -47,15 +42,15 @@ class TestLearner(unittest.TestCase):
         self.assertTrue(learner.network.J.shape == (9, 9))
 
         learner.params['hi'] = 'chris'
-        learner.savez(self.TMPPATH+'/learner')
+        learner.savez(os.path.join(self.TMP_PATH, 'learner'))
         learner = Learner()
-        learner.loadz(self.TMPPATH+'/learner')
+        learner.loadz(os.path.join(self.TMP_PATH, 'learner'))
         self.assertEqual(learner.params['hi'], 'chris')
-        self.assertEqual(learner.spikes_file, 'test_data/tiny_spikes.npz')
+        self.assertEqual(learner.spikes_file, os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))
         self.assertEqual(learner.window_size, 3)
         self.assertTrue(learner.network.J.mean() != 0.)
         self.assertTrue(learner.network.J.shape == (9, 9))
 
-        spikes = Spikes(npz_file='test_data/spikes_trials.npz')
+        spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/spikes_trials.npz'))
         learner = Learner(spikes)
         learner.learn_from_spikes()

@@ -21,16 +21,6 @@ from hdnet.hopfield_mpf import HopfieldNetMPF
 
 class TestHopfield(unittest.TestCase):
 
-    def setUp(self):
-        os.chdir(os.path.dirname(__file__))
-        if os.path.exists("mpf"):
-            shutil.rmtree("mpf")
-        os.mkdir("mpf")
-
-    def tearDown(self):
-        if os.path.exists("mpf"):
-            shutil.rmtree("mpf")
-
     def test_basic(self):
         MPF = HopfieldNetMPF(N=3)
         MPF.J = np.array([[0, -1, 1], [-1, 0, 2], [1, 2, 0]])

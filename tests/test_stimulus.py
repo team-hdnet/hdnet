@@ -18,18 +18,9 @@ from hdnet.stimulus import Stimulus
 
 class TestStimulus(unittest.TestCase):
 
-    def setUp(self):
-        os.chdir(os.path.dirname(__file__))
-        if os.path.exists("stimulus"):
-            shutil.rmtree("stimulus")
-        os.mkdir("stimulus")
-
-    def tearDown(self):
-        if os.path.exists("stimulus"):
-            shutil.rmtree("stimulus")
-
     def test_basic(self):
-        stimulus = Stimulus(npz_file='test_data/tiny_stimulus.npz')
+
+        stimulus = Stimulus(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/tiny_stimulus.npz'))
         self.assertEqual(stimulus.stimulus_arr.shape, (2, 4, 4))
 
         # stimulus = Stimulus(h5_file='test_data/shortmovie.h5')

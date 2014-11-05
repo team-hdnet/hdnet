@@ -19,16 +19,6 @@ from hdnet.sampling import sample_from_prob_vector, sample_from_Bernoulli, sampl
 
 class TestSampling(unittest.TestCase):
 
-    def setUp(self):
-        os.chdir(os.path.dirname(__file__))
-        if os.path.exists("sampling"):
-            shutil.rmtree("sampling")
-        os.mkdir("sampling")
-
-    def tearDown(self):
-        if os.path.exists("sampling"):
-            shutil.rmtree("sampling")
-
     def test_basic(self):
         
         p = [.1, .4, .5]
