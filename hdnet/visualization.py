@@ -12,32 +12,35 @@
 __version__ = "0.1"
 
 import numpy as np
+
 import matplotlib.pyplot as plt
 from matplotlib.ticker import NullFormatter
+
 
 HAS_PRETTYPLOTLIB = False
 try:
     import prettyplotlib as ppl
+
     HAS_PRETTYPLOTLIB = True
 except ImportError, e:
     pass
 
+
 def raster_plot_psth(spikes_arr,
-                     trial = 0,
-                     start_idx = 0,
-                     stop_idx = None,
+                     trial=0,
+                     start_idx=0,
+                     stop_idx=None,
                      bin_size=0.001,
-                     hist_bin_size = 0.005,
-                     label_x = 'time [s]',
-                     label_y_hist_x = '[Hz]',
-                     label_y_raster = 'neuron',
-                     label_x_hist_y = None,
-                     fig_size = None,
-                     hist_x = True,
-                     hist_y = False,
+                     hist_bin_size=0.005,
+                     label_x='time [s]',
+                     label_y_hist_x='[Hz]',
+                     label_y_raster='neuron',
+                     label_x_hist_y=None,
+                     fig_size=None,
+                     hist_x=True,
+                     hist_y=False,
                      color_raster='#070d0d',
                      color_hist='#070d0d'):
-
     """
      Displays as raster plot (optionally with PSTH below) of a group of neurons
     """
@@ -119,14 +122,14 @@ def raster_plot_psth(spikes_arr,
         if HAS_PRETTYPLOTLIB:
             ppl.utils.remove_chartjunk(ax_hist_x, ['top', 'right'], show_ticks=False)
 
-        ax_hist_x.set_xlim( ax_scatter.get_xlim() )
+        ax_hist_x.set_xlim(ax_scatter.get_xlim())
         ax_hist_x.set_xlabel(label_x)
         if label_y_hist_x:
             ax_hist_x.set_ylabel(label_y_hist_x)
 
         nx, binsx, patchesx = ax_hist_x.hist(
             x, bins=hist_bins,
-            weights=[ hist_bin_size * spikes_arr.shape[1]] * len(x),
+            weights=[hist_bin_size * spikes_arr.shape[1]] * len(x),
             facecolor=color_hist, ec='none')
 
     else:
@@ -140,10 +143,10 @@ def raster_plot_psth(spikes_arr,
         if HAS_PRETTYPLOTLIB:
             ppl.utils.remove_chartjunk(ax_hist_y, ['top', 'right'], show_ticks=False)
 
-        ax_hist_y.set_ylim( ax_scatter.get_ylim() )
+        ax_hist_y.set_ylim(ax_scatter.get_ylim())
         ny, binsy, patchesy = ax_hist_y.hist(
             y, bins=hist_bins,
-            weights=[ hist_bin_size * spikes_arr.shape[1]] * len(y),
+            weights=[hist_bin_size * spikes_arr.shape[1]] * len(y),
             orientation='horizontal', facecolor=color_hist, ec='none')
 
         if label_x_hist_y:
@@ -155,6 +158,5 @@ def raster_plot_psth(spikes_arr,
 
 
 class Visualization(object):
-
     def __init__(self):
         object.__init__(self)

@@ -9,14 +9,11 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-import hopfield_mpf
 import numpy as np
 import os
-from time import time as now
 
-from patterns import Patterns
+import hopfield_mpf
 from counter import Counter
-from spikes import Spikes
 
 
 class Learner(object):
@@ -54,7 +51,8 @@ class Learner(object):
         self.network = hopfield_mpf.HopfieldNetMPF(len(X[0]))
         if remove_zeros:
             X_ = X[X.mean(axis=1) != 0., :]  # remove all zeros
-            print "Learning %d %d-bit (nonzero) binary patterns, sparsity %.04f..." % (X_.shape[0], X_.shape[1], X_.mean())
+            print "Learning %d %d-bit (nonzero) binary patterns, sparsity %.04f..." % (
+            X_.shape[0], X_.shape[1], X_.mean())
         else:
             X_ = X
             print "Learning %d %d-bit binary patterns, sparsity %.04f..." % (X_.shape[0], X_.shape[1], X_.mean())
@@ -75,13 +73,12 @@ class Learner(object):
         trials = trials or range(spikes.T)
         self.window_size = window_size
         self.network = hopfield_mpf.HopfieldNetMPF(spikes.N * self.window_size)
-        c=Counter(save_fp_sequence=True)
-        c.chomp_spikes(spikes, window_size=self.window_size, rotate=(spikes.N,self.window_size))
-        X = np.array([c.reverse_key(c.fp_list[m]) for m in c.sequence]) #spikes.to_windowed(window_size=self.window_size, trials=trials, reshape=True)
+        c = Counter(save_fp_sequence=True)
+        c.chomp_spikes(spikes, window_size=self.window_size, rotate=(spikes.N, self.window_size))
+        X = np.array([c.reverse_key(c.fp_list[m]) for m in
+                      c.sequence])  # spikes.to_windowed(window_size=self.window_size, trials=trials, reshape=True)
         self.learn_from_binary(X, remove_zeros=remove_zeros)
 
-        
-        
     def savez(self, folder_name='my_learner'):
         """ saves as npz's: network, params, spikes filename """
         if os.path.exists(folder_name):  # replace with Exception
@@ -102,7 +99,7 @@ class Learner(object):
         if not hasattr(self, 'network'):
             self.network = hopfield_mpf.HopfieldNetMPF()
         self.network.loadz(folder_name + '/network.npz')
-        
+
         d = np.load(folder_name + '/save_vars.npz')
         for v in self._savevars:
             setattr(self, v, d[v])

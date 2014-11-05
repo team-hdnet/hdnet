@@ -9,7 +9,6 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-
 import os
 
 import numpy as np

@@ -32,10 +32,6 @@ TODO
   * Raster plots
   * Rank plots (patterns)
 
-- Misc
- * Use /tmp in unit tests as path (see test_learner.py)
- * Use os.path.join for joining paths/filenames
-
 
 Bugs
 ====

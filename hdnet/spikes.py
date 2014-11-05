@@ -16,6 +16,7 @@ __all__ = ('Spikes')
 import os
 import numpy as np
 
+
 class Spikes(object):
     """ Class for handling binary time-series datasets
 
@@ -28,14 +29,15 @@ class Spikes(object):
                     override for other operations on raw data
     """
 
-    def __init__(self, spikes_arr=None, npz_file=None, mat_file=None, spk_files=None, spk_folder=None, bin_size=1, preprocess=True):
+    def __init__(self, spikes_arr=None, npz_file=None, mat_file=None, spk_files=None, spk_folder=None, bin_size=1,
+                 preprocess=True):
         self.filename = npz_file or ''
 
         self.T = 0
         self.N = 0
         self.M = 0
 
-        #TODO: instead of different parameters for different file formats use just two parameters, file and file_format
+        # TODO: instead of different parameters for different file formats use just two parameters, file and file_format
 
         if spikes_arr is not None:
             self.spikes_arr = spikes_arr
@@ -138,7 +140,7 @@ class Spikes(object):
         if len(spike_times_lists) == 0: return
         self.max_milisec = - np.inf
         for spike_times in spike_times_lists:
-            milisec = 1.* (spike_times[-1]) / (10 ** 3)
+            milisec = 1. * (spike_times[-1]) / (10 ** 3)
             self.max_milisec = max(self.max_milisec, milisec)
         self.spikes_arr = np.zeros((len(spike_times_lists), np.int(self.max_milisec) / bin_size + 1))
         for c, spike_times in enumerate(spike_times_lists):
@@ -150,19 +152,6 @@ class Spikes(object):
     def preprocess(self):
         """ converts to binary """
         self.spikes_arr = np.double((np.sign(self.spikes_arr) + 1) // 2)
-
-    def shuffle(self, trial_independence=True):
-        """ returns new Spikes object: permutes spikes_arr in time
-            trial_independence: diff permutation for each trial """
-
-        idx = np.random.permutation(self.M)
-        new_arr = np.zeros(self.spikes_arr.shape)
-        for i in xrange(self.T):
-            if trial_independence:
-                idx = np.random.permutation(self.M)
-            arr = self.spikes_arr[i, :, :].copy()
-            new_arr[i] = arr[:, idx]
-        return Spikes(new_arr)
 
     def rasterize(self, trials=None, start=0, stop=None, save_png_name=None):
         """ return *new* (copied) numpy array of size (TN x M)
@@ -182,69 +171,3 @@ class Spikes(object):
             im_png.save(save_png_name + '.png')
         else:
             return sub_spikes_arr.copy().reshape((len(trials) * self.N, stop - start))
-
-    def to_windowed_bernoulli(self, window_size=1, bin_size=1, trials=None, reshape=False):
-        """ returns Spikes object of 3d numpy arr of windowed iid Bernouli spike trains:
-            (with probabilities = spike rates of each neuron in self)
-                X:   T (num trials) x (window_size * N) x  (M - window_size + 1)
-                                        binary vector out of a spike time series
-            reshape: returns T(M - window_size + 1) x (ws * N) numpy binary vector
-        """
-        from sampling import sample_from_Bernoulli
-
-        trials = trials or xrange(self.T)
-        X = np.zeros((len(trials), window_size * self.N, self.M - window_size + 1))
-
-        for c, t in enumerate(trials):
-            #p = self.spikes_arr[t, :, :].mean(axis=1)
-
-            num_neurons=self.N
-            num_samples=self.M
-            spikes_arr=self.spikes_arr
-            numbins=20/bin_size
-
-            ps=[]
-            for i in xrange(num_neurons):
-                ps.append([spikes_arr[0,i,0:numbins].mean()]+[spikes_arr[0,i,(j-1)*numbins:j*numbins].mean() for j in xrange(1,num_samples/numbins)])
-            ps=np.array(ps)
-
-            for j in xrange(num_neurons):
-                for i in xrange(0, self.M - window_size + 1):
-                    X[c, j, i] = int(np.random.random()<ps[j,i/numbins])
-                    #sample_from_Bernoulli([ps[j,i/numbins]], 1).ravel()[0]
-
-        if reshape:
-            Y = np.zeros((X.shape[0] * X.shape[2], X.shape[1]))
-            tot = 0
-            for t in xrange(len(trials)):
-                for c in xrange(X.shape[2]):
-                    Y[tot, :] = X[t, :, c]
-                    tot += 1
-            return Y
-        return Spikes(spikes_arr=X)
-
-    def to_ising_spikes(self, J=None, theta=None, trials=None):
-        """ WARNING: NOT FUNCTIONING PROPERLY I THINK
-
-        returns new spikes object with iid Ising spike trains:
-            (with Ising model determined by learning with MPF)
-        """
-        from sampling import sample_from_ising
-        from learner import Learner
-
-        trials = trials or range(self.T)
-        X = np.zeros((len(trials), self.N, self.M))
-
-        learner = Learner(spikes=self)
-
-        no_net = False
-        if J is None or theta is None:
-            no_net = True
-
-        for c, t in enumerate(trials):
-            if no_net:
-                learner.learn_from_spikes(window_size=1, trials=[t])
-                J = learner.network.J; theta = learner.network.theta
-            X[c, :, :] = sample_from_ising(J, theta, self.M)
-
-        return Spikes(spikes_arr=X)

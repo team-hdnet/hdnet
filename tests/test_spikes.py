@@ -53,7 +53,6 @@ class TestSpikes(TestTmpPath):
         spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))
 
         print spikes.spikes_arr
-        print spikes.to_windowed_bernoulli(window_size=2)
 
         spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/spikes_trials.npz'))
         spikes.restrict_to_most_active_neurons(top_neurons=2)
@@ -62,5 +61,4 @@ class TestSpikes(TestTmpPath):
 
         spikes = Spikes(spikes_arr=np.array([[1, 1, 1, 0, 1, 0], [1, 1, 1, 1, 1, 1], [0, 0, 0, 1, 0, 0]]))
         print spikes.spikes_arr
-        spikes_ising = spikes.to_ising_spikes()
-        print spikes_ising.spikes_arr
+

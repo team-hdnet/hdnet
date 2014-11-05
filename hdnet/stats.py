@@ -13,7 +13,7 @@ __version__ = "0.1"
 
 __all__ = ()
 
-class Stats(object):
 
+class Stats(object):
     def __init__(self):
         object.__init__(self)

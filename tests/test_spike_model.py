@@ -16,7 +16,7 @@ import numpy as np
 
 from hdnet.counter import Counter
 from hdnet.spikes import Spikes
-from hdnet.spikes_model import SpikeModel, Shuffled, Bernoulli
+from hdnet.spikes_model import SpikeModel, Shuffled, BernoulliHomogeneous, BernoulliInhomogeneous
 
 
 class TestSpikeModel(unittest.TestCase):
@@ -38,16 +38,15 @@ class TestSpikeModel(unittest.TestCase):
         wss = [1, 2]
         counts, entropies = spike_model.distinct_patterns_over_windows(wss, remove_zeros=False)
 
-        bernoulli_model = Bernoulli(spikes=spikes)
+        bernoulli_model = BernoulliHomogeneous(spikes=spikes)
         bernoulli_model.fit()
         bernoulli_model.chomp()
         
         shuffle_model = Shuffled(spikes=spikes)
         shuffle_model.fit()
         shuffle_model.chomp()
-        
-        
-        bernoulli_model = Bernoulli(spikes=spikes)
+
+        bernoulli_model = BernoulliHomogeneous(spikes=spikes)
         bernoulli_model.fit()
         bernoulli_model.chomp()
         
@@ -58,9 +57,13 @@ class TestSpikeModel(unittest.TestCase):
         spikes_arr = np.random.randn(4, 10000)
         spikes = Spikes(spikes_arr=spikes_arr)
         
-        bernoulli_model = Bernoulli(spikes=spikes)
+        bernoulli_model = BernoulliHomogeneous(spikes=spikes)
         
         wss = [1, 2, 3]
         counts, entropies = bernoulli_model.distinct_patterns_over_windows(wss)
         
         # self.assertTrue(np.abs((entropies[0, 0] / np.array(wss)).mean() - spikes.N) < .1)
+
+        bernoulli_inhom_model = BernoulliInhomogeneous(spikes=spikes)
+        bernoulli_inhom_model.fit()
+        bernoulli_inhom_model.chomp()

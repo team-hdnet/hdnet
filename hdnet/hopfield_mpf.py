@@ -96,7 +96,7 @@ class HopfieldNetMPF(HopfieldNet):
             return dJ / M
 
     def objective_gradient_batched(self, sampler, sample_size, batch_size, randstate,
-            J=None, return_K=False):
+                                   J=None, return_K=False):
         np.random.set_state(randstate)
         nbatch = sample_size / batch_size
         if J is None:
@@ -105,7 +105,7 @@ class HopfieldNetMPF(HopfieldNet):
         Ksum = 0
         dJ = np.zeros((self.N, self.N), dtype=float)
         for batch in xrange(nbatch):
-            #print "batch %i/%i" % (batch+1,nbatch)
+            # print "batch %i/%i" % (batch+1,nbatch)
             X = sampler(batch_size)
             S = 2 * X - 1
             Kfull = np.exp(-S * np.dot(X, J.T) + .5 * np.diag(J)[None, :])
@@ -125,18 +125,20 @@ class HopfieldNetMPF(HopfieldNet):
 
     def objective_gradient_minfunc_batched(self, J, sampler, sample_size, batch_size, randstate):
         K, dJ = self.objective_gradient_batched(J=J.reshape(self.N, self.N), return_K=True,
-            sampler=sampler, sample_size=sample_size, batch_size=batch_size, randstate=randstate)
+                                                sampler=sampler, sample_size=sample_size, batch_size=batch_size,
+                                                randstate=randstate)
         return K, dJ.ravel()
 
     def optcallback(p):
-      print "."
+        print "."
 
     def store_patterns_using_mpf(self, X):
         import scipy.optimize
+
         A, Amin, status = scipy.optimize.fmin_l_bfgs_b(
             self.objective_gradient_minfunc, self.J.ravel(), args=[X])
         # A,Amin,status = scipy.optimize.fmin_l_bfgs_b(
-        #     self.objective_gradient_minfunc, np.zeros(self.N * self.N,), args=[X])
+        # self.objective_gradient_minfunc, np.zeros(self.N * self.N,), args=[X])
 
         J = A.reshape(self.N, self.N)
         self.theta = -.5 * np.diag(J)
@@ -153,9 +155,11 @@ class HopfieldNetMPF(HopfieldNet):
         if batch_size is None:
             batch_size = sample_size
         import scipy.optimize
+
         randstate = np.random.get_state()
         A, Amin, status = scipy.optimize.fmin_l_bfgs_b(self.objective_gradient_minfunc_batched,
-            self.J.ravel(), args=[sampler, sample_size, batch_size, randstate])
+                                                       self.J.ravel(),
+                                                       args=[sampler, sample_size, batch_size, randstate])
         J = A.reshape(self.N, self.N)
         self.theta = -.5 * np.diag(J)
         self.J = J

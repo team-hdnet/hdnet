@@ -16,7 +16,7 @@ import numpy as np
 # os.environ["C_INCLUDE_PATH"] = np.get_include()
 # os.environ["NPY_NO_DEPRECATED_API"] = "!"
 # try:
-#     import pyximport
+# import pyximport
 #     pyximport.install()
 # 
 #     import dynamics
@@ -50,7 +50,7 @@ class HopfieldNet(object):
     """
 
     def __init__(self, N=5, J=None, theta=None, name=None, update="asynchronous", symmetric=True):
-        self.learn_iterations = 0   # how many learning steps have been taken so far
+        self.learn_iterations = 0  # how many learning steps have been taken so far
         self.N = N
         self.symmetric = symmetric
         if J is None:
@@ -64,7 +64,7 @@ class HopfieldNet(object):
         self.name = name or self.__class__.__name__
         self.update = update
         self.neuron_order = xrange(self.N)
-        self.last_num_iter_for_convergence = 0   # hopfield dynamics steps previous __call__ took
+        self.last_num_iter_for_convergence = 0  # hopfield dynamics steps previous __call__ took
 
     # for saving network variables using self.savez() function
     _savevars = ["J", "N", "theta", "neuron_order", "learn_iterations", "update"]
@@ -73,7 +73,7 @@ class HopfieldNet(object):
         self.J = np.zeros((self.N, self.N))
         self.theta = np.zeros(self.N, dtype=float)
         self.last_num_iter_for_convergence = 0
-        self.learn_iterations = 0   # how many learning steps have been taken so far
+        self.learn_iterations = 0  # how many learning steps have been taken so far
 
     def __call__(self, X, converge=True, max_iter=10 ** 5, clamped_nodes={}):
         """ Usage:  my_Hopfield_net(X) returns the Hopfield dynamics update to patterns
@@ -85,7 +85,7 @@ class HopfieldNet(object):
 
             clamped_nodes is dictionary of those nodes not to update during the dynamics
         """
-        ndim = X.ndim   # so that 1D vectors and arrays of vectors both work as X
+        ndim = X.ndim  # so that 1D vectors and arrays of vectors both work as X
         X = np.atleast_2d(X)
 
         out = np.zeros_like(X)
@@ -94,12 +94,13 @@ class HopfieldNet(object):
             while not (X == out).all():
                 if niter >= max_iter:
                     import warnings
+
                     warnings.warn("Exceeded maximum number of iterations (%d)" % max_iter)
                     break
                 niter += 1
                 out = X
                 X = self.hopfield_binary_dynamics(
-                        X, clamped_nodes=clamped_nodes, update=self.update)
+                    X, clamped_nodes=clamped_nodes, update=self.update)
             self.last_num_iter_for_convergence = niter
         else:
             self.last_num_iter_for_convergence = 1
@@ -190,6 +191,7 @@ class HopfieldNet(object):
                 x = self.hopfield_binary_dynamics(x)
                 if count > max_iter:
                     import warnings
+
                     warnings.warn("Exceeded maximum number of iterations (%d)" % max_iter)
                     break
             count_arr.append(count)

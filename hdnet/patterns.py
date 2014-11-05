@@ -26,11 +26,11 @@ class Patterns(Counter):
 
     def __init__(self, learner=None, counter=None, save_fp_sequence=False):
         self.learner = learner or None
-        
+
         super(Patterns, self).__init__(save_fp_sequence=save_fp_sequence)
-        
+
         self.stas = {}
-        
+
         if counter is not None:
             self.merge_counts(counter)
 
@@ -74,10 +74,10 @@ class Patterns(Counter):
         """ stores bin vects (originally x) y and order of occurence """
         bin_y, new_pattern, numrot = super(Patterns, self).chomp_vector(y, add_new=add_new, rotate=rotate)
 
-        if rotate and numrot>0:
-            xrot=x.reshape(rotate)
-            xrot=np.roll(xrot, numrot, axis=1)
-            x=self.key(xrot.reshape(x.shape))
+        if rotate and numrot > 0:
+            xrot = x.reshape(rotate)
+            xrot = np.roll(xrot, numrot, axis=1)
+            x = self.key(xrot.reshape(x.shape))
 
         if not new_pattern:
             self.stas[bin_y] += x
@@ -107,8 +107,8 @@ class Patterns(Counter):
         stop = stop or self.learner.spikes.M
         trials = trials or range(self.learner.spikes.T)
         key = self.fp_list[m]
-        sequence = np.array(self.sequence).reshape(self.learner.spikes.T, 
-            self.learner.spikes.M - self.learner.window_size + 1)[:, start:stop]
+        sequence = np.array(self.sequence).reshape(self.learner.spikes.T,
+                                                   self.learner.spikes.M - self.learner.window_size + 1)[:, start:stop]
 
         hits = (sequence == m).astype(int)
 
@@ -122,9 +122,9 @@ class Patterns(Counter):
         """ save as numpy array .npz file
          TODO: add saving of STAS in Patterns """
         np.savez(filename, count_keys=self.counts.keys(), count_values=self.counts.values(),
-            fp_list=self.fp_list, lookup_fp_keys=self.lookup_fp.keys(),
-            lookup_fp_values=self.lookup_fp.values(), stas_keys=self.stas.keys(),
-            stas_values=self.stas.values(), sequence=self.sequence, skippedpatterns=self.skippedpatterns)
+                 fp_list=self.fp_list, lookup_fp_keys=self.lookup_fp.keys(),
+                 lookup_fp_values=self.lookup_fp.values(), stas_keys=self.stas.keys(),
+                 stas_values=self.stas.values(), sequence=self.sequence, skippedpatterns=self.skippedpatterns)
 
 
     def load(self, filename='counter'):

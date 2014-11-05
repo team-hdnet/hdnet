@@ -13,6 +13,7 @@ import numpy as np
 
 __all__ = ('Counter')
 
+
 class Counter(object):
     """ Catalogues binary vectors and their prevalence
 
@@ -31,7 +32,7 @@ class Counter(object):
         self.save_fp_sequence = save_fp_sequence
         self.skippedpatterns = 0
         self.numpatterns = 0
-        self.seensequence=[]
+        self.seensequence = []
 
     def __add__(self, acc):
         return self.merge_counts(acc)
@@ -65,7 +66,7 @@ class Counter(object):
     def chomp_patterns(self, X, add_new=True, window_size=1, trials=None, rotate=None):
         if rotate and add_new:
             self.skippedpatterns = 0
-        #X = spikes.to_windowed(window_size=window_size, trials=trials, reshape=True)
+        # X = spikes.to_windowed(window_size=window_size, trials=trials, reshape=True)
         self.chomp(X, add_new=add_new, rotate=rotate)
         return self
 
@@ -80,20 +81,20 @@ class Counter(object):
         """ stores bin vects (originally x) y and order of occurence """
         bin_x = self.key(x)
 
-        numrot=0
+        numrot = 0
         if rotate:
-            xrot=x.reshape(rotate)
-            found=self.counts.has_key(bin_x)
-            while not found and numrot<rotate[1]:
-                xrot=np.roll(xrot, 1, axis=1)
-                bin_x=self.key(xrot.reshape(x.shape))
-                found=self.counts.has_key(bin_x)
-                numrot+=1
+            xrot = x.reshape(rotate)
+            found = self.counts.has_key(bin_x)
+            while not found and numrot < rotate[1]:
+                xrot = np.roll(xrot, 1, axis=1)
+                bin_x = self.key(xrot.reshape(x.shape))
+                found = self.counts.has_key(bin_x)
+                numrot += 1
 
             if not found:
                 bin_x = self.key(x)
-            elif numrot>0:
-                self.skippedpatterns+=1
+            elif numrot > 0:
+                self.skippedpatterns += 1
 
         if self.counts.has_key(bin_x):
             self.seensequence.append(1)
@@ -146,8 +147,8 @@ class Counter(object):
         """ save as numpy array .npz file 
          TODO: add saving of STAS in Patterns """
         np.savez(filename, count_keys=self.counts.keys(), count_values=self.counts.values(),
-            fp_list=self.fp_list, lookup_fp_keys=self.lookup_fp.keys(),
-            lookup_fp_values=self.lookup_fp.values(), sequence=self.sequence, skippedpatterns=self.skippedpatterns)
+                 fp_list=self.fp_list, lookup_fp_keys=self.lookup_fp.keys(),
+                 lookup_fp_values=self.lookup_fp.values(), sequence=self.sequence, skippedpatterns=self.skippedpatterns)
 
     def load(self, filename='counter'):
         filename += '.npz'
@@ -157,9 +158,10 @@ class Counter(object):
         self.lookup_fp = dict(zip(arr['lookup_fp_keys'], arr['lookup_fp_values']))
         self.sequence = arr['sequence']
 
-#######################################
-# TODO: incorporate this STA stuff better
-#######################################
+        # ######################################
+
+    # TODO: incorporate this STA stuff better
+    #######################################
 
     def fp_to_binary_matrix(self, m):
         key = self.fp_list[m]
