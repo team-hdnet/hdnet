@@ -3,9 +3,6 @@ TODO
 
 - Null models module
   * Fix Ising model (Swensen-Wang)
-  * Non-stationary Bernoulli
-  * Dichotomized Gaussian
-    http://bethgelab.org/software/mvd/
   * GLM [statsmodels]
     http://statsmodels.sourceforge.net/devel/examples/notebooks/generated/glm.html
   * Random sparse patterns
@@ -28,9 +25,7 @@ TODO
   * Trial-based
 
 - Visualization value
-  * [Felix] Include plotting functionality
-  * Raster plots
-  * Rank plots (patterns)
+  * Rank plots for patterns (patterns)
 
 
 Bugs

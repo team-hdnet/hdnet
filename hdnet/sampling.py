@@ -10,6 +10,7 @@
 """
 
 import numpy as np
+import math
 
 
 def sample_from_prob_vector(p, num_samples=1):
@@ -186,8 +187,7 @@ def find_latent_gaussian(mu, corr, accuracy=1e-10):
                 else:
                     c_max = c_new
 
-            L[i, j] = c_max
-            L[j, i] = c_max
+            L[i, j] = L[j, i] = c_max
 
     return g.reshape(len(mu), 1), L
 
@@ -211,3 +211,229 @@ def sample_from_dichotomized_gaussian(mu, sigma, n, gamma=None, rho=None, accura
         return x, gamma, rho
     else:
         return x
+
+
+
+def poisson_marginals(means, accuracy=1e-10):
+    """    
+    Finds the probability mass functions (pmfs) and approximate supports of a set of
+    Poisson random variables with means specified in input "means". The
+    second argument, "acc", specifies the desired degree of accuracy. The
+    "support" is taken to consist of all values for which the pmfs is greater
+    than acc.
+    
+    Inputs:
+    means: the means of the Poisson RVs
+    acc: desired accuracy
+    
+    Outputs:
+    pmfs: a cell-array of vectors, where the k-th element is the probability
+      mass function of the k-th Poisson random variable. 
+    supports: a cell-array of vectors, where the k-th element is a vector of
+      integers of the states that the k-th Poisson random variable would take
+      with probability larger than "acc". E.g., P(kth
+      RV==supports{k}(1))=pmfs{k}(1);
+    
+    Code from the paper: 'Generating spike-trains with specified
+    correlations', Macke et al., submitted to Neural Computation
+    
+    www.kyb.mpg.de/bethgegroup/code/efficientsampling
+
+    """
+
+    from scipy.stats import poisson
+    import math
+
+    cmfs = []
+    pmfs = []
+    supps = []
+
+    for k in xrange(len(means)):
+        cmfs.append(poisson.cdf(xrange(0, max(math.ceil(5 * means[k]), 20) + 1), means[k]))
+        pmfs.append(poisson.pmf(xrange(0, max(math.ceil(5 * means[k]), 20) + 1), means[k]))
+        supps.append(np.where((cmfs[k] <= 1 - accuracy) & (pmfs[k] >= accuracy)))
+        cmfs[k] = cmfs[k][supps[k]]
+        pmfs[k] = poisson.pmf(supps[k], means[k])
+
+    return pmfs, cmfs, supps
+
+
+def DGSecondMoment(x, gamma1, gamma2, support1, support2):
+    # subfunction DGSecondMoment: Calculate second Moment of the DG
+    # for a given correlation lambda
+    #a very, very inefficient function for calculating the second moments of a
+    #DG with specified gammas and supports and correlation lambda
+    from statsmodels.sandbox.distributions.multivariate import mvnormcdf
+
+    sig = np.array([[1, x], [x, 1]])
+    x, y = np.meshgrid(support2, support1)
+    xy = x * y
+
+    Ps = np.zeros_like(xy)
+
+    for k in xrange(len(support1)):
+        for kk in xrange(len(support2)):
+            Ps[k, kk] = mvnormcdf([gamma1[k], gamma2[kk]], [0, 0], sig)
+
+    Ps2 = Ps.copy()
+    for k in xrange(len(support1)):
+        for kk in xrange(len(support2)):
+            if k > 1 and kk > 1:
+                Ps2[k, kk] = Ps[k, kk] + Ps[k - 1, kk - 1] - Ps[k - 1, kk] - Ps[k, kk - 1]
+            elif kk > 1 and k == 1:
+                Ps2[k, kk] = Ps[k, kk] - Ps[k, kk - 1]
+            elif k > 1 and kk == 1:
+                Ps2[k, kk] = Ps[k, kk] - Ps[k - 1, kk]
+            elif k == 1 and kk == 1:
+                Ps2[k, kk] = Ps[k, kk]
+
+    Ps2 = np.maximum(Ps2, np.zeros_like(Ps2))
+    joint = Ps2.copy()
+    Ps2 = np.dot(Ps2, xy)
+    secmom=np.sum(Ps2)
+    return secmom, joint
+
+
+
+
+def find_dg_any_marginal(pmfs, Sigma, supports, accuracy = 1e-10):
+    
+    """
+    [gammas,Lambda,joints2D] = FindDGAnyMarginal(pmfs,Sigma,supports)
+    Finds the paramters of a Multivariate Discretized Gaussian with specified marginal
+    distributions and covariance matrix
+    
+    Inputs:
+    pmfs: the probability mass functions of the marginal distribution of the
+      input-random variables. Must be a cell-array with n elements, each of
+      which is a vector which sums to one
+    Sigma: The covariance matrix of the input-random variable. The function
+      does not check for admissability, i.e. results might be wrong if there
+      exists no random variable which has the specified marginals and
+      covariance.
+    supports: The support of each dimension of the input random variable.
+      Must be a cell-array with n elements, each of whcih is a vector with
+      increasing entries giving the possible values of each random variable,
+      e.g. if the first dimension of the rv is 1 with probability .2, 3 with
+      prob .8, then pmfs{1}=[.2,.8], supports{1}=[1,3]; If no support is
+      specified, then each is taken to be [0:numel(pdfs{k}-1];
+    
+    Outputs:
+    gammas: the discretization thresholds, as described in the paper. When
+      sampling. The k-th dimension of the output random variable is f if e.g.
+      supports{k}(1)=f and gammas{k}(f) <= U(k) <= gammas{k}(f+1)
+    Lambda: the covariance matrix of the latent Gaussian random variable U
+    joints2D: An n by n cell array, where each entry contains the 2
+      dimensional joint distribution of  a pair of dimensions of the DG.
+    
+    Important:
+    This function currently needs both the statistics toolbox and the optimization
+    toolbox, but could easily be rewritten to get rid of the functions from
+    the toolboxes which are used. In addition, the optimization is currently
+    very inefficient, the function could be sped up considerably.
+    
+    Code from the paper: 'Generating spike-trains with specified
+    correlations', Macke et al., submitted to Neural Computation
+    
+    www.kyb.mpg.de/bethgegroup/code/efficientsampling
+    """
+    from scipy.optimize import brentq
+
+    #keyboard
+    numdims=len(pmfs)
+
+    if supports is None:
+        supports = []
+
+    cmfs = []
+    mu = []
+    gammas = []
+
+    for k in xrange(numdims):
+        # take default supports if only one argument is specified
+        if len(supports) < k:
+            supports.append(xrange(len(pmfs[k]) for k in xrange(len(pmfs))))
+
+        supports[k] = supports[k].ravel()
+        pmfs[k] = pmfs[k].ravel()
+        cmfs.append(np.cumsum(pmfs[:k]))
+
+        mu.append(np.dot(supports[k], pmfs[k]))
+
+        gammas.append(ltqnorm(cmfs[k]))
+        if Sigma[k, k] <= 0 or np.isnan(Sigma[k, k]):
+            Sigma[k, k] = np.dot(supports[k]**2, pmfs[k] - mu[k]**2)
+
+    
+    #numerics for finding the off-diagonal entries. Very inefficient
+    #and use of the optimization toolbox is really an overkill for finding the
+    #zero-crossing of a one-dimensional funcition on a compact interval
+    
+    Lambda = np.zeros(numdims, 1) * np.nan
+    joints2D = {}
+    
+    for i in xrange(numdims):
+        Lambda[i, i] = 1
+        joints2D[i, i] = pmfs[i]
+        for j in xrange(i+1, numdims):
+            #fprintf('Finding Lambda(#d #d)\n',i,j)
+            moment = Sigma[i, j] + mu[i] * mu[j]
+            #take the correlation coefficient between the two dimensions as
+            #starting point
+            x0 = Sigma[i, j] / math.sqrt(Sigma[i, i]) / math.sqrt(Sigma[j, j])
+
+            #minimized squared difference between the specified covariance speccov and the
+            #covariance of the DG
+            #not optimized for speed yet, in fact, it is terrible for speed. For
+            #example, one really easy thing would be to evalulate the cholesky of the
+            #covariance (in the bivariate gaussian cdf) only once, and not multiple
+            #times
+            minidiff = lambda x: \
+                (DGSecondMoment(x if x > -1 and x < 1 else -1 + .0000000001 if x <= -1 else 1 - .0000000001,
+                gammas[i], gammas[j], supports[i], supports[j])[0] - moment) ** 2
+
+            mX = brentq(minidiff, -1, 1, xtol=1e-5)
+
+            Lambda[i, j] = Lambda[j, i] = mX
+            KK, jj = DGSecondMoment(mX, gammas[i], gammas[j], supports[i], supports[j])
+
+            joints2D[i, j] = jj
+            joints2D[j, i] = jj.T
+
+
+
+
+def SampleDGAnyMarginal(gammas, Lambda, Nsamples, supports = None):
+    """
+    [samples,hists]=SampleDGAnyMarginal(gammas,Lambda,supports,Nsamples)
+      Generate samples for a Multivariate Discretized Gaussian with parameters
+      "gammas" and "Lambda" and "supports". The number of samples generated is "Nsamples"
+
+      input and output arguments are as described in "DGAnyMarginal"
+
+    Usage:
+
+    Code from the paper: 'Generating spike-trains with specified
+    correlations', Macke et al., submitted to Neural Computation
+
+    www.kyb.mpg.de/bethgegroup/code/efficientsampling
+    """
+
+    d = Lambda.shape[0]
+
+    if supports is None:
+        supports = []
+        for k in xrange(d):
+            supports.append(xrange(len(gammas[k])))
+
+    cc = np.linalg.cholesky(Lambda)
+
+    B = np.dot(np.random.randn(Nsamples, d), cc)
+
+    for k in xrange(d):
+        hists[k], dd = histc(B[:,k], [-inf; gammas[k]; inf])
+        hists[k] = hists[k] / Nsamples
+        samples[:,k] = supports[k][dd]
+        hists[k] = hists[k][1:max(1, end-2)]
+
+    return samples, hists
