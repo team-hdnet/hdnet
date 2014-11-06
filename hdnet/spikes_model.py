@@ -16,7 +16,7 @@ from spikes import Spikes
 from patterns import Patterns
 from counter import Counter
 from learner import Learner
-from sampling import sample_from_Bernoulli, sample_from_ising
+from sampling import sample_from_bernoulli, sample_from_ising, sample_from_dichotomized_gaussian, find_latent_gaussian
 
 
 class SpikeModel(object):
@@ -38,6 +38,7 @@ class SpikeModel(object):
             self.original_spikes = spikes
 
     def fit(self, trials=None, remove_zeros=True, reshape=False):
+        # TODO: take care of remove_zeros
         self.sample_spikes = self.sample_from_model(trials=trials, reshape=reshape)
         self.learner = Learner(spikes=self.sample_spikes)
         self.learner.learn_from_spikes(remove_zeros=remove_zeros)
@@ -128,7 +129,7 @@ class BernoulliHomogeneous(SpikeModel):
         for c, t in enumerate(trials):
             p = self.original_spikes.spikes_arr[t, :, :].mean(axis=1)
             for i in xrange(0, self.original_spikes.M - self.window_size + 1):
-                X[c, :, i] = sample_from_Bernoulli(p, self.window_size).ravel()
+                X[c, :, i] = sample_from_bernoulli(p, self.window_size).ravel()
 
         if reshape:
             Y = np.zeros((X.shape[0] * X.shape[2], X.shape[1]))
@@ -223,5 +224,46 @@ class Ising(SpikeModel):
                 J = learner.network.J
                 theta = learner.network.theta
             X[c, :, :] = sample_from_ising(J, theta, self.original_spikes.M)
+
+        return Spikes(spikes_arr=X)
+
+
+class DichotomizedGaussian(SpikeModel):
+    def sample_from_model(self, trials=None, reshape=False):
+
+        trials = trials or range(self.original_spikes.T)
+
+        spikes_windowed = self.original_spikes.to_windowed(self.window_size, trials)
+
+        X = np.zeros((len(trials), self.original_spikes.N, self.original_spikes.M))
+
+        # statistics
+        for c, t in enumerate(trials):
+            mu = spikes_windowed.spikes_arr[t, :, :].mean(axis=1)
+            cov = np.cov(spikes_windowed.spikes_arr[t, :, :])
+            gamma, rho = find_latent_gaussian(mu, cov)
+
+            print "mu ", mu.shape
+            print "cov ", cov.shape
+
+            for i in xrange(0, spikes_windowed.M, self.window_size):
+                x = sample_from_dichotomized_gaussian(mu, cov, 1, gamma, rho)
+                X[c, :, i:i+self.window_size] = x.reshape(self.original_spikes.N, self.window_size)
+
+            if spikes_windowed.M % self.window_size != 0:
+                stub = spikes_windowed.M % self.window_size
+                x = sample_from_dichotomized_gaussian(mu, cov, 1, gamma, rho)
+
+                X[c, :, spikes_windowed.M - stub : spikes_windowed.M] = \
+                    x.reshape(self.original_spikes.N, self.window_size)[:, :stub]
+
+        if reshape:
+            Y = np.zeros((X.shape[0] * X.shape[2], X.shape[1]))
+            tot = 0
+            for t in xrange(len(trials)):
+                for c in xrange(X.shape[2]):
+                    Y[tot, :] = X[t, :, c]
+                    tot += 1
+            return Y
 
         return Spikes(spikes_arr=X)

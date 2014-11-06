@@ -14,7 +14,7 @@ import unittest
 import shutil
 import numpy as np
 
-from hdnet.sampling import sample_from_prob_vector, sample_from_Bernoulli, sample_from_ising
+from hdnet.sampling import sample_from_prob_vector, sample_from_bernoulli, sample_from_ising, sample_from_dichotomized_gaussian
 
 
 class TestSampling(unittest.TestCase):
@@ -24,11 +24,11 @@ class TestSampling(unittest.TestCase):
         p = [.1, .4, .5]
         self.assertTrue(sample_from_prob_vector(p) > -1)
         self.assertTrue(sample_from_prob_vector(p, 100).mean() > 1)
-        sample_from_Bernoulli(p, 10)
+        sample_from_bernoulli(p, 10)
 
         p = [.8, .05, .05, .05, .05]
-        sample_from_Bernoulli(p, 10)
-        sample_from_Bernoulli(p)
+        sample_from_bernoulli(p, 10)
+        sample_from_bernoulli(p)
 
         p = [.5, .4, .1]
         self.assertTrue(sample_from_prob_vector(p, 100).mean() < 1)
@@ -50,4 +50,13 @@ class TestSampling(unittest.TestCase):
                             theta, num_samples=10000).mean(axis=1).argsort()).sum() >= 2)
 
         
+    def test_dichotomous(self):
+        np.random.seed(42)
+        mu = np.array([.4, .3])
+        cov = np.array([[.24, .1], [.1, .21]])
 
+        X = sample_from_dichotomized_gaussian(mu, cov, 1000)
+        X.mean(axis=1)
+
+        self.assertTrue(np.sum(X.mean(axis=1) - np.array([ 0.396,  0.307])) < 1-5)
+        self.assertTrue(np.sum(X.var(axis=1) - np.array([ 0.239184,  0.212751])) < 1-5)

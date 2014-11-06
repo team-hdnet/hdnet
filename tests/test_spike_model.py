@@ -16,7 +16,7 @@ import numpy as np
 
 from hdnet.counter import Counter
 from hdnet.spikes import Spikes
-from hdnet.spikes_model import SpikeModel, Shuffled, BernoulliHomogeneous, BernoulliInhomogeneous
+from hdnet.spikes_model import SpikeModel, Shuffled, BernoulliHomogeneous, BernoulliInhomogeneous, DichotomizedGaussian
 
 
 class TestSpikeModel(unittest.TestCase):
@@ -67,3 +67,9 @@ class TestSpikeModel(unittest.TestCase):
         bernoulli_inhom_model = BernoulliInhomogeneous(spikes=spikes)
         bernoulli_inhom_model.fit()
         bernoulli_inhom_model.chomp()
+
+        dichotomized_gaussian = DichotomizedGaussian(spikes=spikes)
+        dichotomized_gaussian.sample_from_model()
+
+        dichotomized_gaussian.sample_from_model(window_size=42)
+
