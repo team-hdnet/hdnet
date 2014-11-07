@@ -17,11 +17,12 @@ import numpy as np
 from hdnet.counter import Counter
 from hdnet.spikes import Spikes
 from hdnet.spikes_model import SpikeModel, Shuffled, BernoulliHomogeneous, BernoulliInhomogeneous, DichotomizedGaussian
+from sampling import poisson_marginals, find_dg_any_marginal, sample_dg_any_marginal
 
 
 class TestSpikeModel(unittest.TestCase):
 
-    def test_basic(self):
+    def NO_test_basic(self):
         # spikes = Spikes(npz_file='test_data/tiny_spikes.npz')
         # spike_model = SpikeModel(spikes=spikes)
         # spike_model.fit()
@@ -71,5 +72,29 @@ class TestSpikeModel(unittest.TestCase):
         dichotomized_gaussian = DichotomizedGaussian(spikes=spikes)
         dichotomized_gaussian.sample_from_model()
 
-        dichotomized_gaussian.sample_from_model(window_size=42)
+        #dichotomized_gaussian.sample_from_model(window_size=42)
 
+    def test_dichotomized_gaussian(self):
+        bin_means = np.array([7, 9])
+        bin_cov = np.array([[7, 3], [3, 9]])
+        num_samples = 10000
+
+        # calculate marginal distribution of Poisson
+        pmfs, cmfs, supports = poisson_marginals(bin_means)
+
+        self.assertEqual(len(pmfs), 2)
+        self.assertTrue(sum(map(sum, pmfs)) - 2. < 1e-4)
+        self.assertEqual(len(pmfs[0]), len(supports[0]))
+        self.assertEqual(len(pmfs[1]), len(supports[1]))
+        self.assertEqual(len(pmfs[0]), len(cmfs[0]))
+        self.assertEqual(len(pmfs[1]), len(cmfs[1]))
+
+        # find paramters of DG
+        gauss_means, gauss_covs, joints = find_dg_any_marginal(pmfs, bin_cov, supports)
+
+        # generate samples
+        np.random.seed(0)
+        samples, hists = sample_dg_any_marginal(gauss_means, gauss_covs, num_samples, supports)
+
+        self.assertTrue(samples[:, 0].mean() - 7, 1e-2)
+        self.assertTrue(samples[:, 1].mean() - 9, 1e-2)

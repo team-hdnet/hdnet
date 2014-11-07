@@ -228,7 +228,6 @@ class Ising(SpikeModel):
 
         return Spikes(spikes_arr=X)
 
-<<<<<<< HEAD
 
 class DichotomizedGaussian(SpikeModel):
     def sample_from_model(self, trials=None, reshape=False):
@@ -302,8 +301,6 @@ class DichotomizedGaussianPoisson(SpikeModel):
 
         www.kyb.mpg.de/bethgegroup/code/efficientsampling
         """
-
-
 
         Nsamples = 1000
         accuracy = 1e-10
