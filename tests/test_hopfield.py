@@ -64,6 +64,8 @@ class TestHopfield(unittest.TestCase):
 
     def test_learning(self):
         # OPR learning (Hopfield original rule)
+        np.random.seed(42)
+
         N = 300
         M = N / (4 * np.log(N))  # theoretical max for OPR [McEliece et al, 87]
         t = now()

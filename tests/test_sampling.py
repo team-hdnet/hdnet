@@ -18,7 +18,8 @@ from hdnet.sampling import sample_from_prob_vector, sample_from_bernoulli, sampl
 class TestSampling(unittest.TestCase):
 
     def test_basic(self):
-        
+        np.random.seed(42)
+
         p = [.1, .4, .5]
         self.assertTrue(sample_from_prob_vector(p) > -1)
         self.assertTrue(sample_from_prob_vector(p, 100).mean() > 1)
@@ -50,6 +51,7 @@ class TestSampling(unittest.TestCase):
         
     def test_dichotomous(self):
         np.random.seed(42)
+
         mu = np.array([.4, .3])
         cov = np.array([[.24, .1], [.1, .21]])
 

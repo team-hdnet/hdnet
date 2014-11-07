@@ -26,6 +26,7 @@ class TestSpikeModel(unittest.TestCase):
         # spike_model = SpikeModel(spikes=spikes)
         # spike_model.fit()
         # spike_model.chomp()
+        np.random.seed(42)
 
         spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/spikes_trials.npz'))
         spike_model = SpikeModel(spikes=spikes)
@@ -82,6 +83,8 @@ class TestSpikeModel(unittest.TestCase):
         bin_means = np.array([7, 9])
         bin_cov = np.array([[7, 3], [3, 9]])
         num_samples = 10000
+
+        np.random.seed(42)
 
         # calculate marginal distribution of Poisson
         pmfs, cmfs, supports = poisson_marginals(bin_means)
