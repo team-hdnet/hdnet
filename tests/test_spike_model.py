@@ -83,7 +83,7 @@ class TestSpikeModel(unittest.TestCase):
     def test_dichotomized_gaussian(self):
         bin_means = np.array([7, 9])
         bin_cov = np.array([[7, 3], [3, 9]])
-        num_samples = 1000
+        num_samples = 10000
 
         # calculate marginal distribution of Poisson
         pmfs, cmfs, supports = poisson_marginals(bin_means)
