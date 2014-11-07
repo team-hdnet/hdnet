@@ -55,8 +55,8 @@ class TestSampling(unittest.TestCase):
         mu = np.array([.4, .3])
         cov = np.array([[.24, .1], [.1, .21]])
 
-        X = sample_from_dichotomized_gaussian(mu, cov, 1000)
+        X = sample_from_dichotomized_gaussian(mu, cov, 1000)[0]
         X.mean(axis=1)
 
-        self.assertTrue(np.sum(X.mean(axis=1) - np.array([ 0.396,  0.307])) < 1-5)
-        self.assertTrue(np.sum(X.var(axis=1) - np.array([ 0.239184,  0.212751])) < 1-5)
+        self.assertTrue(np.sum(X.mean(axis=1) - np.array([ 0.396,  0.307])) < 1e-5)
+        self.assertTrue(np.sum(X.var(axis=1) - np.array([ 0.239184,  0.212751])) < 1e-5)

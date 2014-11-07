@@ -199,24 +199,23 @@ def find_latent_gaussian(bin_means, bin_cov, accuracy=1e-10):
     return gauss_mean.reshape(len(bin_means), 1), gauss_cov
 
 
-def sample_from_dichotomized_gaussian(bin_means, bin_cov, num_samples, gauss_means=None, rhos=None, accuracy=1e-10):
+def sample_from_dichotomized_gaussian(bin_means, bin_cov, num_samples, gauss_means=None, gauss_cov=None, accuracy=1e-10):
     from scipy.linalg import sqrtm
 
     return_inv = False
     if gauss_means is None:
         return_inv = True
-        gauss_means, rhos = find_latent_gaussian(bin_means, bin_cov, accuracy)
+        gauss_means, gauss_cov = find_latent_gaussian(bin_means, bin_cov, accuracy)
 
-    sqrt_rho = np.real(sqrtm(rhos))
-
-    t = np.dot(sqrt_rho, np.random.randn(len(bin_means), num_samples))
-    x = t > np.repeat(-gauss_means, num_samples, axis=1)
-    x.dtype = np.uint8
+    sqrt_cov = np.real(sqrtm(gauss_cov))
+    t = np.dot(sqrt_cov, np.random.randn(len(bin_means), num_samples))
+    samples = t > np.repeat(-gauss_means, num_samples, axis=1)
+    samples.dtype = np.uint8
 
     if return_inv:
-        return x, gauss_means, rhos
+        return samples, gauss_means, gauss_cov
     else:
-        return x
+        return samples
 
 
 def poisson_marginals(means, accuracy=1e-10):
