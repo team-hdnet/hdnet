@@ -16,8 +16,9 @@ import numpy as np
 
 from hdnet.counter import Counter
 from hdnet.spikes import Spikes
-from hdnet.spikes_model import SpikeModel, Shuffled, BernoulliHomogeneous, BernoulliInhomogeneous, DichotomizedGaussian
-from sampling import poisson_marginals, find_dg_any_marginal, sample_dg_any_marginal
+from hdnet.spikes_model import SpikeModel, Shuffled, BernoulliHomogeneous, BernoulliInhomogeneous, DichotomizedGaussian, \
+    DichotomizedGaussianPoisson
+from hdnet.sampling import poisson_marginals, find_dg_any_marginal, sample_dg_any_marginal
 
 
 class TestSpikeModel(unittest.TestCase):
@@ -72,12 +73,17 @@ class TestSpikeModel(unittest.TestCase):
         dichotomized_gaussian = DichotomizedGaussian(spikes=spikes)
         dichotomized_gaussian.sample_from_model()
 
-        #dichotomized_gaussian.sample_from_model(window_size=42)
+        dichotomized_gaussian_poiss = DichotomizedGaussianPoisson(spikes=spikes)
+        spikes = dichotomized_gaussian_poiss.sample_from_model()
+
+        #from hdnet.visualization import raster_plot_psth
+        #import matplotlib.pyplot as plt
+        #raster_plot_psth(spikes.spikes_arr)
 
     def test_dichotomized_gaussian(self):
         bin_means = np.array([7, 9])
         bin_cov = np.array([[7, 3], [3, 9]])
-        num_samples = 10000
+        num_samples = 1000
 
         # calculate marginal distribution of Poisson
         pmfs, cmfs, supports = poisson_marginals(bin_means)

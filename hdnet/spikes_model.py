@@ -231,29 +231,23 @@ class Ising(SpikeModel):
 
 class DichotomizedGaussian(SpikeModel):
     def sample_from_model(self, trials=None, reshape=False):
-
         trials = trials or range(self.original_spikes.T)
-
         spikes_windowed = self.original_spikes.to_windowed(self.window_size, trials)
-
         X = np.zeros((len(trials), self.original_spikes.N, self.original_spikes.M))
 
         # statistics
         for c, t in enumerate(trials):
-            mu = spikes_windowed.spikes_arr[t, :, :].mean(axis=1)
-            cov = np.cov(spikes_windowed.spikes_arr[t, :, :])
-            gamma, rho = find_latent_gaussian(mu, cov)
-
-            print "mu ", mu.shape
-            print "cov ", cov.shape
+            bin_means = spikes_windowed.spikes_arr[t, :, :].mean(axis=1)
+            bin_cov = np.cov(spikes_windowed.spikes_arr[t, :, :])
+            gauss_means, gauss_cov = find_latent_gaussian(bin_means, bin_cov)
 
             for i in xrange(0, spikes_windowed.M, self.window_size):
-                x = sample_from_dichotomized_gaussian(mu, cov, 1, gamma, rho)
+                x = sample_from_dichotomized_gaussian(bin_means, bin_cov, 1, gauss_means, gauss_cov)
                 X[c, :, i:i+self.window_size] = x.reshape(self.original_spikes.N, self.window_size)
 
             if spikes_windowed.M % self.window_size != 0:
                 stub = spikes_windowed.M % self.window_size
-                x = sample_from_dichotomized_gaussian(mu, cov, 1, gamma, rho)
+                x = sample_from_dichotomized_gaussian(bin_means, bin_cov, 1, gauss_means, gauss_cov)
 
                 X[c, :, spikes_windowed.M - stub : spikes_windowed.M] = \
                     x.reshape(self.original_spikes.N, self.window_size)[:, :stub]
@@ -270,50 +264,36 @@ class DichotomizedGaussian(SpikeModel):
         return Spikes(spikes_arr=X)
 
 class DichotomizedGaussianPoisson(SpikeModel):
+
     def sample_from_model(self, trials=None, reshape=False):
-        """
-        [samples,gammas,Lambda,joints2D,cmfs,hists] = DGPoisson(means,Sigma,Nsamples,acc)
-          Generates samples from a Multivariate Discretized Gaussian with Poisson marginals
-          and specified covariance. Also returns parameters of the fitted DG.
+        trials = trials or range(self.original_spikes.T)
+        spikes_windowed = self.original_spikes.to_windowed(self.window_size, trials)
+        X = np.zeros((len(trials), self.original_spikes.N, self.original_spikes.M))
 
-          Inputs:
-            means: the means of the input Poissons. Must be a vector with n elements.
-            Sigma: The covariance matrix of the input-random variable. The function
-              does not check for admissability, i.e. results might be wrong if there
-              exists no random variable which has the specified marginals and
-              covariance.
-            Nsamples: The number of samples to be generated.
-            acc: the desired accuracy. If empty or missing, default ist used
+        # statistics
+        for c, t in enumerate(trials):
+            bin_means = spikes_windowed.spikes_arr[t, :, :].mean(axis=1)
+            bin_cov = np.cov(spikes_windowed.spikes_arr[t, :, :])
 
-          Outputs:
-            samples: a matrix of size Nsamples by n, where each row is a sample from
-              the DG.
-            gammas: the discretization thresholds, as described in the paper. When
-              sampling. The k-th dimension of the output random variable is f if e.g.
-              supports{k}(1)=f and gammas{k}(f) <= U(k) <= gammas{k}(f+1)
-            Lambda: the covariance matrix of the latent Gaussian random variable U
-            joints2D: An n by n cell array, where each entry contains the 2
-              dimensional joint distribution of  a pair of dimensions of the DG.
-            hists: the empirical marginals of the samples returned in "samples"
+            # calculate marginal distribution of Poisson
+            pmfs, cmfs, supports = poisson_marginals(bin_means)
 
-        Code from the paper: 'Generating spike-trains with specified
-        correlations', Macke et al., submitted to Neural Computation
+            # find paramters of DG
+            gauss_means, gauss_cov, joints = find_dg_any_marginal(pmfs, bin_cov, supports)
 
-        www.kyb.mpg.de/bethgegroup/code/efficientsampling
-        """
+            # generate samples
+            samples, hists = sample_dg_any_marginal(gauss_means, gauss_cov, self.original_spikes.M, supports)
 
-        Nsamples = 1000
-        accuracy = 1e-10
-        means = np.array([7, 9])
-        Sigma = np.array([[7, 3], [3, 9]])
+            X[c, :, :] = samples.T
 
-        # calculate marginal distribution of Poisson
-        pmfs, cmfs, supports = poisson_marginals(means, accuracy)
+        if reshape:
+            Y = np.zeros((X.shape[0] * X.shape[2], X.shape[1]))
+            tot = 0
+            for t in xrange(len(trials)):
+                for c in xrange(X.shape[2]):
+                    Y[tot, :] = X[t, :, c]
+                    tot += 1
+            return Y
 
-        # find paramters of DG
-        gammas, Lambda, joints2D = find_dg_any_marginal(pmfs, Sigma, supports)
-
-        # generate samples
-        samples, hists = sample_dg_any_marginal(gammas, Lambda, Nsamples, supports)
-
+        return Spikes(spikes_arr=X)
 

@@ -10,8 +10,6 @@
 """
 
 import numpy as np
-import math
-from statsmodels.sandbox.distributions.multivariate import mvstdnormcdf
 
 
 def sample_from_prob_vector(p, num_samples=1):
@@ -166,6 +164,7 @@ def find_latent_gaussian(bin_means, bin_cov, accuracy=1e-10):
     X = 1 <=> U > -g
     Adopted from www.kyb.mpg.de/bethgegroup/code/efficientsampling
     """
+    from statsmodels.sandbox.distributions.multivariate import mvstdnormcdf
 
     if np.any(bin_means < 0) or np.any(bin_means >= 1):
         raise Exception("Mean for Gaussians has to be between 0 and 1!")
@@ -201,7 +200,6 @@ def find_latent_gaussian(bin_means, bin_cov, accuracy=1e-10):
 
 
 def sample_from_dichotomized_gaussian(bin_means, bin_cov, num_samples, gauss_means=None, rhos=None, accuracy=1e-10):
-
     from scipy.linalg import sqrtm
 
     return_inv = False
@@ -219,7 +217,6 @@ def sample_from_dichotomized_gaussian(bin_means, bin_cov, num_samples, gauss_mea
         return x, gauss_means, rhos
     else:
         return x
-
 
 
 def poisson_marginals(means, accuracy=1e-10):
@@ -302,10 +299,7 @@ def dg_second_moment(u, gauss_mean1, gauss_mean2, support1, support2):
     return secmom, joint
 
 
-
-
 def find_dg_any_marginal(pmfs, bin_cov, supports, accuracy=1e-10):
-    
     """
     [gammas,Lambda,joints2D] = FindDGAnyMarginal(pmfs,Sigma,supports)
     Finds the paramters of a Multivariate Discretized Gaussian with specified marginal
