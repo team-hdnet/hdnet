@@ -9,9 +9,7 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-import os
 import unittest
-import shutil
 import numpy as np
 
 from hdnet.sampling import sample_from_prob_vector, sample_from_bernoulli, sample_from_ising, sample_from_dichotomized_gaussian
