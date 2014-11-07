@@ -109,6 +109,7 @@ def ltqnorm(p):
     """
     import math
 
+
     if p <= 0 or p >= 1:
         # The original perl code exits here, we'll throw an exception instead
         raise ValueError("Argument to ltqnorm %f must be in open interval (0,1)" % p)
@@ -147,6 +148,19 @@ def ltqnorm(p):
     r = q * q
     return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / \
            (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1)
+
+def ltqnorm_nd(arr):
+    if not isinstance(arr,np.ndarray):
+        arr = np.array(arr)
+
+    if len(arr) == 0:
+        return arr
+
+    shape = arr.shape
+    X = np.array([ltqnorm(x) for x in np.nditer(arr)])
+    return X.reshape(shape)
+
+
 
 def find_latent_gaussian(mu, corr, accuracy=1e-10):
     """
@@ -249,16 +263,16 @@ def poisson_marginals(means, accuracy=1e-10):
     supps = []
 
     for k in xrange(len(means)):
-        cmfs.append(poisson.cdf(xrange(0, max(math.ceil(5 * means[k]), 20) + 1), means[k]))
-        pmfs.append(poisson.pmf(xrange(0, max(math.ceil(5 * means[k]), 20) + 1), means[k]))
+        cmfs.append(poisson.cdf(xrange(0, int(max(math.ceil(5 * means[k]), 20) + 1)), means[k]))
+        pmfs.append(poisson.pmf(xrange(0, int(max(math.ceil(5 * means[k]), 20) + 1)), means[k]))
         supps.append(np.where((cmfs[k] <= 1 - accuracy) & (pmfs[k] >= accuracy)))
         cmfs[k] = cmfs[k][supps[k]]
         pmfs[k] = poisson.pmf(supps[k], means[k])
 
-    return pmfs, cmfs, supps
+    return np.array(pmfs), np.array(cmfs), np.array(supps)
 
 
-def DGSecondMoment(x, gamma1, gamma2, support1, support2):
+def dg_second_moment(x, gamma1, gamma2, support1, support2):
     # subfunction DGSecondMoment: Calculate second Moment of the DG
     # for a given correlation lambda
     #a very, very inefficient function for calculating the second moments of a
@@ -340,7 +354,7 @@ def find_dg_any_marginal(pmfs, Sigma, supports, accuracy = 1e-10):
     from scipy.optimize import brentq
 
     #keyboard
-    numdims=len(pmfs)
+    numdims = len(pmfs)
 
     if supports is None:
         supports = []
@@ -360,9 +374,9 @@ def find_dg_any_marginal(pmfs, Sigma, supports, accuracy = 1e-10):
 
         mu.append(np.dot(supports[k], pmfs[k]))
 
-        gammas.append(ltqnorm(cmfs[k]))
+        gammas.append(ltqnorm_nd(cmfs[k]))
         if Sigma[k, k] <= 0 or np.isnan(Sigma[k, k]):
-            Sigma[k, k] = np.dot(supports[k]**2, pmfs[k] - mu[k]**2)
+            Sigma[k, k] = np.dot(supports[k] ** 2, pmfs[k] - mu[k] ** 2)
 
     
     #numerics for finding the off-diagonal entries. Very inefficient
@@ -389,13 +403,13 @@ def find_dg_any_marginal(pmfs, Sigma, supports, accuracy = 1e-10):
             #covariance (in the bivariate gaussian cdf) only once, and not multiple
             #times
             minidiff = lambda x: \
-                (DGSecondMoment(x if x > -1 and x < 1 else -1 + .0000000001 if x <= -1 else 1 - .0000000001,
+                (dg_second_moment(x if x > -1 and x < 1 else -1 + .0000000001 if x <= -1 else 1 - .0000000001,
                 gammas[i], gammas[j], supports[i], supports[j])[0] - moment) ** 2
 
             mX = brentq(minidiff, -1, 1, xtol=1e-5)
 
             Lambda[i, j] = Lambda[j, i] = mX
-            KK, jj = DGSecondMoment(mX, gammas[i], gammas[j], supports[i], supports[j])
+            KK, jj = dg_second_moment(mX, gammas[i], gammas[j], supports[i], supports[j])
 
             joints2D[i, j] = jj
             joints2D[j, i] = jj.T
@@ -403,7 +417,7 @@ def find_dg_any_marginal(pmfs, Sigma, supports, accuracy = 1e-10):
 
 
 
-def SampleDGAnyMarginal(gammas, Lambda, Nsamples, supports = None):
+def sample_dg_any_marginal(gammas, Lambda, Nsamples, supports = None):
     """
     [samples,hists]=SampleDGAnyMarginal(gammas,Lambda,supports,Nsamples)
       Generate samples for a Multivariate Discretized Gaussian with parameters
@@ -427,13 +441,16 @@ def SampleDGAnyMarginal(gammas, Lambda, Nsamples, supports = None):
             supports.append(xrange(len(gammas[k])))
 
     cc = np.linalg.cholesky(Lambda)
-
     B = np.dot(np.random.randn(Nsamples, d), cc)
 
+    hists = []
+    samples = np.zeros(Nsamples, d)
     for k in xrange(d):
-        hists[k], dd = histc(B[:,k], [-inf; gammas[k]; inf])
-        hists[k] = hists[k] / Nsamples
-        samples[:,k] = supports[k][dd]
-        hists[k] = hists[k][1:max(1, end-2)]
+        bins = np.hstack((-np.inf, gammas[k], np.inf))
+        h = np.array(map(len, np.histogram(B[:, k], bins=bins)))
+        hists.append(h / Nsamples)
+        dd = np.searchsorted(B[:, k], bins, 'right')
+        samples[:, k] = supports[k][dd]
+        hists[k] = hists[k][0:max(0, len(hists[k]) - 1)]
 
     return samples, hists

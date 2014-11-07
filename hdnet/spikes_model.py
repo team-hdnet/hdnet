@@ -17,7 +17,7 @@ from patterns import Patterns
 from counter import Counter
 from learner import Learner
 from sampling import sample_from_bernoulli, sample_from_ising, sample_from_dichotomized_gaussian, find_latent_gaussian, \
-    poisson_marginals
+    poisson_marginals, find_dg_any_marginal, sample_dg_any_marginal
 
 
 class SpikeModel(object):
@@ -303,14 +303,15 @@ class DichotomizedGaussianPoisson(SpikeModel):
         www.kyb.mpg.de/bethgegroup/code/efficientsampling
         """
 
-        means = []
-        Sigma = []
-        Nsamples = 1
+
+
+        Nsamples = 1000
         accuracy = 1e-10
+        means = np.array([7, 9])
+        Sigma = np.array([[7, 3], [3, 9]])
 
         # calculate marginal distribution of Poisson
         pmfs, cmfs, supports = poisson_marginals(means, accuracy)
-
 
         # find paramters of DG
         gammas, Lambda, joints2D = find_dg_any_marginal(pmfs, Sigma, supports)
