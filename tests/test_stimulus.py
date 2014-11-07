@@ -11,7 +11,6 @@
 
 import os
 import unittest
-import shutil
 
 from hdnet.stimulus import Stimulus
 

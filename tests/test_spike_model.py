@@ -11,10 +11,8 @@
 
 import os
 import unittest
-import shutil
 import numpy as np
 
-from hdnet.counter import Counter
 from hdnet.spikes import Spikes
 from hdnet.spikes_model import SpikeModel, Shuffled, BernoulliHomogeneous, BernoulliInhomogeneous, DichotomizedGaussian, \
     DichotomizedGaussianPoisson

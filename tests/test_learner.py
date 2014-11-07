@@ -10,7 +10,6 @@
 """
 
 import os
-import shutil
 
 from hdnet.spikes import Spikes
 from hdnet.learner import Learner
