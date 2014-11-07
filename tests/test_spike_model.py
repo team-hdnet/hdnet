@@ -22,7 +22,7 @@ from sampling import poisson_marginals, find_dg_any_marginal, sample_dg_any_marg
 
 class TestSpikeModel(unittest.TestCase):
 
-    def NO_test_basic(self):
+    def test_basic(self):
         # spikes = Spikes(npz_file='test_data/tiny_spikes.npz')
         # spike_model = SpikeModel(spikes=spikes)
         # spike_model.fit()
