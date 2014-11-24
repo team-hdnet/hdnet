@@ -173,7 +173,8 @@ def pattern_rank_plot(
         color_empirical='g',
         color_pattern='r',
         mark_empirical=None,
-        mark_converged=None):
+        mark_converged=None,
+        plot_mtas=True):
     
     hop_vals = np.array(patterns.counts.values())
     hop_idx = hop_vals.argsort()
@@ -216,7 +217,7 @@ def pattern_rank_plot(
         hop_mats = patterns.top_binary_matrices(len(patterns))
         emp_mats = empirical.top_binary_matrices(len(empirical))
 
-        fig2, axs2 = plt.subplots(3, len(mark_converged))
+        fig2, axs2 = plt.subplots(2 + (1 if plot_mtas else 0), len(mark_converged))
         nullfmt = mpl.ticker.NullFormatter()
 
         for i in xrange(len(mark_converged)):
@@ -248,18 +249,19 @@ def pattern_rank_plot(
 
             axs2[1, i].imshow(hop_mats[-mark_converged[i]], interpolation='nearest', cmap='gray_r')
 
-            #sta
-            if HAS_PRETTYPLOTLIB:
-                ppl.utils.remove_chartjunk(axs2[2, i], [], show_ticks=False)
-            axs2[2, i].xaxis.set_major_formatter(nullfmt)
-            axs2[2, i].yaxis.set_major_formatter(nullfmt)
-            if i == 0:
-                axs2[2, i].set_ylabel('MTA')
-                axs2[2, i].set_xlabel('Rank %d' % mark_converged[i])
-            else:
-                axs2[2, i].set_xlabel('%d' % mark_converged[i])
+            if plot_mtas:
+                #sta
+                if HAS_PRETTYPLOTLIB:
+                    ppl.utils.remove_chartjunk(axs2[2, i], [], show_ticks=False)
+                axs2[2, i].xaxis.set_major_formatter(nullfmt)
+                axs2[2, i].yaxis.set_major_formatter(nullfmt)
+                if i == 0:
+                    axs2[2, i].set_ylabel('MTA')
+                    axs2[2, i].set_xlabel('Rank %d' % mark_converged[i])
+                else:
+                    axs2[2, i].set_xlabel('%d' % mark_converged[i])
 
-            axs2[2, i].imshow(hop_stas[-mark_converged[i]], interpolation='nearest', cmap='gray_r')
+                axs2[2, i].imshow(hop_stas[-mark_converged[i]], interpolation='nearest', cmap='gray_r')
 
         fig2.tight_layout(pad=0.1)
         fig2.subplots_adjust(hspace=.25)
