@@ -31,7 +31,7 @@ try:
 
     set2 = brewer2mpl.get_map('Set2', 'qualitative', 8).mpl_colors
     mpl.rc({'axes.color_cycle': set2, 'lines.linewidth': .75})
-    matplotlib.rcParams.update({'font.size': 22})
+    mpl.rcParams.update({'font.size': 22})
 except ImportError, e:
     pass
 
