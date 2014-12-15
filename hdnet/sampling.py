@@ -37,7 +37,6 @@ def sample_from_bernoulli(p, M=1):
     """ returns N x M numpy array with M Bernoulli(p) N-bit samples """
     N = len(p)
     p = np.array(p)
-    p /= p.sum()
     v_cp = np.array([p, ] * M).transpose()
     rand_vect = np.random.random((N, M))
     outcome = v_cp > rand_vect

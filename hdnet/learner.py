@@ -46,7 +46,7 @@ class Learner(object):
 
     _savevars = ["spikes_file", "window_size"]
 
-    def learn_from_binary(self, X, remove_zeros=True):
+    def learn_from_binary(self, X, remove_zeros=False):
         """ trains on M x N matrix X of M N-length binary vects """
         self.network = hopfield_mpf.HopfieldNetMPF(len(X[0]))
         if remove_zeros:

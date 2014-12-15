@@ -30,15 +30,12 @@ class SpikeModel(object):
     """
 
     def __init__(self, spikes=None, stimulus=None, window_size=1, learner=None):
-        self.spikes = spikes
         self.stimulus = stimulus
         self.window_size = window_size
         self.learner = learner or None
+        self.original_spikes = spikes
 
-        if spikes is not None:
-            self.original_spikes = spikes
-
-    def fit(self, trials=None, remove_zeros=True, reshape=False):
+    def fit(self, trials=None, remove_zeros=False, reshape=False):
         # TODO: take care of remove_zeros
         self.sample_spikes = self.sample_from_model(trials=trials, reshape=reshape)
         self.learner = Learner(spikes=self.sample_spikes)
@@ -52,7 +49,7 @@ class SpikeModel(object):
             self.sample_spikes.N, len(self.emperical), self.emperical.entropy())
 
         # print "Chomping dynamics (from network learned on the samples) applied to samples"
-        self.memories = Patterns(learner=self.learner)
+        self.memories = Patterns(learner=self.learner, save_fp_sequence=True)
         self.memories.chomp_spikes(spikes=self.sample_spikes)
         print "%d-bit (hopnet): %d memories (H = %1.3f)" % (
             self.sample_spikes.N, len(self.memories), self.memories.entropy())
@@ -68,7 +65,7 @@ class SpikeModel(object):
         # # distortion
         # self.sample_spikes
 
-    def distinct_patterns_over_windows(self, window_sizes=[1], trials=None, save_couplings=False, remove_zeros=True):
+    def distinct_patterns_over_windows(self, window_sizes=[1], trials=None, save_couplings=False, remove_zeros=False):
         """ Returns tuple: counts, entropies [, couplings]
                 counts, entropies: arrays of size 2 x T x WSizes 
             (0: emperical from model sample, 1: dynamics from learned model on sample)"""
@@ -118,7 +115,7 @@ class BernoulliHomogeneous(SpikeModel):
 
     def sample_from_model(self, trials=None, reshape=False):
         """ returns Spikes object of 3d numpy arr of windowed iid Bernouli spike trains:
-            (with probabilities = spike rates of each neuron in self)
+            (with probabilities = spike rates of each neuron in self at trial t)
                 X:   T (num trials) x (window_size * N) x  (M - window_size + 1)
                                         binary vector out of a spike time series
             reshape: returns T(M - window_size + 1) x (ws * N) numpy binary vector
@@ -127,10 +124,10 @@ class BernoulliHomogeneous(SpikeModel):
         X = np.zeros(
             (len(trials), self.window_size * self.original_spikes.N, self.original_spikes.M - self.window_size + 1))
 
+        sample_spikes = self.original_spikes.to_windowed(trials=trials, window_size=self.window_size)
         for c, t in enumerate(trials):
-            p = self.original_spikes.spikes_arr[t, :, :].mean(axis=1)
-            for i in xrange(0, self.original_spikes.M - self.window_size + 1):
-                X[c, :, i] = sample_from_bernoulli(p, self.window_size).ravel()
+            p = sample_spikes.spikes_arr[c, :, :].mean(axis=1)
+            X[c, :, :] = sample_from_bernoulli(p, self.original_spikes.M - self.window_size + 1)
 
         if reshape:
             Y = np.zeros((X.shape[0] * X.shape[2], X.shape[1]))
