@@ -13,15 +13,25 @@ __version__ = "0.1"
 
 import numpy as np
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.ticker import NullFormatter
-
 
 HAS_PRETTYPLOTLIB = False
 try:
     import prettyplotlib as ppl
 
     HAS_PRETTYPLOTLIB = True
+except ImportError, e:
+    pass
+
+HAS_BREWER2MPL = False
+try:
+    import brewer2mpl
+
+    set2 = brewer2mpl.get_map('Set2', 'qualitative', 8).mpl_colors
+    mpl.rc({'axes.color_cycle': set2, 'lines.linewidth': .75})
+    mpl.rcParams.update({'font.size': 22})
 except ImportError, e:
     pass
 
@@ -155,6 +165,110 @@ def raster_plot_psth(spikes_arr,
         ax_hist_y = None
 
     return fig, ax_scatter, ax_hist_x, ax_hist_x, ax_hist_y
+
+
+def pattern_rank_plot(
+        empirical,
+        patterns,
+        color_empirical='g',
+        color_pattern='r',
+        mark_empirical=None,
+        mark_converged=None,
+        plot_mtas=True):
+    
+    hop_vals = np.array(patterns.counts.values())
+    hop_idx = hop_vals.argsort()
+    hop_sort = hop_vals[hop_idx]
+
+    emp_vals = np.array(empirical.counts.values())
+    emp_idx = emp_vals.argsort()
+    emp_sort = emp_vals[emp_idx]
+
+    # converged patterns vs empirical patterns
+    fig1 = plt.figure()
+    ax1 = plt.gca()
+    ax1.set_xscale('log')
+    ax1.set_yscale('log')
+    ax1.set_xlabel('Pattern rank')
+    ax1.set_ylabel('# of occurrences')
+
+    if HAS_PRETTYPLOTLIB:
+        plot = ppl
+    else:
+        plot = plt
+
+    plot.plot(xrange(1, len(emp_sort) + 1), emp_sort[::-1], color=color_empirical, lw=3)
+    plot.plot(xrange(1, len(hop_sort) + 1), hop_sort[::-1], color=color_pattern, lw=3)
+
+    if mark_empirical:
+        mark_empirical = np.array(mark_empirical)+1
+        plot.scatter(mark_empirical, [emp_sort[::-1][idx - 1] for idx in mark_empirical], marker='x', s=100, edgecolor=color_empirical,
+                     facecolor=color_empirical, linewidth=3, alpha=1.0)
+    if mark_converged:
+        mark_converged = np.array(mark_converged)+1
+        plot.scatter(mark_converged, [hop_sort[::-1][idx - 1] for idx in mark_converged], marker='x',
+                     s=100, edgecolor=color_pattern, facecolor=color_pattern, linewidth=3, alpha=1.0)
+
+    plt.tight_layout(pad=0.1)
+
+    if mark_converged:
+        # examples of patterns
+        hop_stas = patterns.top_sta_matrices(len(patterns))
+        hop_mats = patterns.top_binary_matrices(len(patterns))
+        emp_mats = empirical.top_binary_matrices(len(empirical))
+
+        fig2, axs2 = plt.subplots(2 + (1 if plot_mtas else 0), len(mark_converged))
+        nullfmt = mpl.ticker.NullFormatter()
+
+        for i in xrange(len(mark_converged)):
+            #empirical
+            axs2[0, i].xaxis.set_major_formatter(nullfmt)
+            axs2[0, i].yaxis.set_major_formatter(nullfmt)
+            if HAS_PRETTYPLOTLIB:
+                ppl.utils.remove_chartjunk(axs2[0, i], [], show_ticks=False)
+            if i == 0:
+                axs2[0, i].set_ylabel('Original pattern')
+                axs2[0, i].yaxis.label.set_color(set2[0])
+                axs2[0, i].set_xlabel('Rank %d' % mark_empirical[i])
+            else:
+                axs2[0, i].set_xlabel('%d' % mark_empirical[i])
+
+            axs2[0, i].imshow(emp_mats[-mark_empirical[i]], interpolation='nearest', cmap='gray_r')
+
+            #converged
+            if HAS_PRETTYPLOTLIB:
+                ppl.utils.remove_chartjunk(axs2[1, i], [], show_ticks=False)
+            axs2[1, i].xaxis.set_major_formatter(nullfmt)
+            axs2[1, i].yaxis.set_major_formatter(nullfmt)
+            if i == 0:
+                axs2[1, i].set_ylabel('Memory pattern')
+                axs2[1, i].yaxis.label.set_color(set2[1])
+                axs2[1, i].set_xlabel('Rank %d' % mark_converged[i])
+            else:
+                axs2[1, i].set_xlabel('%d' % mark_converged[i])
+
+            axs2[1, i].imshow(hop_mats[-mark_converged[i]], interpolation='nearest', cmap='gray_r')
+
+            if plot_mtas:
+                #sta
+                if HAS_PRETTYPLOTLIB:
+                    ppl.utils.remove_chartjunk(axs2[2, i], [], show_ticks=False)
+                axs2[2, i].xaxis.set_major_formatter(nullfmt)
+                axs2[2, i].yaxis.set_major_formatter(nullfmt)
+                if i == 0:
+                    axs2[2, i].set_ylabel('MTA')
+                    axs2[2, i].set_xlabel('Rank %d' % mark_converged[i])
+                else:
+                    axs2[2, i].set_xlabel('%d' % mark_converged[i])
+
+                axs2[2, i].imshow(hop_stas[-mark_converged[i]], interpolation='nearest', cmap='gray_r')
+
+        fig2.tight_layout(pad=0.1)
+        fig2.subplots_adjust(hspace=.25)
+
+        return fig1, ax1, fig2, axs2
+
+    return fig1, ax1
 
 
 class Visualization(object):
