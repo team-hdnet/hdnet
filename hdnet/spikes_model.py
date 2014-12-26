@@ -43,7 +43,7 @@ class SpikeModel(object):
 
     def chomp(self):
         # print "Chomping samples from model"
-        self.emperical = Counter()
+        self.emperical = Counter(save_fp_sequence=True)
         self.emperical.chomp_spikes(spikes=self.sample_spikes)
         print "%d-bit (emperical): %d patterns (H = %1.3f)" % (
             self.sample_spikes.N, len(self.emperical), self.emperical.entropy())
@@ -57,11 +57,11 @@ class SpikeModel(object):
         # print "Before dynamics:"
         # print self.sample_spikes.spikes_arr
         # print "Applied dynamics:"
-        hop_model_spikes = self.memories.apply_dynamics(spikes=self.sample_spikes, reshape=True)
-        ma_err = np.abs(self.sample_spikes.spikes_arr - hop_model_spikes).mean()
+        self.hopfield_spikes_arr = self.memories.apply_dynamics(spikes=self.sample_spikes, reshape=True)
+#        ma_err = np.abs(self.sample_spikes.spikes_arr - hop_model_spikes).mean()
         #        print hop_model_spikes
-        print "Mean prediction: %1.4f/1.0 (vs guess zero: %1.4f)" % (
-            (1 - ma_err), 1 - np.abs(self.sample_spikes.spikes_arr).mean())
+#        print "Mean prediction: %1.4f/1.0 (vs guess zero: %1.4f)" % (
+#            (1 - ma_err), 1 - np.abs(self.sample_spikes.spikes_arr).mean())
         # # distortion
         # self.sample_spikes
 

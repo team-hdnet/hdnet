@@ -86,7 +86,6 @@ class Patterns(Counter):
 
         return x, bin_y, new_pattern, numrot
 
-
     def apply_dynamics(self, spikes, add_new=True, window_size=1, trials=None, reshape=True):
         X = spikes.to_windowed(window_size=window_size, trials=trials, reshape=True)
         Y = self.chomp_dynamics(X)

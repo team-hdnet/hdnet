@@ -171,3 +171,25 @@ class Spikes(object):
             im_png.save(save_png_name + '.png')
         else:
             return sub_spikes_arr.copy().reshape((len(trials) * self.N, stop - start))
+
+    def covariance(self, trials=None, start=0, stop=None, save_png_name=None):
+        """ return *new* numpy array of size (T x N x N) which is covariance matrix betwn neurons
+            trials: e.g. [0, 1, 5, 6], None is all
+            save_png_name: if not None then only saves (PIL needs to be installed)
+        """
+        stop = stop or self.M
+        trials = trials or range(self.T)
+        sub_spikes_arr = self.spikes_arr[trials, :, start:stop]
+
+        new_arr = np.zeros((len(trials), self.N, self.N))
+        for t, trial in enumerate(trials):
+            new_arr[t] = np.cov(sub_spikes_arr[trial])
+
+        if save_png_name is not None:
+            from PIL import Image
+            new_arr = new_arr.reshape(len(trials) * self.N, self.N)
+            new_arr /= new_arr.max()
+            im_png = Image.fromarray(255. * new_arr).convert('L')
+            im_png.save(save_png_name + '.png')
+        else:
+            return new_arr

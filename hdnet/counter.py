@@ -165,11 +165,11 @@ class Counter(object):
 
     def fp_to_binary_matrix(self, m):
         key = self.fp_list[m]
-        return self.reverse_key(key).reshape(self.learner.spikes.N, self.learner.window_size)
+        return self.reverse_key(key)
 
     def fp_to_sta_matrix(self, m):
         key = self.fp_list[m]
-        return self.stas[key].reshape(self.learner.spikes.N, self.learner.window_size) / self.counts[key]
+        return self.stas[key] / self.counts[key]
 
     def top_binary_matrices(self, m):
         """ finds top m likely memories """
