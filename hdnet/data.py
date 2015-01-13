@@ -41,14 +41,15 @@ class KlustaKwickReader(Reader):
 
     @staticmethod
     def read_spikes(path_or_files, rate, discard_first_cluster=True):
-        hdlog.info('loading klustakwick data from %s' % os.path.abspath(path))
 
         if isinstance(path_or_files, (str, unicode)):
             # glob all res files
+            hdlog.info('loading klustakwick data from %s' % os.path.abspath(path_or_files))
             import glob
             res_files = glob.glob(os.path.join(path_or_files, '*.res.*'))
         else:
             res_files = path_or_files
+            hdlog.info('loading klustakwick data from files %s' % str(path_or_files))
 
         hdlog.info('processing %d electrode files' % len(res_files))
 
@@ -108,16 +109,27 @@ class Binner(object):
         object.__init__(self)
 
     @staticmethod
-    def bin_spike_times(spike_times, bin_size):
-        t_min = np.inf
-        t_max = -np.inf
-        for cluster_times in spike_times:
-            cluster_times_nonempty = [x for x in cluster_times if len(x) > 0]
-            t_min = min([t_min] + map(min, cluster_times_nonempty))
-            t_max = max([t_max] + map(max, cluster_times_nonempty))
+    def bin_spike_times(spike_times, bin_size, t_min=None, t_max=None):
+        if t_min is None or t_max is None:
+            t_min_dat = np.inf
+            t_max_dat = -np.inf
+            for cluster_times in spike_times:
+                cluster_times_nonempty = [x for x in cluster_times if len(x) > 0]
+                t_min_dat = min([t_min_dat] + map(min, cluster_times_nonempty))
+                t_max_dat = max([t_max_dat] + map(max, cluster_times_nonempty))
+
+            if t_min is None:
+                t_min = t_min_dat
+
+            if t_max is None:
+                t_max = t_max_dat
 
         bins = np.arange(t_min, t_max, bin_size)
         binned = np.zeros((sum(map(len, spike_times)), len(bins)), dtype=int)
+
+        hdlog.info('binning {c} cells between t_min={m} and t_max={M}, {bins} bins'.format(
+            c=binned.shape[0], m=t_min, M=t_max, bins=len(bins)
+        ))
 
         pos = 0
         for i in xrange(len(spike_times)):
