@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 from hdnet.spikes import Spikes
 from hdnet.spikes_model import SpikeModel, BernoulliHomogeneous, DichotomizedGaussian
 
-
 # Let's first make up some simuilated spikes: 2 trials
 spikes_arr = (np.random.random((2, 10, 200)) < .05).astype(int)
 spikes_arr[0, [1, 5], ::5] = 1  # insert correlations

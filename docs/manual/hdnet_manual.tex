@@ -3,7 +3,7 @@
 \usepackage[margin=0.5in]{geometry}
 
 %equation spacing
-% \usepackage{xpatch}
+\usepackage{xpatch}
 \xapptocmd\normalsize{%
  \abovedisplayskip=0pt plus 0pt minus 0pt
  \abovedisplayshortskip=0pt plus 0pt
@@ -60,7 +60,47 @@
 \newcommand{\argmin}{\operatornamewithlimits{argmin}}
 \newcommand{\doublebar}{\bigl|\!\bigr|}
 
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
 
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+\usepackage{listings}
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+otherkeywords={self},             % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+%frame= tb,                         % Any extra options here
+showstringspaces=false            % 
+}}
+
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[2][]{{
+\pythonstyle
+\lstinputlisting[#1]{#2}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
 
 
 \newcommand{\commentfe}[1]{{\color{red}FE: #1}}
@@ -80,91 +120,101 @@
 
 
 
-\textbf{Introduction}.  Here, we explore the basic functionality of the HDNET library in Python
+\textbf{Introduction}.  Here, we describe the basic functionality of the HDNET library in Python
 \begin{center}
 \texttt{https://github.com/qualiaphile/hdnet.git} \\
 \end{center}
 
-First we will make some fake spikes with correlated activity.  Let's initialize our script: \\
+For demonstration purposes we will work with a synthetic data set in the following. Spiking activity of 10 hypothetical cells are assumed to be given as iid. Poisson processes. Upon binning with a given bin width, this yields Bernoulli processes in discrete time. We create such Bernoulli data and then insert hypothetical correlations by means of a number of co-activations of different cell groups (also known as cell assemblies).
 
-\texttt{import numpy as np}
+We first import the necessary modules into our Python session (we recommend using ipython in pylab mode, i.e. running \texttt{ipython --pylab} to paste and run text copied to the clipboard from this tutorial using the magic command \texttt{\%paste}).
 
-\texttt{import matplotlib.pyplot as plt}
+\begin{python}
+import numpy as np
+import matplotlib.pyplot as plt
+from hdnet.spikes import Spikes
+from hdnet.spikes_,model import SpikeModel, BernoulliHomogeneous, \ 	
+	DichotomizedGaussian
+\end{python}
 
-\texttt{from hdnet.spikes import Spikes}
+We create two trials of $200$ time bins of spikes from $10$ neurons.
 
-\texttt{from hdnet.spikes\_\,model import SpikeModel, BernoulliHomogeneous, DichotomizedGaussian}  \\
+\begin{python}
+spikes_arr = (np.random.random((2, 10, 200)) < .05).astype(int)
+spikes_arr[0, [1, 5], ::5] = 1 # insert correlations
+spikes_arr[1, [2, 3, 6], ::11] = 1  # insert correlations
+spikes = Spikes(spikes_arr=spikes_arr)
+\end{python}
 
-We make two trials of 200 time points of spikes from $10$ neurons.   \\
+We can now plot a raster of the trials and covariances:
 
-\texttt{spikes\_\,arr = (np.random.random((2, 10, 200)) < .05).astype(int)}
+\begin{python}
+plt.figure()
+plt.title('Raw spikes')}
+plt.matshow(spikes.rasterize(), cmap='gray')} 
 
-\texttt{spikes\_\,arr[0, [1, 5], ::5] = 1 \# insert correlations}
+plt.figure()
+plt.title('Raw spikes covariance')
+plt.matshow(spikes.covariance().reshape((2 * 10, 10)), cmap='gray')}
 
-\texttt{spikes\_\,arr[1, [2, 3, 6], ::11] = 1  \# insert correlations}
+plt.show()
+\end{python}
 
-\texttt{spikes = Spikes(spikes\_\,arr=spikes\_\,arr)} \\
+Next, we would like to model this noisy binary data.   First, we try to model each trial with a separate i.i.d. Bernoulli random binary vector having the same neuron means as in each trial:
 
-We can easily plot a raster of the trials and covariances: \\
+\begin{python}
+spike_model = BernoulliHomogeneous(spikes=spikes)
+BH_sample_spikes = spike_model.sample_from_model()
 
-\texttt{plt.matshow(spikes.rasterize(), cmap='gray')} 
+plt.figure()
+plt.title('BernoulliHomogeneous sample')
+plt.matshow(BH_sample_spikes.rasterize(), cmap='gray')
 
-\texttt{plt.title('Raw spikes')}
+plt.figure()
+plt.title('BernoulliHomogeneous covariance')
+plt.matshow(BH_sample_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
 
-\texttt{plt.matshow(spikes.covariance().reshape((2 * 10, 10)), cmap='gray')}
-
-\texttt{plt.title('Raw spikes covariance')}  \\
-
-Next, we would like to model this noisy binary data.   First, we try to model each trial with a separate i.i.d. Bernoulli random binary vector having the same neuron means as in each trial:  \\
-
-\texttt{spike\_\,model = BernoulliHomogeneous(spikes=spikes)}
-
-\texttt{BH\_\,sample\_\,spikes = spike\_\,model.sample\_\,from\_\,model()}
-
-\texttt{plt.matshow(BH\_\,sample\_\,spikes.rasterize(), cmap='gray')}
-
-\texttt{plt.title('BernoulliHomogeneous sample')}
-
-\texttt{plt.matshow(BH\_\,sample\_\,spikes.covariance().reshape((2 * 10, 10)), cmap='gray')}
-
-\texttt{plt.title('BernoulliHomogeneous covariance')} \\
+plt.show()
+\end{python}
 
 As we can see in Fig.~\ref{fake_ex_fig}, the samples from Bernoulli have the correct firing rates in each trial, but not the coordinated aspect (as can be seen in the covariance matrices for each trial, which are basically diagonal matrices).   A better model that keeps track of the correlations is the Dichotomized Gaussian \cite{bethge2008}: \\
 
-\texttt{spike\_\,model = DichotomizedGaussian(spikes=spikes)}
+\begin{python}
+spike_model = DichotomizedGaussian(spikes=spikes)
 
-\texttt{DG\_\,sample\_\,spikes = spike\_\,model.sample\_\,from\_\,model()}
+DG_sample_spikes = spike_model.sample_from_model()
 
-\texttt{plt.matshow(DG\_\,sample\_\,spikes.rasterize(), cmap='gray')}
+plt.figure()
+plt.title('DichotomizedGaussian sample')
+plt.matshow(DG_sample_spikes.rasterize(), cmap='gray')
 
-\texttt{plt.title('DichotomizedGaussian sample')}
+plt.figure()
+plt.matshow(DG_sample_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
+plt.title('DichotomizedGaussian covariance')
 
-\texttt{plt.matshow(DG\_\,sample\_\,spikes.covariance().reshape((2 * 10, 10)), cmap='gray')}
+plt.show()
+\end{python}
 
-\texttt{plt.title('DichotomizedGaussian covariance')} \\
+Finally, we try and model the data with a Hopfield network trained using MPF over all the trials:
 
+\begin{python}
+spike_model = SpikeModel(spikes=spikes)
+spike_model.fit()  # note: this fits a single network to all trials
+spike_model.chomp()
 
-Finally, we try and model the data with a Hopfield network trained using MPF over all the trials:  \\
+converged_spikes = Spikes(spikes_arr=spike_model.hopfield_spikes_arr)
 
-\texttt{spike\_\,model = SpikeModel(spikes=spikes)}
+plt.figure()
+plt.title('Converge dynamics on Raw data')
+plt.matshow(converged_spikes.rasterize(), cmap='gray')
 
-\texttt{spike\_\,model.fit()  \# note: this fits a single network to all trials}
+plt.figure()
+plt.title('Covariance of converged memories')
+plt.matshow(converged_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
 
-\texttt{spike\_\,model.chomp()}
-
-\texttt{converged\_\,spikes = Spikes(spikes\_\,arr=spike\_\,model.hopfield\_\,spikes\_\,arr)}
-
-\texttt{plt.matshow(converged\_\,spikes.rasterize(), cmap='gray')}
-
-\texttt{plt.title('Converge dynamics on Raw data')}
-
-\texttt{plt.matshow(converged\_\,spikes.covariance().reshape((2 * 10, 10)), cmap='gray')}
-
-\texttt{plt.title('Covariance of converged memories')} 	\\
-
+plt.show()
+\end{python}
  
-
-
 \begin{figure}
 \begin{center}
 \textbf{a)}\includegraphics[width=.41\linewidth]{demo_fake_spikes.png} 
@@ -175,37 +225,27 @@ Finally, we try and model the data with a Hopfield network trained using MPF ove
 \end{center}
 \end{figure}
 
+\textbf{More advanced features}.  One thing we would like to do is examine the structure of the memories:
 
+\begin{python}
+# plot memory label (its chronological appearance) as a function of time
+plt.figure()
+plt.scatter(range(len(spike_model.memories.sequence)),
+		1 + np.array(spike_model.memories.sequence))
+plt.xlabel('time bin')
+plt.ylabel('Memory number (chronological order of appearance)')
+plt.title('Converged memory label at each time bin')
 
-\textbf{More advanced features}.  One thing we would like to do is examine the structure of the memories: \\
+# versus the raw data
+plt.figure()
+plt.scatter(range(len(spike_model.emperical.sequence)),
+		1 + np.array(spike_model.emperical.sequence))
+plt.ylabel('Raw pattern number (chronological order of appearance)')
+plt.xlabel('time bin')
+plt.title('Raw pattern label at each time bin')
 
-\texttt{\# plot memory label (its chronological appearance) as a function of time}
-
-\texttt{plt.figure()}
-
-\texttt{plt.scatter(range(len(spike\_\,model.memories.sequence)),}
-
-\texttt{\quad \quad \quad 1 + np.array(spike\_\,model.memories.sequence))}
-
-\texttt{plt.xlabel('time bin')}
-
-\texttt{plt.ylabel('Memory number (chronological order of appearance)')}
-
-\texttt{plt.title('Converged memory label at each time bin')}
-
-\texttt{\# versus the Raw data}
-
-\texttt{plt.figure()}
-
-\texttt{plt.scatter(range(len(spike\_\,model.emperical.sequence)),}
-
-\texttt{\quad \quad \quad 1 + np.array(spike\_\,model.emperical.sequence))}
-
-\texttt{plt.ylabel('Raw pattern number (chronological order of appearance)')}
-
-\texttt{plt.xlabel('time bin')}
-
-\texttt{plt.title('Raw pattern label at each time bin')}  \\
+plt.show()
+\end{python}
  
 Notice in Fig.~\ref{fake_ex_fig2} that the converged dynamics of the trained Hopfield networks on the original data does reveal the 
 hidden assemblies for the most part.
@@ -223,31 +263,24 @@ hidden assemblies for the most part.
 
 Now that we know there are basically two assemblies, one showing up lots in the first trial and the other in the second.  Let's look at the
 memories and their corresponding MTA's (\textit{memory triggered averages}).  The code below generates Fig.~\ref{fake_ex_fig2}\textbf{b}, which displays
-a matrix whose first 3 columns are the memories in the network and whose next 3 columns are the average of Raw data patterns converging to the corresponding memory in the first 3 columns.  \\
- 
-\texttt{\# memories are ordered by their first appearance}
- 
-\texttt{bin\_\,memories = spike\_\,model.memories.fp\_\,list} 
+a matrix whose first 3 columns are the memories in the network and whose next 3 columns are the average of Raw data patterns converging to the corresponding memory in the first 3 columns.
 
-\texttt{arr = np.zeros((spike\_\,model.original\_\,spikes.N, 2 * len(bin\_\,memories)))}
+\begin{python}
+# memories are ordered by their first appearance
+bin_memories = spike_model.memories.fp_list
+arr = np.zeros((spike_model.original_spikes.N, 2 * len(bin_memories)))
+for c, memory in enumerate(bin_memories):
+	arr[:, c] = spike_model.memories.fp_to_binary_matrix(c)
 
-\texttt{for c, memory in enumerate(bin\_\,memories):}
+for c, memory in enumerate(bin_memories):
+	arr[:, c + len(bin_memories)] = spike_model.memories.stas[memory] /
+			spike_model.memories.counts[memory]
 
-\texttt{\quad \quad arr[:, c] = spike\_\,model.memories.fp\_\,to\_\,binary\_\,matrix(c)}
-
-\texttt{for c, memory in enumerate(bin\_\,memories):}
- 
-\texttt{\quad \quad arr[:, c + len(bin\_\,memories)] = spike\_\,model.memories.stas[memory] /}
-
-\texttt{\quad \quad \quad  spike\_\,model.memories.counts[memory]}
-
-\texttt{print "Probabilities of each memory:"}
-
-\texttt{print zip(bin\_\,memories, spike\_\,model.memories.to\_\,prob\_\,vect())} \\
+print "Probabilities of each memory:"
+print zip(bin_memories, spike_model.memories.to_prob_vect())
+\end{python}
 
 \textbf{Saving}.  One can save Learners and Memories.
-
-
 
 \scriptsize
 \setlength{\bibsep}{0pt plus 0.3ex}

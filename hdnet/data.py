@@ -110,19 +110,19 @@ class Binner(object):
 
     @staticmethod
     def bin_spike_times(spike_times, bin_size, t_min=None, t_max=None):
-        if t_min is None or t_max is None:
-            t_min_dat = np.inf
-            t_max_dat = -np.inf
-            for cluster_times in spike_times:
-                cluster_times_nonempty = [x for x in cluster_times if len(x) > 0]
+        t_min_dat = np.inf
+        t_max_dat = -np.inf
+        for cluster_times in spike_times:
+            cluster_times_nonempty = [x for x in cluster_times if len(x) > 0]
+            if len(cluster_times_nonempty) > 0:
                 t_min_dat = min([t_min_dat] + map(min, cluster_times_nonempty))
                 t_max_dat = max([t_max_dat] + map(max, cluster_times_nonempty))
 
-            if t_min is None:
-                t_min = t_min_dat
+        if t_min is None or t_min < t_min_dat:
+            t_min = t_min_dat
 
-            if t_max is None:
-                t_max = t_max_dat
+        if t_max is None or t_max > t_max_dat:
+            t_max = t_max_dat
 
         bins = np.arange(t_min, t_max, bin_size)
         binned = np.zeros((sum(map(len, spike_times)), len(bins)), dtype=int)
@@ -134,8 +134,9 @@ class Binner(object):
         pos = 0
         for i in xrange(len(spike_times)):
             for cluster_times in spike_times[i]:
-                if len(cluster_times) > 0:
-                    indices = np.digitize(cluster_times, bins) - 1
+                cluster_times_filtered = cluster_times[(cluster_times >= t_min) & (cluster_times <= t_max)]
+                if len(cluster_times_filtered) > 0:
+                    indices = np.digitize(cluster_times_filtered, bins) - 1
                     binned[pos, indices] = 1
                 pos += 1
 
