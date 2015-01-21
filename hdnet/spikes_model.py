@@ -177,7 +177,6 @@ class BernoulliInhomogeneous(SpikeModel):
         return Spikes(spikes_arr=X)
 
 
-
 class Shuffled(SpikeModel):
     """ shuffle spikes """
 
@@ -193,7 +192,6 @@ class Shuffled(SpikeModel):
             new_arr[i] = arr[:, idx]
         return Spikes(new_arr).to_windowed(
             window_size=self.window_size, trials=trials)
-
 
 
 class Ising(SpikeModel):
@@ -259,6 +257,7 @@ class DichotomizedGaussian(SpikeModel):
             return Y
 
         return Spikes(spikes_arr=X)
+
 
 class DichotomizedGaussianPoisson(SpikeModel):
 

@@ -40,7 +40,7 @@ class KlustaKwickReader(Reader):
         Reader.__init__(self)
 
     @staticmethod
-    def read_spikes(path_or_files, rate, discard_first_cluster=True):
+    def read_spikes(path_or_files, rate, first_cluster=2, filter_silent=True):
 
         if isinstance(path_or_files, (str, unicode)):
             # glob all res files
@@ -54,10 +54,11 @@ class KlustaKwickReader(Reader):
         hdlog.info('processing %d electrode files' % len(res_files))
 
         spike_times = []
-        all_clusters = set([])
+        num_clusters = 0
         num_spikes = 0
         t_min = np.inf
         t_max = -np.inf
+        cells_filtered = 0
         electrodes = []
 
         for fn_res in res_files:
@@ -81,25 +82,35 @@ class KlustaKwickReader(Reader):
 
             hdlog.debug('%d clusters, %d spikes' % (n_clusters, cluster_seq.shape[0]))
 
-            spike_times_electrode = np.array([times[np.where(cluster_seq == i)] for i in xrange(n_clusters) if
-                                            not discard_first_cluster or (discard_first_cluster and i > 1)])
-            spike_times.append(spike_times_electrode)
+            spike_times_electrode = [times[np.where(cluster_seq == c)[0]]
+                                     for c in xrange(first_cluster, n_clusters)]
 
-            all_clusters.update(cluster_seq)
+            if filter_silent:
+                c_orig = len(spike_times_electrode)
+                spike_times_electrode = [x for x in spike_times_electrode if len(x) > 0]
+                c_filtered = c_orig - len(spike_times_electrode)
+                cells_filtered += c_filtered
+
+            spike_times.extend(spike_times_electrode)
+
+            num_clusters += n_clusters - first_cluster
             num_spikes += sum(map(len, spike_times_electrode))
             t_min = min(t_min, min(times))
             t_max = max(t_max, max(times))
 
         status = {
-            'clusters': list(all_clusters),
+            'clusters': num_clusters,
+            'discarded_clusters': first_cluster * len(res_files),
+            'filtered': cells_filtered,
             't_min': t_min,
             't_max': t_max,
             'num_spikes': num_spikes,
             'electrodes': electrodes
         }
 
-        hdlog.info('processed %d clusters, %d spikes total, t_min=%f s, t_max=%f s, delta=%f s' %
-                   (len(all_clusters) - (2 if discard_first_cluster else 0), num_spikes, t_min, t_max, t_max - t_min))
+        hdlog.info('processed %d clusters (%d discarded), %d cells (%d silent discarded), %d spikes total, t_min=%f s, t_max=%f s, delta=%f s' %
+                   (num_clusters, first_cluster * len(res_files), num_clusters - cells_filtered, cells_filtered,
+                    num_spikes, t_min, t_max, t_max - t_min))
 
         return spike_times, status
 
@@ -112,11 +123,11 @@ class Binner(object):
     def bin_spike_times(spike_times, bin_size, t_min=None, t_max=None):
         t_min_dat = np.inf
         t_max_dat = -np.inf
-        for cluster_times in spike_times:
-            cluster_times_nonempty = [x for x in cluster_times if len(x) > 0]
-            if len(cluster_times_nonempty) > 0:
-                t_min_dat = min([t_min_dat] + map(min, cluster_times_nonempty))
-                t_max_dat = max([t_max_dat] + map(max, cluster_times_nonempty))
+
+        spike_times_nonempty = [x for x in spike_times if len(x) > 0]
+        if len(spike_times_nonempty) > 0:
+            t_min_dat = min([t_min_dat] + map(min, spike_times_nonempty))
+            t_max_dat = max([t_max_dat] + map(max, spike_times_nonempty))
 
         if t_min is None or t_min < t_min_dat:
             t_min = t_min_dat
@@ -124,20 +135,22 @@ class Binner(object):
         if t_max is None or t_max > t_max_dat:
             t_max = t_max_dat
 
-        bins = np.arange(t_min, t_max, bin_size)
-        binned = np.zeros((sum(map(len, spike_times)), len(bins)), dtype=int)
+        if t_min == np.inf or t_max == -np.inf:
+            hdlog.info('no spikes!')
+            return np.zeros((len(spike_times), 1))
+
+        bins = np.arange(t_min, t_max + bin_size, bin_size)
+        binned = np.zeros((len(spike_times), len(bins)), dtype=int)
 
         hdlog.info('binning {c} cells between t_min={m} and t_max={M}, {bins} bins'.format(
             c=binned.shape[0], m=t_min, M=t_max, bins=len(bins)
         ))
 
         pos = 0
-        for i in xrange(len(spike_times)):
-            for cluster_times in spike_times[i]:
-                cluster_times_filtered = cluster_times[(cluster_times >= t_min) & (cluster_times <= t_max)]
-                if len(cluster_times_filtered) > 0:
-                    indices = np.digitize(cluster_times_filtered, bins) - 1
-                    binned[pos, indices] = 1
+        for st in spike_times:
+            if len(st) > 0:
+                indices = np.digitize(st, bins) - 1
+                binned[pos, indices] = 1
                 pos += 1
 
         return binned
