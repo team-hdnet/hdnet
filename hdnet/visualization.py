@@ -271,6 +271,125 @@ def pattern_rank_plot(
     return fig1, ax1
 
 
+def plot_memories_distribution_matrix(patterns, trials, t_min=None, t_max=None, p_min=None, p_max=None, v_min=None, v_max=None, cmap='Paired'):
+    trial_len = len(patterns.sequence) / trials
+
+    if p_min is None:
+        p_min = 0
+
+    if p_max is None:
+        p_max = len(patterns.fp_list) - 1
+
+    if t_min is None:
+        t_min = 0
+
+    if t_max is None:
+        t_max = trial_len - 1
+
+    n_fp = p_max - p_min + 1
+    sequence = patterns.sequence.reshape((trials, trial_len))[:, t_min:t_max + 1]
+
+    length = sequence.shape[1]
+    dists = np.zeros((n_fp, length), dtype=float)
+
+    for i in xrange(length):
+        for fp in sequence[:, i]:
+            if fp >= p_min and fp <= p_max:
+                dists[fp, i] += 1
+
+    dists /= float(trials)
+
+    if not v_min is None:
+        dists[dists < v_min] = 0
+
+    if not v_max is None:
+        dists[dists > v_max] = 0
+
+    mtas = np.array([patterns.fp_to_sta_matrix(i) for i in xrange(p_min, p_max + 1)])
+    rawpat = np.array([patterns.fp_to_binary_matrix(i) for i in xrange(p_min, p_max + 1)])
+
+    mls = []
+    mlsraw = []
+    avgs = []
+    rawavgs = []
+    for cidx, column in enumerate(dists.T):
+        avg = np.dot(column, mtas)
+        avgs.append(avg)
+
+        rawavg = np.dot(column, rawpat)
+        rawavgs.append(rawavg)
+
+        ml = np.argmax(column)
+        mls.append(mtas[ml])
+        mlsraw.append(rawpat[ml])
+
+    fig1 = plt.figure()
+    plt.xlabel('window position')
+    plt.ylabel('memory')
+    plt.matshow(np.atleast_2d(dists), cmap=cmap)
+    plt.colorbar()
+
+    return fig1, dists, mtas, avgs, rawavgs, mls, mlsraw
+
+
+def plot_all_matrices(matrices, file_names, cmap='gray', colorbar=True, vmin=None, vmax=None):
+    # plot all matrices to files specified
+    kwargs = {
+        'cmap': cmap
+    }
+    if vmin is not None:
+        kwargs['vmin'] = vmin
+    if vmax is not None:
+        kwargs['vmax'] = vmax
+    for m, fn in zip(matrices, file_names):
+        plt.figure()
+        plt.matshow(m, **kwargs)
+        if colorbar:
+            plt.colorbar()
+        plt.savefig(fn)
+        plt.close()
+
+def combine_windows(windows):
+    # combine list of windows, averaging overlapping regions
+    windows = np.atleast_3d(windows)
+    n = windows.shape[1]
+    ws = windows.shape[2]
+    combined = np.zeros((n, windows.shape[0] + ws + 1), dtype=float)
+    for i, w in enumerate(windows):
+        combined[:, i:i + ws] += w.reshape(n, ws)
+    return combined / float(ws)
+
+
+def plot_graph(g, nodeval=None, cmap1='Blues_r', cmap2='bone_r', 
+               node_vmin=None, node_vmax=None, edge_vmin=None, edge_vmax=None):
+    import networkx as nx
+    fig = plt.figure()
+    pos = nx.spring_layout(g)
+    kwargs = {}
+    if node_vmin is not None:
+        kwargs['node_vmin'] = node_vmin
+    if node_vmax is not None:
+        kwargs['node_vmax'] = node_vmax
+    nx.draw_networkx_nodes(g, pos, nodelist=g.nodes(),
+                           node_color='0.8' if nodeval is None else nodeval,
+                           node_size=500, alpha=1, with_labels=True,
+                           cmap=plt.get_cmap(cmap1), **kwargs)
+
+    kwargs = {}
+    if edge_vmin is not None:
+        kwargs['edge_vmin'] = edge_vmin
+    if edge_vmax is not None:
+        kwargs['edge_vmax'] = edge_vmax
+    labels = {i: str(i) for i in g.nodes()}
+    nx.draw_networkx_edges(g, pos, edgelist=g.edges(), edge_color='0.4', arrows=True)
+    nx.draw_networkx_edges(g, pos, edgelist=g.edges(),
+                           edge_color=[g.get_edge_data(*e)['weight'] for e in g.edges()],
+                           edge_cmap=plt.get_cmap(cmap2), arrows=False, **kwargs)
+    nx.draw_networkx_labels(g, pos, labels, font_size=10, font_color='k')
+    plt.axis('off')
+    return fig
+
+
 class Visualization(object):
     def __init__(self):
         object.__init__(self)
