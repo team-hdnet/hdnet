@@ -11,10 +11,9 @@
 
 __version__ = "0.1"
 
-__all__ = ('Spikes')
-
 import os
 import numpy as np
+from hdnet.visualization import save_matrix_whole_canvas
 
 
 class Spikes(object):
@@ -133,16 +132,16 @@ class Spikes(object):
 
     def load_from_spikes_times(self, spike_times_lists, bin_size=1):
         """ loads a spike train from a list of arrays of spike times
-            bin_size: in milisec
+            bin_size: in millisec
                 - the jth item in the list corresponds to the jth neuron
                   it is the 1d array of spike times (micro sec) for that neuron
         """
         if len(spike_times_lists) == 0: return
-        self.max_milisec = - np.inf
+        self.max_millisec = - np.inf
         for spike_times in spike_times_lists:
             milisec = 1. * (spike_times[-1]) / (10 ** 3)
-            self.max_milisec = max(self.max_milisec, milisec)
-        self.spikes_arr = np.zeros((len(spike_times_lists), np.int(self.max_milisec) / bin_size + 1))
+            self.max_millisec = max(self.max_millisec, milisec)
+        self.spikes_arr = np.zeros((len(spike_times_lists), np.int(self.max_millisec) / bin_size + 1))
         for c, spike_times in enumerate(spike_times_lists):
             for spike_time in spike_times:
                 a = int(spike_time / (1000. * bin_size))
@@ -156,26 +155,27 @@ class Spikes(object):
     def rasterize(self, trials=None, start=0, stop=None, save_png_name=None):
         """ return *new* (copied) numpy array of size (TN x M)
             trials: e.g. [1, 5, 6], None is all
-            save_png_name: if not None then only saves (PIL needs to be installed)
+            save_png_name: if not None then only saves
         """
         stop = stop or self.M
         trials = trials or range(self.T)
         sub_spikes_arr = self.spikes_arr[trials, :, start:stop]
 
         if save_png_name is not None:
-            from PIL import Image
-
-            new_arr = np.round(sub_spikes_arr * 255.).reshape((len(trials) * self.N, stop - start))
-            new_arr = np.insert(new_arr, range(self.N, len(trials) * self.N, self.N), 127., axis=0)
-            im_png = Image.fromarray(new_arr).convert('L')
-            im_png.save(save_png_name + '.png')
+            save_matrix_whole_canvas(sub_spikes_arr.reshape((len(trials) * self.N, stop - start)),
+                                     save_png_name + '.png', cmap='gray')
+            #from PIL import Image
+            #new_arr = np.round(sub_spikes_arr * 255.).reshape((len(trials) * self.N, stop - start))
+            #new_arr = np.insert(new_arr, range(self.N, len(trials) * self.N, self.N), 127., axis=0)
+            #im_png = Image.fromarray(new_arr).convert('L')
+            #im_png.save(save_png_name + '.png')
         else:
             return sub_spikes_arr.copy().reshape((len(trials) * self.N, stop - start))
 
     def covariance(self, trials=None, start=0, stop=None, save_png_name=None):
         """ return *new* numpy array of size (T x N x N) which is covariance matrix betwn neurons
             trials: e.g. [0, 1, 5, 6], None is all
-            save_png_name: if not None then only saves (PIL needs to be installed)
+            save_png_name: if not None then only saves
         """
         stop = stop or self.M
         trials = trials or range(self.T)
@@ -184,12 +184,16 @@ class Spikes(object):
         new_arr = np.zeros((len(trials), self.N, self.N))
         for t, trial in enumerate(trials):
             new_arr[t] = np.cov(sub_spikes_arr[trial])
+        new_arr /= new_arr.max()
 
         if save_png_name is not None:
-            from PIL import Image
             new_arr = new_arr.reshape(len(trials) * self.N, self.N)
-            new_arr /= new_arr.max()
-            im_png = Image.fromarray(255. * new_arr).convert('L')
-            im_png.save(save_png_name + '.png')
+            save_matrix_whole_canvas(new_arr, save_png_name + '.png', cmap='gray')
+
+            #from PIL import Image
+            #im_png = Image.fromarray(255. * new_arr).convert('L')
+            #im_png.save(save_png_name + '.png')
         else:
             return new_arr
+
+# end of source

@@ -134,3 +134,5 @@ class Patterns(Counter):
         self.lookup_fp = dict(zip(arr['lookup_fp_keys'], arr['lookup_fp_values']))
         self.sequence = arr['sequence']
         self.stas = dict(zip(arr['stas_keys'], arr['stas_values']))
+
+# end of source

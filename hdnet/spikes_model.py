@@ -293,3 +293,5 @@ class DichotomizedGaussianPoisson(SpikeModel):
 
         return Spikes(spikes_arr=X)
 
+
+# end of source

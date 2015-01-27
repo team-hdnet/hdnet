@@ -211,3 +211,6 @@ class HopfieldNet(object):
     def energy(self, x):
         """ energy Ex = -.5 x^T[J-diag(J)]x + theta*x """
         return -.5 * np.dot(x, np.dot(self.J - np.diag(self.J.diagonal()), x)) + np.dot(self.theta, x)
+
+
+# end of source

@@ -105,3 +105,6 @@ class Learner(object):
             setattr(self, v, d[v])
 
         self.params = dict(np.load(folder_name + '/params.npz'))
+
+
+# end of source

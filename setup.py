@@ -23,7 +23,9 @@ setup(
     license='GPLv3',
     packages=['hdnet'],
     install_requires=[
-        "numpy",
-        "bitstring"
+        'numpy',
+        'matplotlib',
+        'bitstring',
+        'networkx'
     ],
     zip_safe=False)

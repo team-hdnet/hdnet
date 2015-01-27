@@ -11,8 +11,6 @@
 
 import numpy as np
 
-__all__ = ('Counter')
-
 
 class Counter(object):
     """ Catalogues binary vectors and their prevalence
@@ -158,16 +156,15 @@ class Counter(object):
         self.lookup_fp = dict(zip(arr['lookup_fp_keys'], arr['lookup_fp_values']))
         self.sequence = arr['sequence']
 
-        # ######################################
-
-    # TODO: incorporate this STA stuff better
+    #######################################
+    # TODO: incorporate this MTA stuff better
     #######################################
 
     def fp_to_binary_matrix(self, m):
         key = self.fp_list[m]
         return self.reverse_key(key)
 
-    def fp_to_sta_matrix(self, m):
+    def fp_to_mta_matrix(self, m):
         key = self.fp_list[m]
         return self.stas[key] / self.counts[key]
 
@@ -184,7 +181,7 @@ class Counter(object):
         top_stas = []
         idx = np.array(self.counts.values()).argsort()[-m:]
         for i in idx:
-            top_stas.append(self.fp_to_sta_matrix(self.lookup_fp[self.counts.keys()[i]]))
+            top_stas.append(self.fp_to_mta_matrix(self.lookup_fp[self.counts.keys()[i]]))
         return top_stas
 
     def mem_triggered_stim_avgs(self, stimulus):
@@ -203,3 +200,4 @@ class Counter(object):
             #     stop
         return stim_avgs
 
+# end of source

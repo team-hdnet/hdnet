@@ -168,3 +168,5 @@ class HopfieldNetMPF(HopfieldNet):
         self.learn_iterations = status["learn_iterations"]
         return status
 
+
+# end of source

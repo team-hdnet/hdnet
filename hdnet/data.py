@@ -11,9 +11,6 @@
 
 __version__ = "0.1"
 
-__all__ = ()
-
-
 import numpy as np
 import os
 from util import hdlog
@@ -156,3 +153,4 @@ class Binner(object):
         return binned
 
 
+# end of source

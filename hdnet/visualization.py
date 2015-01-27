@@ -36,6 +36,19 @@ except ImportError, e:
     pass
 
 
+def plot_matrix_whole_canvas(matrix, **kwargs):
+    plt.axis("off")
+    ax = plt.axes([0, 0, 1, 1])
+    ax.matshow(matrix, **kwargs)
+    return ax
+
+
+def save_matrix_whole_canvas(matrix, fname, **kwargs):
+    plt.figure()
+    plot_matrix_whole_canvas(matrix, **kwargs)
+    plt.savefig(fname)
+    plt.close
+
 def raster_plot_psth(spikes_arr,
                      trial=0,
                      start_idx=0,
@@ -305,7 +318,7 @@ def plot_memories_distribution_matrix(patterns, trials, t_min=None, t_max=None, 
     if not v_max is None:
         dists[dists > v_max] = 0
 
-    mtas = np.array([patterns.fp_to_sta_matrix(i) for i in xrange(p_min, p_max + 1)])
+    mtas = np.array([patterns.fp_to_mta_matrix(i) for i in xrange(p_min, p_max + 1)])
     rawpat = np.array([patterns.fp_to_binary_matrix(i) for i in xrange(p_min, p_max + 1)])
 
     mls = []
@@ -349,15 +362,26 @@ def plot_all_matrices(matrices, file_names, cmap='gray', colorbar=True, vmin=Non
         plt.savefig(fn)
         plt.close()
 
+
 def combine_windows(windows):
     # combine list of windows, averaging overlapping regions
     windows = np.atleast_3d(windows)
     n = windows.shape[1]
     ws = windows.shape[2]
-    combined = np.zeros((n, windows.shape[0] + ws + 1), dtype=float)
+    l = windows.shape[0] + ws - 1
+    combined = np.zeros((n, l), dtype=float)
     for i, w in enumerate(windows):
-        combined[:, i:i + ws] += w.reshape(n, ws)
-    return combined / float(ws)
+        combined[:, i:i + ws] += w
+    # phase in
+    avg = min(ws, windows.shape[0])
+    for i in xrange(avg):
+        combined[:, i] /= float(i + 1)
+    # middle
+    combined[:, avg:l + 1 - avg] /= float(windows.shape[0])
+    # phase out
+    for i in xrange(l + 1 - avg, l):
+        combined[:, i] /= float(l - i)
+    return combined
 
 
 def plot_graph(g, nodeval=None, cmap1='Blues_r', cmap2='bone_r', 
@@ -390,6 +414,4 @@ def plot_graph(g, nodeval=None, cmap1='Blues_r', cmap2='bone_r',
     return fig
 
 
-class Visualization(object):
-    def __init__(self):
-        object.__init__(self)
+# end of source

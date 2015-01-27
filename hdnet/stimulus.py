@@ -12,6 +12,7 @@
 import os
 
 import numpy as np
+from hdnet.visualization import save_matrix_whole_canvas
 
 
 class Stimulus(object):
@@ -64,11 +65,14 @@ class Stimulus(object):
         sub_stim_arr = self.stimulus_arr[start:stop].mean(axis=0)
 
         if save_png_name is not None:
-            from PIL import Image
-
+            #from PIL import Image
             sub_stim_arr -= 1. * sub_stim_arr.min()
             sub_stim_arr /= sub_stim_arr.max()
-            im_png = Image.fromarray(np.round(255 * sub_stim_arr)).convert('L')
-            im_png.save(save_png_name + '.png')
+            #im_png = Image.fromarray(np.round(255 * sub_stim_arr)).convert('L')
+            #im_png.save(save_png_name + '.png')
+            save_matrix_whole_canvas(sub_stim_arr, save_png_name + '.png', cmap='gray')
         else:
             return sub_stim_arr
+
+
+# end of source

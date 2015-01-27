@@ -442,3 +442,5 @@ def sample_dg_any_marginal(gauss_means, gauss_cov, num_samples, supports=None):
         hists[i] = hists[i][0:max(0, len(hists[i]) - 1)]
 
     return samples, np.array(hists)
+
+# end of source

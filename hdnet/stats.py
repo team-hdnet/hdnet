@@ -11,14 +11,7 @@
 
 __version__ = "0.1"
 
-__all__ = ()
-
 import numpy as np
-
-
-class Stats(object):
-    def __init__(self):
-        object.__init__(self)
 
 
 def compute_label_probabilities(sequence):
@@ -271,3 +264,5 @@ def calculate_paths_entropy_scores(g, n1, n2, node_entropies, min_len=5, max_len
 
     return np.array(paths)[sort], scores[sort]
 
+
+# end of source
