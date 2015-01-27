@@ -39,10 +39,11 @@
 # those loops (i.e. excited states) in the data considered.
 
 import numpy as np
+import matplotlib as mpl
 #to set mpl backend:
-#import matplotlib as mpl
 #mpl.use('Agg')
 import matplotlib.pyplot as plt
+
 from hdnet.patterns import Patterns
 
 from hdnet.stats import compute_label_probabilities, \
@@ -80,7 +81,7 @@ markov_probabilities = compute_label_markov_probabilities(sequence)
 label_entropy = compute_label_entropy_markov(markov_probabilities)
 
 # plot label probabilities, markov transition probabilities and node entropy
-plt.figure()
+fig, ax = plt.subplots()
 plt.hist(label_probabilities, weights=[1. / n_labels] * n_labels,
          bins=50, color='k')
 plt.xlabel('label')
@@ -89,19 +90,22 @@ plt.yscale('log', nonposy='clip')
 plt.savefig('label_probabilities.png')
 plt.close()
 
-plt.figure()
-plt.matshow(markov_probabilities, cmap='Blues')
+fig, ax = plt.subplots()
+plt.matshow(markov_probabilities, cmap='Blues',
+            norm=mpl.colors.LogNorm(vmin=0.01, vmax=1))
 plt.xlabel('to pattern')
 plt.ylabel('from pattern')
 plt.colorbar()
 plt.savefig('label_probabilities_markov.png')
 plt.close()
 
-plt.figure()
-plt.hist(label_entropy, weights=[1. / n_labels] * n_labels, bins=50, color='k')
+fig, ax = plt.subplots()
+plt.hist(label_entropy,
+         weights=[1. / n_labels] * n_labels, bins=50, color='k')
 plt.xlabel('entropy')
 plt.ylabel('fraction')
 plt.yscale('log', nonposy='clip')
+plt.tight_layout()
 plt.savefig('label_entropy.png')
 plt.close()
 
@@ -123,15 +127,18 @@ print "Filtered Markov graph has %d nodes, %d edges" % \
 
 # plot markov graph
 plot_graph(markov_graph)
+plt.locator_params(nbins=3)
 plt.savefig('markov_graph_filtered.png')
 
 # plot memory triggered averages for all nodes of markov graph
 for i, node in enumerate(markov_graph.nodes()):
-    plt.figure()
+    fig, ax = plt.subplots() 
     plt.matshow(patterns.fp_to_mta_matrix(node).reshape(n, ws),
                 vmin=0, vmax=1, cmap='gray')
     plt.title('node %d\nprobability %f\nentropy %f' % \
-              (node, label_probabilities[node], label_entropy[node]))
+              (node, label_probabilities[node], label_entropy[node]),
+              loc='left')
+    plt.axis('off')
     plt.savefig('mta-%03d.png' % i)
     plt.close()
 
@@ -160,32 +167,40 @@ print "%d loops" % (len(loops))
 # plot loop statistics
 n_loops = len(loops)
 loop_len = np.array(map(len, loops))
-plt.figure()
+fig, ax = plt.subplots() 
 plt.hist(loop_len, weights=[1. / n_loops] * n_loops, bins=50, color='k')
 plt.xlabel('loop length')
 plt.ylabel('fraction')
+plt.locator_params(nbins=3)
+plt.tight_layout()
 plt.savefig('loop_lengths.png')
 plt.close()
 
-plt.figure()
+fig, ax = plt.subplots() 
 plt.hist(scores, weights=[1. / n_loops] * n_loops, bins=50, color='k')
 plt.xlabel('loop score')
 plt.ylabel('fraction')
+plt.locator_params(nbins=3)
+plt.tight_layout()
 plt.savefig('loop_scores.png')
 plt.close()
 
-plt.figure()
+fig, ax = plt.subplots() 
 plt.scatter(loop_len, scores, color='k')
 plt.xlabel('loop length')
 plt.ylabel('loop score')
+plt.locator_params(nbins=3)
+plt.tight_layout()
 plt.savefig('loop_lengths_vs_scores_scatter.png')
 plt.close()
 
-plt.figure()
+fig, ax = plt.subplots() 
 plt.hist2d(loop_len, scores, bins=100)
 plt.xlabel('loop length')
 plt.ylabel('loop score')
 plt.colorbar()
+plt.locator_params(nbins=3)
+plt.tight_layout()
 plt.savefig('loop_lengths_vs_scores_hist.png')
 plt.close()
 
@@ -193,15 +208,17 @@ plt.close()
 # adjust if needed
 max_plot = 100
 interesting = np.arange(min(n_loops, max_plot))
-print "plotting %d combined sequences" % (len(interesting))
+print "plotting averaged sequences of %d loops.." % (len(interesting))
 
 for i, idx in enumerate(interesting):
     loop = loops[idx]
     mta_sequence = [patterns.fp_to_mta_matrix(l).reshape(n, ws) for l in loop]
     combined = combine_windows(np.array(mta_sequence))
-    plt.figure()
+    fig, ax = plt.subplots() 
     plt.matshow(combined, cmap='gray')
-    plt.title('loop %d\nlength %d\nscore %f' % (idx, len(loop), scores[idx]))
+    plt.title('loop %d\nlength %d\nscore %f' % \
+              (idx, len(loop), scores[idx]), loc='left')
+    plt.axis('off')
     plt.savefig('likely-%04d.png' % i)
     plt.close()
 
