@@ -108,7 +108,7 @@ showstringspaces=false            %
 \begin{document}
 
 \title{Starter Manual for HDNET in Python}
-\author{\normalsize Christopher Hillar, Redwood Center for Theoretical Neuroscience, Berkeley, CA 94720\\
+\author{\normalsize Christopher Hillar, Redwood Center for Theoretical Neuroscience, Berkeley, CA\\
 \normalsize Felix Effenberger, Max-Planck-Institute for Mathematics in the Sciences, Leipzig, Germany
 }
 \date{}
@@ -118,22 +118,21 @@ showstringspaces=false            %
 
 \maketitle
 
-
-
 \textbf{Introduction}.  Here, we describe the basic functionality of the HDNET library in Python
+
 \begin{center}
 \texttt{https://github.com/qualiaphile/hdnet.git} \\
 \end{center}
 
-For demonstration purposes we will work with a synthetic data set in the following. Spiking activity of 10 hypothetical cells are assumed to be given as iid. Poisson processes. Upon binning with a given bin width, this yields Bernoulli processes in discrete time. We create such Bernoulli data and then insert hypothetical correlations by means of a number of co-activations of different cell groups (also known as cell assemblies).
+For demonstration purposes we will work with a synthetic dataset in the following. Spiking activity of 10 hypothetical cells are assumed to be given as iid. Poisson processes. Upon binning with a given bin width, this yields Bernoulli processes in discrete time. We create such Bernoulli data and then insert hypothetical correlations by means of a number of co-activations of different cell groups (also known as cell assemblies).
 
-We first import the necessary modules into our Python session (we recommend using ipython in pylab mode, i.e. running \texttt{ipython --pylab} to paste and run text copied to the clipboard from this tutorial using the magic command \texttt{\%paste}).
+The following script is contained in the file ``my\_first\_script.py".  We first import the necessary modules into our Python session (we recommend using ipython in pylab mode, i.e. running \texttt{ipython --pylab} to paste and run text copied to the clipboard from this tutorial using the magic command \texttt{\%paste}).
 
 \begin{python}
 import numpy as np
 import matplotlib.pyplot as plt
 from hdnet.spikes import Spikes
-from hdnet.spikes_,model import SpikeModel, BernoulliHomogeneous, \ 	
+from hdnet.spikes_model import SpikeModel, BernoulliHomogeneous, \ 	
 	DichotomizedGaussian
 \end{python}
 
@@ -163,8 +162,8 @@ plt.show()
 Next, we would like to model this noisy binary data.   First, we try to model each trial with a separate i.i.d. Bernoulli random binary vector having the same neuron means as in each trial:
 
 \begin{python}
-spike_model = BernoulliHomogeneous(spikes=spikes)
-BH_sample_spikes = spike_model.sample_from_model()
+spikes_model = BernoulliHomogeneous(spikes=spikes)
+BH_sample_spikes = spikes_model.sample_from_model()
 
 plt.figure()
 plt.title('BernoulliHomogeneous sample')
@@ -180,9 +179,9 @@ plt.show()
 As we can see in Fig.~\ref{fake_ex_fig}, the samples from Bernoulli have the correct firing rates in each trial, but not the coordinated aspect (as can be seen in the covariance matrices for each trial, which are basically diagonal matrices).   A better model that keeps track of the correlations is the Dichotomized Gaussian \cite{bethge2008}: \\
 
 \begin{python}
-spike_model = DichotomizedGaussian(spikes=spikes)
+spikes_model = DichotomizedGaussian(spikes=spikes)
 
-DG_sample_spikes = spike_model.sample_from_model()
+DG_sample_spikes = spikes_model.sample_from_model()
 
 plt.figure()
 plt.title('DichotomizedGaussian sample')
@@ -198,11 +197,11 @@ plt.show()
 Finally, we try and model the data with a Hopfield network trained using MPF over all the trials:
 
 \begin{python}
-spike_model = SpikeModel(spikes=spikes)
-spike_model.fit()  # note: this fits a single network to all trials
-spike_model.chomp()
+spikes_model = SpikeModel(spikes=spikes)
+spikes_model.fit()  # note: this fits a single network to all trials
+spikes_model.chomp()
 
-converged_spikes = Spikes(spikes_arr=spike_model.hopfield_spikes_arr)
+converged_spikes = Spikes(spikes_arr=spikes_model.hopfield_spikes_arr)
 
 plt.figure()
 plt.title('Converge dynamics on Raw data')
@@ -230,16 +229,16 @@ plt.show()
 \begin{python}
 # plot memory label (its chronological appearance) as a function of time
 plt.figure()
-plt.scatter(range(len(spike_model.memories.sequence)),
-		1 + np.array(spike_model.memories.sequence))
+plt.scatter(range(len(spikes_model.memories.sequence)),
+		1 + np.array(spikes_model.memories.sequence))
 plt.xlabel('time bin')
 plt.ylabel('Memory number (chronological order of appearance)')
 plt.title('Converged memory label at each time bin')
 
 # versus the raw data
 plt.figure()
-plt.scatter(range(len(spike_model.emperical.sequence)),
-		1 + np.array(spike_model.emperical.sequence))
+plt.scatter(range(len(spikes_model.emperical.sequence)),
+		1 + np.array(spikes_model.emperical.sequence))
 plt.ylabel('Raw pattern number (chronological order of appearance)')
 plt.xlabel('time bin')
 plt.title('Raw pattern label at each time bin')
@@ -267,20 +266,101 @@ a matrix whose first 3 columns are the memories in the network and whose next 3 
 
 \begin{python}
 # memories are ordered by their first appearance
-bin_memories = spike_model.memories.fp_list
-arr = np.zeros((spike_model.original_spikes.N, 2 * len(bin_memories)))
+bin_memories = spikes_model.memories.fp_list
+arr = np.zeros((spikes_model.original_spikes.N, 2 * len(bin_memories)))
 for c, memory in enumerate(bin_memories):
-	arr[:, c] = spike_model.memories.fp_to_binary_matrix(c)
+	arr[:, c] = spikes_model.memories.fp_to_binary_matrix(c)
 
 for c, memory in enumerate(bin_memories):
-	arr[:, c + len(bin_memories)] = spike_model.memories.stas[memory] /
-			spike_model.memories.counts[memory]
+	arr[:, c + len(bin_memories)] = spikes_model.memories.stas[memory] /
+			spikes_model.memories.counts[memory]
 
 print "Probabilities of each memory:"
-print zip(bin_memories, spike_model.memories.to_prob_vect())
+print zip(bin_memories, spikes_model.memories.to_prob_vect())
+
+# Probabilities of each memory:
+# [('0100010000', 0.13), ('0000000000', 0.79249999999999998), /
+# ('0011001000', 0.077499999999999999)]
 \end{python}
 
+Notice that the number of occurrences of the cell assembly with neuron 1 and 5 co-active is about double that of 2, 3, 6 co-active, consistent with our data insertions.
+
+
 \textbf{Saving}.  One can save Learners and Memories.
+
+\begin{python}
+spikes_model.learner.save('my_learner')
+spikes_model.memories.save('my_memories')
+
+spikes_model.learner.load('my_learner')
+spikes_model.memories.load('my_memories')
+\end{python}
+
+
+\textbf{Stimuli}.   Continuing our main synthetic example, we now discuss how to incorporate stimuli into our analyses.   First, let's create a fake stimulus consisting of random normal $90 \times 100$ dimensional numpy arrays unless the fake stimulus is presented, in which case it is either a picture of Hobbes or Calvin (with some small noise added).
+
+\begin{python}
+from hdnet.stimulus import Stimulus
+
+calvin = np.load('data/calvin.npy')  # 90 by 100 numpy array
+hobbes = np.load('data/hobbes.npy')
+
+stimulus_arr = np.random.randn(2, 200, calvin.shape[0], calvin.shape[1])
+stimulus_arr[0, ::5] = calvin + 20 * np.random.randn(*calvin.shape)
+stimulus_arr[1, ::11] = hobbes + 20 * np.random.randn(*hobbes.shape)
+
+plt.matshow(stimulus_arr[0, 0], cmap='gray')
+plt.matshow(stimulus_arr[1, 0], cmap='gray')
+
+stimulus = Stimulus(stimulus_arr=stimulus_arr)
+spikes_model.stimulus = stimulus
+\end{python}
+
+Now, let's try and see what were the average stimuli for each fixed-point / memory.  We call such features \textit{memory triggered stimulus averages}.
+
+\begin{figure}[t!]
+\begin{center}
+\textbf{a)}\includegraphics[width=.16\linewidth]{calvin_sample.png} 
+\textbf{b)}\includegraphics[width=.16\linewidth]{hobbes_sample.png} 
+\textbf{c)}\includegraphics[width=.16\linewidth]{assembly1_memory_triggered_stimulus_avg.png} 
+\textbf{d)}\includegraphics[width=.16\linewidth]{zero_memory_triggered_stimulus_avg.png}
+\textbf{e)}\includegraphics[width=.16\linewidth]{assembly2_memory_triggered_stimulus_avg.png}
+\caption{\textbf{Continuing example with fake Stimuli}. \textbf{a, b)} Noisy stimuli: Calvin and Hobbes.  \textbf{c, d, e)}  Memory-triggered-stimulus averages of the Calvin, Empty, and Hobbes spike pattern in the fake data.}
+\label{calvin_hobbes}
+\vspace{-.8cm}
+\end{center}
+\end{figure}
+
+\begin{python}
+calvin = np.load('data/calvin.npy')  # 90 by 100 numpy array
+hobbes = np.load('data/hobbes.npy')
+
+stimulus_arr = 20 * np.random.randn(2, 200, *calvin.shape)
+stimulus_arr[0, ::5] = calvin + 50 * np.random.randn(200 / 5, *calvin.shape)
+stimulus_arr[1, ::11] = hobbes + 50 * np.random.randn(200 / 11 + 1, /
+						*hobbes.shape)
+
+plt.matshow(stimulus_arr[0, 0], cmap='gray')
+plt.title('Calvin Sample Stimulus')
+plt.matshow(stimulus_arr[1, 0], cmap='gray')
+plt.title('Hobbes Sample Stimulus')
+
+stimulus = Stimulus(stimulus_arr=stimulus_arr)
+avgs = spikes_model.memories.mem_triggered_stim_avgs(stimulus)
+
+for stm_avg in avgs:
+    plt.matshow(stm_avg, cmap='gray')
+    plt.title('Memory Triggered Stimulus Average')
+\end{python}
+
+
+\textbf{Real data}.  Now, we try these methods out on some real data.  First, we download polytrode data recorded by Tim Blanche in the laboratory of Nicholas Swindale, University of British Columbia from the NSF-funded CRCNS Data Sharing website:
+
+\begin{center}
+\texttt{http://crcns.org/} \\
+\end{center}
+
+Let's examine the spontaneous spiking data from anesthetized cat visual cortex area 17 (around 5 minutes of spike-sorted polytrode data from 50 neurons).
 
 \scriptsize
 \setlength{\bibsep}{0pt plus 0.3ex}

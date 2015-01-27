@@ -187,5 +187,19 @@ class Counter(object):
             top_stas.append(self.fp_to_sta_matrix(self.lookup_fp[self.counts.keys()[i]]))
         return top_stas
 
-
+    def mem_triggered_stim_avgs(self, stimulus):
+        """ returns the average stimulus appearing when a given binary pattern appears """
+        stim_avgs = []
+        stm_arr = stimulus.stimulus_arr
+        arr = np.zeros((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:])
+        for t in xrange(stm_arr.shape[0]):
+            arr[t * stm_arr.shape[1]:(t + 1) * stm_arr.shape[1]] = stm_arr[t]
+        print arr.shape
+        for c, memory in enumerate(self.fp_list):
+            idx = (self.sequence == c)
+            print idx
+            stim_avgs.append(arr[idx].mean(axis=0))
+            # if c > 1:
+            #     stop
+        return stim_avgs
 

@@ -79,7 +79,7 @@ class Learner(object):
                       c.sequence])  # spikes.to_windowed(window_size=self.window_size, trials=trials, reshape=True)
         self.learn_from_binary(X, remove_zeros=remove_zeros)
 
-    def savez(self, folder_name='my_learner'):
+    def save(self, folder_name='my_learner'):
         """ saves as npz's: network, params, spikes filename """
         if os.path.exists(folder_name):  # replace with Exception
             print "Folder %s exists" % folder_name
@@ -91,7 +91,7 @@ class Learner(object):
         np.savez(folder_name + '/save_vars', **d)
         np.savez(folder_name + "/params", **self.params)
 
-    def loadz(self, folder_name='my_learner'):
+    def load(self, folder_name='my_learner'):
         if not os.path.exists(folder_name):
             print "Folder %s does not exist" % folder_name
             return

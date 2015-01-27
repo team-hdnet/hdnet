@@ -41,9 +41,9 @@ class TestLearner(TestTmpPath):
         self.assertTrue(learner.network.J.shape == (9, 9))
 
         learner.params['hi'] = 'chris'
-        learner.savez(os.path.join(self.TMP_PATH, 'learner'))
+        learner.save(os.path.join(self.TMP_PATH, 'learner'))
         learner = Learner()
-        learner.loadz(os.path.join(self.TMP_PATH, 'learner'))
+        learner.load(os.path.join(self.TMP_PATH, 'learner'))
         self.assertEqual(learner.params['hi'], 'chris')
         self.assertEqual(learner.spikes_file, os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))
         self.assertEqual(learner.window_size, 3)
