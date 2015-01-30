@@ -126,10 +126,10 @@ class Binner(object):
             t_min_dat = min([t_min_dat] + map(min, spike_times_nonempty))
             t_max_dat = max([t_max_dat] + map(max, spike_times_nonempty))
 
-        if t_min is None or t_min < t_min_dat:
+        if t_min is None:
             t_min = t_min_dat
 
-        if t_max is None or t_max > t_max_dat:
+        if t_max is None:
             t_max = t_max_dat
 
         if t_min == np.inf or t_max == -np.inf:
