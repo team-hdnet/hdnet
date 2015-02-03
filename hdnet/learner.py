@@ -13,7 +13,7 @@ import numpy as np
 import os
 
 import hopfield_mpf
-from counter import Counter
+from patterns import Counter
 
 
 class Learner(object):
@@ -73,10 +73,10 @@ class Learner(object):
         trials = trials or range(spikes.T)
         self.window_size = window_size
         self.network = hopfield_mpf.HopfieldNetMPF(spikes.N * self.window_size)
-        c = Counter(save_fp_sequence=True)
+        c = Counter(save_sequence=True)
         c.chomp_spikes(spikes, window_size=self.window_size, rotate=(spikes.N, self.window_size))
-        X = np.array([c.reverse_key(c.fp_list[m]) for m in
-                      c.sequence])  # spikes.to_windowed(window_size=self.window_size, trials=trials, reshape=True)
+        X = np.array([c.reverse_key(c._patterns[m]) for m in
+                      c._sequence])  # spikes.to_windowed(window_size=self.window_size, trials=trials, reshape=True)
         self.learn_from_binary(X, remove_zeros=remove_zeros)
 
     def save(self, folder_name='my_learner'):

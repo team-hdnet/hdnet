@@ -13,8 +13,7 @@ import numpy as np
 from time import time as now
 
 from spikes import Spikes
-from patterns import Patterns
-from counter import Counter
+from patterns import PatternsRaw, PatternsHopfield
 from learner import Learner
 from sampling import sample_from_bernoulli, sample_from_ising, sample_from_dichotomized_gaussian, find_latent_gaussian, \
     poisson_marginals, find_dg_any_marginal, sample_dg_any_marginal
@@ -43,13 +42,13 @@ class SpikeModel(object):
 
     def chomp(self):
         # print "Chomping samples from model"
-        self.emperical = Counter(save_fp_sequence=True)
-        self.emperical.chomp_spikes(spikes=self.sample_spikes)
-        print "%d-bit (emperical): %d patterns (H = %1.3f)" % (
-            self.sample_spikes.N, len(self.emperical), self.emperical.entropy())
+        self.empirical = PatternsRaw(save_sequence=True)
+        self.empirical.chomp_spikes(spikes=self.sample_spikes)
+        print "%d-bit (empirical): %d patterns (H = %1.3f)" % (
+            self.sample_spikes.N, len(self.empirical), self.empirical.entropy())
 
         # print "Chomping dynamics (from network learned on the samples) applied to samples"
-        self.memories = Patterns(learner=self.learner, save_fp_sequence=True)
+        self.memories = PatternsHopfield(learner=self.learner, save_sequence=True)
         self.memories.chomp_spikes(spikes=self.sample_spikes)
         print "%d-bit (hopnet): %d memories (H = %1.3f)" % (
             self.sample_spikes.N, len(self.memories), self.memories.entropy())
@@ -58,17 +57,17 @@ class SpikeModel(object):
         # print self.sample_spikes.spikes_arr
         # print "Applied dynamics:"
         self.hopfield_spikes_arr = self.memories.apply_dynamics(spikes=self.sample_spikes, reshape=True)
-#        ma_err = np.abs(self.sample_spikes.spikes_arr - hop_model_spikes).mean()
+        # ma_err = np.abs(self.sample_spikes.spikes_arr - hop_model_spikes).mean()
         #        print hop_model_spikes
-#        print "Mean prediction: %1.4f/1.0 (vs guess zero: %1.4f)" % (
-#            (1 - ma_err), 1 - np.abs(self.sample_spikes.spikes_arr).mean())
+        # print "Mean prediction: %1.4f/1.0 (vs guess zero: %1.4f)" % (
+        #    (1 - ma_err), 1 - np.abs(self.sample_spikes.spikes_arr).mean())
         # # distortion
         # self.sample_spikes
 
     def distinct_patterns_over_windows(self, window_sizes=[1], trials=None, save_couplings=False, remove_zeros=False):
         """ Returns tuple: counts, entropies [, couplings]
                 counts, entropies: arrays of size 2 x T x WSizes 
-            (0: emperical from model sample, 1: dynamics from learned model on sample)"""
+            (0: empirical from model sample, 1: dynamics from learned model on sample)"""
         trials = trials or range(self.original_spikes.T)
         counts = np.zeros((2, len(trials), len(window_sizes)))
         entropies = np.zeros((2, len(trials), len(window_sizes)))
@@ -95,8 +94,8 @@ class SpikeModel(object):
                     couplings[ws].append(self.learner.network.J.copy())
 
                 self.chomp()
-                entropies[0, c, ws] = self.emperical.entropy()
-                counts[0, c, ws] = len(self.emperical)
+                entropies[0, c, ws] = self.empirical.entropy()
+                counts[0, c, ws] = len(self.empirical)
                 entropies[1, c, ws] = self.memories.entropy()
                 counts[1, c, ws] = len(self.memories)
 

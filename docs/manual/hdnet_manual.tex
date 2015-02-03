@@ -124,9 +124,9 @@ showstringspaces=false            %
 \texttt{https://github.com/qualiaphile/hdnet.git} \\
 \end{center}
 
-For demonstration purposes we will work with a synthetic dataset in the following. Spiking activity of 10 hypothetical cells are assumed to be given as iid. Poisson processes. Upon binning with a given bin width, this yields Bernoulli processes in discrete time. We create such Bernoulli data and then insert hypothetical correlations by means of a number of co-activations of different cell groups (also known as cell assemblies).
+For demonstration purposes we will work with a synthetic data set in the following. Spiking activity of 10 hypothetical cells is assumed to be given as iid. Poisson processes. Upon binning with a given bin width, this yields Bernoulli processes in discrete time. We create such Bernoulli data (as a proxy for real, binned spiking data) and then insert hypothetical correlations by means of a number of co-activations of different cell groups over time (also known as cell assemblies).
 
-The following script is contained in the file ``my\_first\_script.py".  We first import the necessary modules into our Python session (we recommend using ipython in pylab mode, i.e. running \texttt{ipython --pylab} to paste and run text copied to the clipboard from this tutorial using the magic command \texttt{\%paste}).
+The following script is contained in the file ``my\_first\_script.py".  We first import the necessary modules into our Python session (we recommend using ipython in pylab mode, i.e. running \texttt{ipython --pylab} and to run text copied to the clipboard from this tutorial using the magic command \texttt{\%paste}).
 
 \begin{python}
 import numpy as np
@@ -237,8 +237,8 @@ plt.title('Converged memory label at each time bin')
 
 # versus the raw data
 plt.figure()
-plt.scatter(range(len(spikes_model.emperical.sequence)),
-		1 + np.array(spikes_model.emperical.sequence))
+plt.scatter(range(len(spikes_model.empirical.sequence)),
+		1 + np.array(spikes_model.empirical.sequence))
 plt.ylabel('Raw pattern number (chronological order of appearance)')
 plt.xlabel('time bin')
 plt.title('Raw pattern label at each time bin')
@@ -266,13 +266,13 @@ a matrix whose first 3 columns are the memories in the network and whose next 3 
 
 \begin{python}
 # memories are ordered by their first appearance
-bin_memories = spikes_model.memories.fp_list
+bin_memories = spikes_model.memories.patterns
 arr = np.zeros((spikes_model.original_spikes.N, 2 * len(bin_memories)))
 for c, memory in enumerate(bin_memories):
 	arr[:, c] = spikes_model.memories.fp_to_binary_matrix(c)
 
 for c, memory in enumerate(bin_memories):
-	arr[:, c + len(bin_memories)] = spikes_model.memories.stas[memory] /
+	arr[:, c + len(bin_memories)] = spikes_model.memories.mtas[memory] /
 			spikes_model.memories.counts[memory]
 
 print "Probabilities of each memory:"

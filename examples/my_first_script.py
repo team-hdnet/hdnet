@@ -58,24 +58,24 @@ plt.title('Covariance of converged memories')
 # let's examine more carefully the memories discovered in the Hopnet
 # plot memory label (its chronological appearance) as a function of time
 plt.figure()
-plt.scatter(range(len(spikes_model.memories.sequence)), 1 + np.array(spikes_model.memories.sequence))
+plt.scatter(range(len(spikes_model.memories._sequence)), 1 + np.array(spikes_model.memories._sequence))
 plt.xlabel('time bin')
 plt.ylabel('Memory number (chronological order of appearance)')
 plt.title('Converged memory label at each time bin')
 # versus the Raw data
 plt.figure()
-plt.scatter(range(len(spikes_model.emperical.sequence)), 1 + np.array(spikes_model.emperical.sequence))
+plt.scatter(range(len(spikes_model.empirical._sequence)), 1 + np.array(spikes_model.empirical._sequence))
 plt.ylabel('Raw pattern number (chronological order of appearance)')
 plt.xlabel('time bin')
 plt.title('Raw pattern label at each time bin')
 
 # memories are ordered by their first appearance:
-bin_memories = spikes_model.memories.fp_list
+bin_memories = spikes_model.memories._patterns
 arr = np.zeros((spikes_model.original_spikes.N, 2 * len(bin_memories)))
 for c, memory in enumerate(bin_memories):
     arr[:, c] = spikes_model.memories.fp_to_binary_matrix(c)
 for c, memory in enumerate(bin_memories):
-    arr[:, c + len(bin_memories)] = spikes_model.memories.stas[memory] / spikes_model.memories.counts[memory]
+    arr[:, c + len(bin_memories)] = spikes_model.memories._mtas[memory] / spikes_model.memories._counts[memory]
 
 print "Probabilities of each memory:"
 print zip(bin_memories, spikes_model.memories.to_prob_vect())

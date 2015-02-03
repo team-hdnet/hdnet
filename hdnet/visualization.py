@@ -226,7 +226,7 @@ def pattern_rank_plot(
 
     if mark_converged:
         # examples of patterns
-        hop_stas = patterns.top_sta_matrices(len(patterns))
+        hop_mtas = patterns.top_mta_matrices(len(patterns))
         hop_mats = patterns.top_binary_matrices(len(patterns))
         emp_mats = empirical.top_binary_matrices(len(empirical))
 
@@ -274,7 +274,7 @@ def pattern_rank_plot(
                 else:
                     axs2[2, i].set_xlabel('%d' % mark_converged[i])
 
-                axs2[2, i].imshow(hop_stas[-mark_converged[i]], interpolation='nearest', cmap='gray_r')
+                axs2[2, i].imshow(hop_mtas[-mark_converged[i]], interpolation='nearest', cmap='gray_r')
 
         fig2.tight_layout(pad=0.1)
         fig2.subplots_adjust(hspace=.25)
@@ -291,7 +291,7 @@ def plot_memories_distribution_matrix(patterns, trials, t_min=None, t_max=None, 
         p_min = 0
 
     if p_max is None:
-        p_max = len(patterns.fp_list) - 1
+        p_max = len(patterns.patterns) - 1
 
     if t_min is None:
         t_min = 0
@@ -318,8 +318,8 @@ def plot_memories_distribution_matrix(patterns, trials, t_min=None, t_max=None, 
     if not v_max is None:
         dists[dists > v_max] = 0
 
-    mtas = np.array([patterns.fp_to_mta_matrix(i) for i in xrange(p_min, p_max + 1)])
-    rawpat = np.array([patterns.fp_to_binary_matrix(i) for i in xrange(p_min, p_max + 1)])
+    mtas = np.array([patterns.pattern_to_mta_matrix(i) for i in xrange(p_min, p_max + 1)])
+    rawpat = np.array([patterns.pattern_to_binary_matrix(i) for i in xrange(p_min, p_max + 1)])
 
     mls = []
     mlsraw = []

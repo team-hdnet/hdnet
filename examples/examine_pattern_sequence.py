@@ -133,7 +133,7 @@ plt.savefig('markov_graph_filtered.png')
 # plot memory triggered averages for all nodes of markov graph
 for i, node in enumerate(markov_graph.nodes()):
     fig, ax = plt.subplots() 
-    plt.matshow(patterns.fp_to_mta_matrix(node).reshape(n, ws),
+    plt.matshow(patterns.pattern_to_mta_matrix(node).reshape(n, ws),
                 vmin=0, vmax=1, cmap='gray')
     plt.title('node %d\nprobability %f\nentropy %f' % \
               (node, label_probabilities[node], label_entropy[node]),
@@ -204,15 +204,32 @@ plt.tight_layout()
 plt.savefig('loop_lengths_vs_scores_hist.png')
 plt.close()
 
+# filter out sub-loops (prefer longer ones)
+filtered_idxs = []
+loop_lens = np.array(map(len, loops))
+sort_idxs_lens = np.argsort(loop_lens)[::-1]
+for idx in sort_idxs_lens:
+	loop = loops[idx]
+	if any([set(loop) < set(loops[i]) for i in filtered_idxs]):
+		continue
+	filtered_idxs.append(idx)
+
+filtered_idxs = np.array(filtered_idxs)
+filtered_scores = scores[filtered_idxs]
+sort_lens_scores = np.argsort(filtered_scores)
+
+print "%d loops filtered" % len(filtered_idxs)
+
 # plot max_plot extracted loops
 # adjust if needed
 max_plot = 100
-interesting = np.arange(min(n_loops, max_plot))
+interesting = np.arange(min(len(filtered_idxs), max_plot))
+	
 print "plotting averaged sequences of %d loops.." % (len(interesting))
 
-for i, idx in enumerate(interesting):
-    loop = loops[idx]
-    mta_sequence = [patterns.fp_to_mta_matrix(l).reshape(n, ws) for l in loop]
+for i, idx in enumerate(sort_lens_scores):
+    loop = loops[filtered_idxs[idx]]
+    mta_sequence = [patterns.pattern_to_mta_matrix(l).reshape(n, ws) for l in loop]
     combined = combine_windows(np.array(mta_sequence))
     fig, ax = plt.subplots() 
     plt.matshow(combined, cmap='gray')
