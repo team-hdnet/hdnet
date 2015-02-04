@@ -236,17 +236,17 @@ class HopfieldNet(Restoreable, object):
 
     # i/o
 
-    def save(self, filename='hopfield_network', extra=None):
+    def save(self, file_name='hopfield_network', extra=None):
         # TODO: document
-        super(HopfieldNet, self)._save(filename=filename,
+        super(HopfieldNet, self)._save(file_name=file_name,
                                       attributes=self._SAVE_ATTRIBUTES_V1,
                                       version=self._SAVE_VERSION,
                                       extra=extra)
 
     @classmethod
-    def load(cls, filename='hopfield_network', load_extra=False):
+    def load(cls, file_name='hopfield_network', load_extra=False):
         # TODO: document
-        return super(HopfieldNet, cls)._load(filename=filename, load_extra=load_extra)
+        return super(HopfieldNet, cls)._load(file_name=file_name, load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
         hdlog.debug('loading HopfieldNet, format version 1')

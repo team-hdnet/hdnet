@@ -21,7 +21,7 @@ class Spikes(Restoreable, object):
     """ Class for handling binary time-series datasets
 
     Parameters
-        npz_file: filename of N x M numpy array containing M time bin steps of N neurons' spikes
+        npz_file: file_name of N x M numpy array containing M time bin steps of N neurons' spikes
                         OR T x N x M numpy array of T trials, repeated stimulus
         spikes_arr:  T x N x M array of spikes (T always present even when T = 1)
 
@@ -59,7 +59,7 @@ class Spikes(Restoreable, object):
         object.__init__(self)
         Restoreable.__init__(self)
 
-        self.filename = npz_file or ''
+        self.file_name = npz_file or ''
 
         self._T = 0
         self._N = 0
@@ -71,7 +71,7 @@ class Spikes(Restoreable, object):
         elif npz_file is not None:
             if os.path.isfile(npz_file):
                 hdlog.info("Loading Spikes from '%s'" % npz_file)
-                self.filename = npz_file
+                self.file_name = npz_file
                 tmp = np.load(npz_file)
                 self._spikes_arr = tmp[tmp.keys()[0]]
             else:
@@ -233,17 +233,17 @@ class Spikes(Restoreable, object):
 
     # i/o
 
-    def save(self, filename='spikes', extra=None):
+    def save(self, file_name='spikes', extra=None):
         """ save as numpy array .npz file """
         # TODO: document
-        return super(Spikes, self)._save(filename=filename,
+        return super(Spikes, self)._save(file_name=file_name,
                                          attributes=self._SAVE_ATTRIBUTES_V1, version=self._SAVE_VERSION,
                                          extra=extra)
 
     @classmethod
-    def load(cls, filename='spikes', load_extra=False):
+    def load(cls, file_name='spikes', load_extra=False):
         # TODO: document
-        return super(Spikes, cls)._load(filename=filename, load_extra=load_extra)
+        return super(Spikes, cls)._load(file_name=file_name, load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
         hdlog.debug('Loading Spikes, format version 1')
@@ -252,7 +252,7 @@ class Spikes(Restoreable, object):
     # representation
 
     def __repr__(self):
-        return '<Spikes: {n} neurons, {m} bins, {t} trials>'.format(n=self._N, u=self._M, t=self._T)
+        return '<Spikes: {n} neurons, {m} bins, {t} trials>'.format(n=self._N, m=self._M, t=self._T)
 
 
 # end of source

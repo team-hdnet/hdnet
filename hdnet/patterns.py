@@ -11,6 +11,7 @@
 
 import os
 import numpy as np
+from hdnet.spikes import Spikes
 from util import hdlog, Restoreable
 
 
@@ -216,32 +217,32 @@ class Counter(Restoreable, object):
 
     # i/o
 
-    def save(self, filename='counter', extra=None):
+    def save(self, file_name='counter', extra=None):
         """ save as numpy array .npz file """
         # TODO: document
-        return super(Counter, self)._save(filename=filename,
+        return super(Counter, self)._save(file_name=file_name,
                                          attributes=self._SAVE_ATTRIBUTES_V1, version=self._SAVE_VERSION,
                                          extra=extra)
 
     @classmethod
-    def load(cls, filename='counter', load_extra=False):
+    def load(cls, file_name='counter', load_extra=False):
         # TODO: document
-        return super(Counter, cls)._load(filename=filename, load_extra=load_extra)
+        return super(Counter, cls)._load(file_name=file_name, load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
         hdlog.debug('Loading Counter patterns, format version 1')
         return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
 
     @classmethod
-    def load_legacy(cls, filename='counter'):
-        base, ext = os.path.splitext(filename)
+    def load_legacy(cls, file_name='counter'):
+        base, ext = os.path.splitext(file_name)
         if not ext:
             ext = ".npz"
-        filename = base + ext
+        file_name = base + ext
 
-        hdlog.info("Loading Counter patterns from legacy file '%s'" % filename)
+        hdlog.info("Loading Counter patterns from legacy file '%s'" % file_name)
         instance = cls()
-        contents = np.load(filename)
+        contents = np.load(file_name)
         instance._counts = dict(zip(contents['count_keys'], contents['count_values']))
         instance._patterns = contents['fp_list']
         instance._lookup_patterns = dict(zip(contents['lookup_fp_keys'], contents['lookup_fp_values']))
@@ -264,15 +265,15 @@ class PatternsRaw(Counter):
 
     # i/o
 
-    def save(self, filename='patterns_raw', extra=None):
+    def save(self, file_name='patterns_raw', extra=None):
         """ save as numpy array .npz file """
         # TODO: document
-        return super(PatternsRaw, self).save(filename=filename, extra=extra)
+        return super(PatternsRaw, self).save(file_name=file_name, extra=extra)
 
     @classmethod
-    def load(cls, filename='patterns_raw', load_extra=False):
+    def load(cls, file_name='patterns_raw', load_extra=False):
         # TODO: document
-        return super(PatternsRaw, cls).load(filename=filename, load_extra=load_extra)
+        return super(PatternsRaw, cls).load(file_name=file_name, load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
         hdlog.debug('Loading PatternsRaw patterns, format version 1')
@@ -391,7 +392,7 @@ class PatternsHopfield(Counter):
             for n in xrange(N):
                 Y_[:, n, :] = Y[:, n].reshape((T, M))
             Y = Y_
-        return Y
+        return Spikes(spikes_arr=Y)
 
     def pattern_to_mta_matrix(self, m):
         # TODO: document
@@ -436,29 +437,29 @@ class PatternsHopfield(Counter):
 
     # i/o
 
-    def save(self, filename='patterns_hopfield', extra=None):
+    def save(self, file_name='patterns_hopfield', extra=None):
         # TODO: document
-        super(PatternsHopfield, self).save(filename=filename, extra=extra)
+        super(PatternsHopfield, self).save(file_name=file_name, extra=extra)
 
     @classmethod
-    def load(cls, filename='patterns_hopfield', load_extra=False):
+    def load(cls, file_name='patterns_hopfield', load_extra=False):
         # TODO: document
-        return super(PatternsHopfield, cls)._load(filename=filename, load_extra=load_extra)
+        return super(PatternsHopfield, cls)._load(file_name=file_name, load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
         hdlog.debug('Loading PatternsHopfield patterns, format version 1')
         return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
 
     @classmethod
-    def load_legacy(cls, filename='patterns_hopfield'):
-        base, ext = os.path.splitext(filename)
+    def load_legacy(cls, file_name='patterns_hopfield'):
+        base, ext = os.path.splitext(file_name)
         if not ext:
             ext = ".npz"
-        filename = base + ext
+        file_name = base + ext
 
-        hdlog.info("Loading PatternHopfield patterns from legacy file '%s'" % filename)
+        hdlog.info("Loading PatternHopfield patterns from legacy file '%s'" % file_name)
         instance = cls()
-        contents = np.load(filename)
+        contents = np.load(file_name)
         instance._counts = dict(zip(contents['count_keys'], contents['count_values']))
         instance._patterns = contents['fp_list']
         instance._lookup_patterns = dict(zip(contents['lookup_fp_keys'], contents['lookup_fp_values']))

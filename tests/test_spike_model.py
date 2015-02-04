@@ -10,7 +10,7 @@
 """
 
 import os
-import unittest
+from test_tmppath import TestTmpPath
 import numpy as np
 
 from hdnet.spikes import Spikes
@@ -19,25 +19,35 @@ from hdnet.spikes_model import SpikeModel, Shuffled, BernoulliHomogeneous, Berno
 from hdnet.sampling import poisson_marginals, find_dg_any_marginal, sample_dg_any_marginal
 
 
-class TestSpikeModel(unittest.TestCase):
+class TestSpikeModel(TestTmpPath):
+
+    def setUp(self):
+        super(TestSpikeModel, self).setUp()
+
+    def tearDown(self):
+        super(TestSpikeModel, self).tearDown()
 
     def test_basic(self):
         # spikes = Spikes(npz_file='test_data/tiny_spikes.npz')
-        # spike_model = SpikeModel(spikes=spikes)
-        # spike_model.fit()
-        # spike_model.chomp()
+        # spikes_model = SpikeModel(spikes=spikes)
+        # spikes_model.fit()
+        # spikes_model.chomp()
         np.random.seed(42)
 
         spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/spikes_trials.npz'))
-        spike_model = SpikeModel(spikes=spikes)
-        spike_model.fit(remove_zeros=True)
-        spike_model.chomp()
+        spikes_model = SpikeModel(spikes=spikes)
+        spikes_model.fit(remove_zeros=True)
+        spikes_model.chomp()
 
-        spike_model.fit(remove_zeros=False)
-        spike_model.chomp()
+        spikes_model.save(os.path.join(self.TMP_PATH, 'spikes_model'))
+        spikes_model2 = SpikeModel.load(os.path.join(self.TMP_PATH, 'spikes_model'))
+        self.assertEqual(len(spikes_model.hopfield_patterns), len(spikes_model2.hopfield_patterns))
+
+        spikes_model.fit(remove_zeros=False)
+        spikes_model.chomp()
 
         wss = [1, 2]
-        counts, entropies = spike_model.distinct_patterns_over_windows(wss, remove_zeros=False)
+        counts, entropies = spikes_model.distinct_patterns_over_windows(wss, remove_zeros=False)
 
         bernoulli_model = BernoulliHomogeneous(spikes=spikes)
         bernoulli_model.fit()

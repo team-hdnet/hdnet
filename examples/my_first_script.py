@@ -49,7 +49,7 @@ plt.title('DichotomizedGaussian covariance')
 spikes_model = SpikeModel(spikes=spikes)
 spikes_model.fit()  # note: this fits a single network to all trials
 spikes_model.chomp()
-converged_spikes = Spikes(spikes_arr=spikes_model.hopfield_spikes)
+converged_spikes = spikes_model.hopfield_spikes
 plt.matshow(converged_spikes.rasterize(), cmap='gray')
 plt.title('Converge dynamics on Raw data')
 plt.matshow(converged_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
@@ -73,7 +73,7 @@ plt.title('Raw pattern label at each time bin')
 bin_memories = spikes_model.hopfield_patterns.patterns
 arr = np.zeros((spikes_model.original_spikes.N, 2 * len(bin_memories)))
 for c, memory in enumerate(bin_memories):
-    arr[:, c] = spikes_model.hopfield_patterns.fp_to_binary_matrix(c)
+    arr[:, c] = spikes_model.hopfield_patterns.pattern_to_binary_matrix(c)
 for c, memory in enumerate(bin_memories):
     arr[:, c + len(bin_memories)] = spikes_model.hopfield_patterns.mtas[memory] / spikes_model.hopfield_patterns.counts[memory]
 
@@ -81,10 +81,8 @@ print "Probabilities of each memory:"
 print zip(bin_memories, spikes_model.hopfield_patterns.to_prob_vect())
 
 # Saving / Loading
-spikes_model.learner.save('my_learner')
-spikes_model.hopfield_patterns.save('my_memories')
-spikes_model.learner.load('my_learner')
-spikes_model.hopfield_patterns.load('my_memories')
+spikes_model.save('my_spikes_model')
+spikes_model = SpikeModel.load('my_spikes_model')
 
 # (Fake) Stimuli
 calvin = np.load('data/calvin.npy')  # 90 by 100 numpy array

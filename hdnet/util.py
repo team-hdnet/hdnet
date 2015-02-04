@@ -32,61 +32,100 @@ class Restoreable(object):
     def __init__(self):
         object.__init__(self)
 
-    def _save(self, filename, attributes, version, extra=None):
-        base, ext = os.path.splitext(filename)
+    def _save(self, file_name, attributes, version, has_internal=False, folder_name=None,
+              internal_objects=None, extra=None):
+        base, ext = os.path.splitext(file_name)
         if not ext:
             ext = ".npz"
-        filename = base + ext
+        file_name = base + ext
 
-        hdlog.info("Saving to file '%s'" % filename)
+        if has_internal:
+            if os.path.exists(folder_name):  # replace with Exception
+                hdlog.error("Folder '%s' exists, cannot save!" % folder_name)
+                return
+            else:
+                os.mkdir(folder_name)
+            file_name = os.path.join(folder_name, file_name)
+
+        hdlog.info("Saving to file '%s'" % file_name)
 
         if extra is None:
             extra = {}
 
-        for key in attributes:
-            if not hasattr(self, key):
-                hdlog.debug("Skipping attribute '{k}'".format(k=key))
-                value = None
-            else:
-                value = getattr(self, key)
-            if isinstance(value, dict):
-                extra['DICT_KEYS_' + key] = value.keys()
-                extra['DICT_VALUES_' + key] = value.values()
-            else:
-                extra[key] = value
-        extra[Restoreable._VERSION_FIELD] = version
-        extra[Restoreable._TYPE_FIELD] = self._SAVE_TYPE
-        hdlog.debug("Kind '%s'" % extra[Restoreable._TYPE_FIELD])
-        np.savez(filename, **extra)
+        if file_name is not None:
+            for key in attributes:
+                if not hasattr(self, key):
+                    hdlog.debug("Skipping non-existing attribute '{k}'".format(k=key))
+                    value = None
+                else:
+                    value = getattr(self, key)
+                if isinstance(value, dict):
+                    extra['DICT_KEYS_' + key] = value.keys()
+                    extra['DICT_VALUES_' + key] = value.values()
+                else:
+                    extra[key] = value
+            extra[Restoreable._VERSION_FIELD] = version
+            extra[Restoreable._TYPE_FIELD] = self._SAVE_TYPE
+            hdlog.debug("Kind '%s'" % extra[Restoreable._TYPE_FIELD])
+            np.savez(file_name, **extra)
+
+        if has_internal:
+            for cls, attr_name, fn in internal_objects:
+                attr = getattr(self, attr_name)
+                if attr is not None:
+                    attr.save(os.path.join(folder_name, fn))
 
     @classmethod
-    def _load(cls, filename, load_extra=False):
-        instance = cls()
-        base, ext = os.path.splitext(filename)
+    def _load(cls, file_name, has_internal=False, folder_name=None, internal_objects=None, load_extra=False):
+        base, ext = os.path.splitext(file_name)
         if not ext:
             ext = ".npz"
-        filename = base + ext
+        file_name = base + ext
 
-        hdlog.info("Loading from file '%s'" % filename)
-        contents = Restoreable._load_raw(filename)
+        if has_internal:
+            file_name = os.path.join(folder_name, file_name)
 
-        if not Restoreable._VERSION_FIELD in contents or not Restoreable._TYPE_FIELD in contents:
-            hdlog.error("File does not seem to be a valid hdnet data file, missing version / type!")
-            return instance
+        if file_name is not None and not os.path.exists(file_name):
+            hdlog.info("File '%s' does not exist!" % file_name)
+            return None
 
-        if not contents[Restoreable._TYPE_FIELD] == np.array(instance._SAVE_TYPE):
-            hdlog.error("File has wrong type: expected '%s', got '%s'" % (
-                instance._SAVE_TYPE, str(contents[Restoreable._TYPE_FIELD])))
-            return instance
+        instance = cls()
 
-        loader_name = '_load_v' + str(contents[Restoreable._VERSION_FIELD])
-        if not hasattr(instance, loader_name):
-            hdlog.error("Class '%s' does not have a loader for file version %d!" % (
-                instance.__class__.__name__, contents[Restoreable._VERSION_FIELD]))
-            return instance
+        if file_name is not None:
+            hdlog.info("Loading from file '%s'" % file_name)
+            contents = Restoreable._load_raw(file_name)
 
-        loader = getattr(instance, loader_name)
-        return loader(contents, load_extra=load_extra)
+            if not Restoreable._VERSION_FIELD in contents or not Restoreable._TYPE_FIELD in contents:
+                hdlog.error("File does not seem to be a valid hdnet data file, missing version / type!")
+                return None
+
+            if not contents[Restoreable._TYPE_FIELD] == np.array(instance._SAVE_TYPE):
+                hdlog.error("File has wrong type: expected '%s', got '%s'" % (
+                    instance._SAVE_TYPE, str(contents[Restoreable._TYPE_FIELD])))
+                return None
+
+            loader_name = '_load_v' + str(contents[Restoreable._VERSION_FIELD])
+            if not hasattr(instance, loader_name):
+                hdlog.error("Class '%s' does not have a loader for file version %d!" % (
+                    instance.__class__.__name__, contents[Restoreable._VERSION_FIELD]))
+                return None
+
+            loader = getattr(instance, loader_name)
+            loader(contents, load_extra=load_extra)
+
+        if has_internal:
+            if not os.path.exists(folder_name):
+                hdlog.error("Folder '%s' does not exist!" % folder_name)
+                return None
+
+            hdlog.info("Loading internal objects")
+            for cls, attr_name, file_name in internal_objects:
+                full_file_name = os.path.join(folder_name, file_name)
+                if os.path.isdir(full_file_name) or os.path.isfile(full_file_name) \
+                        or os.path.isfile(full_file_name + '.npz'):
+                    setattr(instance, attr_name, cls.load(full_file_name))
+
+        return instance
 
     @staticmethod
     def _load_attributes(instance, contents, attributes):
@@ -103,12 +142,12 @@ class Restoreable(object):
         return instance
 
     @staticmethod
-    def _load_raw(filename):
-        base, ext = os.path.splitext(filename)
+    def _load_raw(file_name):
+        base, ext = os.path.splitext(file_name)
         if not ext:
             ext = ".npz"
-        filename = base + ext
-        contents = np.load(filename)
+        file_name = base + ext
+        contents = np.load(file_name)
         data = {key: contents[key] for key in contents.keys()}
         contents.close()
         return data

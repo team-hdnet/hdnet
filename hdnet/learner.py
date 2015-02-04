@@ -10,7 +10,6 @@
 """
 
 import numpy as np
-import os
 
 from hopfield import HopfieldNetMPF, HopfieldNet
 from patterns import Counter
@@ -28,6 +27,7 @@ class Learner(Restoreable, object):
     _SAVE_ATTRIBUTES_V1 = ['_spikes_file', '_window_size', '_params']
     _SAVE_VERSION = 1
     _SAVE_TYPE = 'Learner'
+    _INTERNAL_OBJECTS = zip([HopfieldNet], ['_network'], ['network'])
 
     def __init__(self, spikes=None, network=None, network_file=None, window_size=1, params=None):
         object.__init__(self)
@@ -37,7 +37,7 @@ class Learner(Restoreable, object):
 
         if spikes is not None:
             self._spikes = spikes
-            self._spikes_file = spikes.filename
+            self._spikes_file = spikes.file_name
             self._network = HopfieldNetMPF(self._spikes.N * self._window_size)
 
         if network is not None:
@@ -124,33 +124,22 @@ class Learner(Restoreable, object):
         self.learn_from_binary(X, remove_zeros=remove_zeros)
 
     def save(self, folder_name='learner'):
-        """ saves as npz's: network, params, spikes filename """
-        if os.path.exists(folder_name):  # replace with Exception
-            hdlog.error("Folder %s exists, cannot save!" % folder_name)
-            return
-
-        os.mkdir(folder_name)
-        self.network.save(os.path.join(folder_name, 'network.npz'))
-        super(Learner, self)._save(os.path.join(folder_name, 'learner.npz'),
-                                  self._SAVE_ATTRIBUTES_V1, self._SAVE_VERSION)
+        """ saves as npz's: network, params, spikes file_name """
+        super(Learner, self)._save(
+            'learner.npz', self._SAVE_ATTRIBUTES_V1, self._SAVE_VERSION,
+            has_internal=True, folder_name=folder_name, internal_objects=self._INTERNAL_OBJECTS)
 
     @classmethod
     def load(cls, folder_name='learner', load_extra=False):
         # TODO: document
-        if not os.path.exists(folder_name):
-            hdlog.error("Folder %s does not exist!" % folder_name)
-            return
-        return super(Learner, cls)._load(
-            filename=os.path.join(folder_name, 'learner.npz'), load_extra=load_extra).\
-             _load_network(os.path.join(folder_name, 'network.npz'))
+        return super(Learner, cls)._load('learner.npz', has_internal=True,
+                                         folder_name=folder_name,
+                                         internal_objects=cls._INTERNAL_OBJECTS,
+                                         load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
         hdlog.debug('Loading Learner, format version 1')
         return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
-
-    def _load_network(self, file_name):
-        self.network = HopfieldNet.load(file_name)
-        return self
 
     # representation
 

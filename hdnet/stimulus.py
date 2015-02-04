@@ -20,7 +20,7 @@ class Stimulus(Restoreable, object):
     """ class handling time-series stimuli
     
     Parameters
-        stimulus_arr: filename of data, a numpy M x X array
+        stimulus_arr: file_name of data, a numpy M x X array
                     M = number of stimulus (eg. movie) frames
                     X = stimulus array (a movie, etc)
 
@@ -93,17 +93,17 @@ class Stimulus(Restoreable, object):
 
     # i/o
 
-    def save(self, filename='stimulus', extra=None):
+    def save(self, file_name='stimulus', extra=None):
         """ save as numpy array .npz file """
         # TODO: document
-        return super(Stimulus, self)._save(filename=filename,
+        return super(Stimulus, self)._save(file_name=file_name,
                                          attributes=self._SAVE_ATTRIBUTES_V1, version=self._SAVE_VERSION,
                                          extra=extra)
 
     @classmethod
-    def load(cls, filename='stimulus', load_extra=False):
+    def load(cls, file_name='stimulus', load_extra=False):
         # TODO: document
-        return super(Stimulus, cls)._load(filename=filename, load_extra=load_extra)
+        return super(Stimulus, cls)._load(file_name=file_name, load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
         hdlog.debug('Loading Stimulus, format version 1')

@@ -9,18 +9,20 @@
     :license: GPLv3, see LICENSE for details.
 """
 
+import os
 import numpy as np
 from time import time as now
+from hdnet.stimulus import Stimulus
 
 from spikes import Spikes
 from patterns import PatternsRaw, PatternsHopfield
 from learner import Learner
 from sampling import sample_from_bernoulli, sample_from_ising, sample_from_dichotomized_gaussian, \
     find_latent_gaussian, poisson_marginals, find_dg_any_marginal, sample_dg_any_marginal
-from util import hdlog
+from util import Restoreable, hdlog
 
 
-class SpikeModel(object):
+class SpikeModel(Restoreable, object):
     """ generic model of spikes (and stimulus)
 
     Parameters
@@ -28,8 +30,19 @@ class SpikeModel(object):
         stimulus: corresp stimulus if existent
         window_size: length of time window in binary bins
     """
+    _SAVE_ATTRIBUTES_V1 = ['_window_size', '_learn_time']
+    _SAVE_VERSION = 1
+    _SAVE_TYPE = 'SpikeModel'
+    _INTERNAL_OBJECTS = zip([Spikes, Spikes, Spikes, PatternsRaw, PatternsHopfield, Stimulus, Learner],
+                            ['_original_spikes', '_sample_spikes', '_hopfield_spikes',
+                              '_raw_patterns', '_hopfield_patterns', '_stimulus', '_learner'],
+                             ['spikes_original', 'spikes_sample', 'spikes_hopfield',
+                              'patterns_raw', 'patterns_hopfield', 'stimulus', 'learner'])
 
     def __init__(self, spikes=None, stimulus=None, window_size=1, learner=None):
+        object.__init__(self)
+        Restoreable.__init__(self)
+
         self._stimulus = stimulus
         self._window_size = window_size
         self._learner = learner or None
@@ -149,6 +162,30 @@ class SpikeModel(object):
 
     def sample_from_model(self, trials=None, reshape=False):
         return self._original_spikes.to_windowed(window_size=self._window_size, trials=trials, reshape=reshape)
+
+    def save(self, folder_name='spikes_model'):
+        """ saves as npz's: network, params, spikes file_name """
+        super(SpikeModel, self)._save(
+            'spikes_model.npz', self._SAVE_ATTRIBUTES_V1, self._SAVE_VERSION,
+            has_internal=True, folder_name=folder_name, internal_objects=self._INTERNAL_OBJECTS)
+
+    @classmethod
+    def load(cls, folder_name='spikes_model', load_extra=False):
+        # TODO: document
+        return super(SpikeModel, cls)._load('spikes_model.npz', has_internal=True,
+                                            folder_name=folder_name,
+                                            internal_objects=cls._INTERNAL_OBJECTS,
+                                            load_extra=load_extra)
+
+    def _load_v1(self, contents, load_extra=False):
+        hdlog.debug('Loading SpikeModel, format version 1')
+        return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
+
+    # representation
+
+    def __repr__(self):
+        return '<SpikeModel: {s}, window size {ws}>'.\
+            format(s=repr(self.original_spikes), ws=self.window_size)
 
 
 class BernoulliHomogeneous(SpikeModel):
