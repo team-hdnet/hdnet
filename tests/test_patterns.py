@@ -99,9 +99,9 @@ class TestPatternsHopfield(TestTmpPath):
         self.assertEqual(len(patterns), 9)
 
         patterns.save(os.path.join(self.TMP_PATH, 'raw'))
-        counter2 = Counter.load(os.path.join(self.TMP_PATH, 'raw'))
-        self.assertTrue(isinstance(counter2, Counter))
-        self.assertEqual(len(patterns), len(counter2))
+        patterns2 = PatternsRaw.load(os.path.join(self.TMP_PATH, 'raw'))
+        self.assertTrue(isinstance(patterns2, PatternsRaw))
+        self.assertEqual(len(patterns), len(patterns2))
 
     def test_patterns_hopfield(self):
         spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))

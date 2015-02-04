@@ -261,17 +261,18 @@ class PatternsRaw(Counter):
     # i/o
 
     def save(self, filename='patterns_raw', extra=None):
+        """ save as numpy array .npz file """
         # TODO: document
-        super(PatternsRaw, self).save(filename, extra=extra)
+        return super(PatternsRaw, self).save(filename=filename, extra=extra)
 
     @classmethod
     def load(cls, filename='patterns_raw', load_extra=False):
         # TODO: document
-        instance, extra = super(PatternsRaw, cls).load(filename=filename, load_extra=True)
-        if load_extra:
-            return instance, extra
-        else:
-            return instance
+        return super(PatternsRaw, cls).load(filename=filename, load_extra=load_extra)
+
+    def load_v1(self, contents, load_extra=False):
+        hdlog.debug('loading PatternsRaw patterns, format version 1')
+        return Restoreable.load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
 
 
 class PatternsHopfield(Counter):

@@ -13,6 +13,7 @@ import os
 import logging
 import numpy as np
 
+# Logging
 HDLOGNAME = 'hdnet'
 logging.basicConfig(level=logging.INFO)
 hdlog = logging.getLogger(HDLOGNAME)
@@ -20,7 +21,12 @@ hdlog = logging.getLogger(HDLOGNAME)
 
 class Restoreable(object):
     #mixin class for saving
+    """
+    Mixin class for supporting of saving and loading of contents in compressed
+    numpy format (savez). Supports file versioning and type identification.
+    """
     _VERSION_FIELD = 'hdnet_version'
+    _TYPE_FIELD = 'hdnet_kind'
 
     def __init__(self):
         object.__init__(self)
@@ -44,6 +50,8 @@ class Restoreable(object):
             else:
                 extra[key] = value
         extra[Restoreable._VERSION_FIELD] = version
+        extra[Restoreable._TYPE_FIELD] = self.__class__.__name__
+        hdlog.info("kind '%s'" % extra[Restoreable._TYPE_FIELD])
         np.savez(filename, **extra)
 
     @classmethod
@@ -57,14 +65,19 @@ class Restoreable(object):
         hdlog.info("loading from file '%s'" % filename)
         contents = Restoreable.load_raw(filename)
 
-        if not Restoreable._VERSION_FIELD in contents:
-            hdlog.error("file does not seem to be a valid hdnet data file, missing version!")
+        if not Restoreable._VERSION_FIELD in contents or not Restoreable._TYPE_FIELD in contents:
+            hdlog.error("file does not seem to be a valid hdnet data file, missing version / type!")
+            return instance
+
+        if not contents[Restoreable._TYPE_FIELD] == np.array(instance.__class__.__name__):
+            hdlog.error("file has wrong type: expected '%s', got '%s'" % (
+                instance.__class__.__name__, str(contents[Restoreable._TYPE_FIELD])))
             return instance
 
         loader_name = 'load_v' + str(contents[Restoreable._VERSION_FIELD])
         if not hasattr(instance, loader_name):
-            hdlog.error("class %s does not have a loader for file version %d!" % (
-                cls.__class__.__name__, contents[Restoreable._VERSION_FIELD]))
+            hdlog.error("class '%s' does not have a loader for file version %d!" % (
+                instance.__class__.__name__, contents[Restoreable._VERSION_FIELD]))
             return instance
 
         loader = getattr(instance, loader_name)
