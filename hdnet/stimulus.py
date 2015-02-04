@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
+# This file is part of the hdnet package
+# Copyright 2014 the authors, see file AUTHORS.
+# Licensed under the GPLv3, see file LICENSE for details
+
 """
-    hdnet.spikes_model
-    ~~~~~~~~~~~~~~~~~~
+    hdnet.stimulus
+    ~~~~~~~~~~~~~~
 
-    Class handling stimuli time-series.
+    Stimuli time-series.
 
-    :copyright: Copyright 2014 the authors, see AUTHORS.
-    :license: GPLv3, see LICENSE for details.
 """
 
 import os

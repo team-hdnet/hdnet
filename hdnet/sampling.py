@@ -1,20 +1,23 @@
 # -*- coding: utf-8 -*-
+# This file is part of the hdnet package
+# Copyright 2014 the authors, see file AUTHORS.
+# Licensed under the GPLv3, see file LICENSE for details
+
 """
     hdnet.sampling
     ~~~~~~~~~~~~~~
 
     Some simple routines for sampling from certain distributions.
 
-    :copyright: Copyright 2014 the authors, see AUTHORS.
-    :license: GPLv3, see LICENSE for details.
 """
 
 import numpy as np
 
 
 def sample_from_prob_vector(p, num_samples=1):
-    """ given numpy probability vector p on N states produce num_samples samples 
-        returns: a (num_samples) integer vector with state labeled 0, ..., N-1
+    """
+    given numpy probability vector p on N states produce num_samples samples
+    returns: a (num_samples) integer vector with state labeled 0, ..., N-1
     """
     N = len(p)
     p = np.array(p)
@@ -47,21 +50,24 @@ def sample_from_bernoulli(p, M=1):
 
 
 def energy(J, theta, x):
-    """ Ising Energy of binary pattern x is:
-                Ex = -.5 x^T[J-diag(J)]x + theta*x """
+    """
+    Ising Energy of binary pattern x is:
+        Ex = -.5 x^T[J-diag(J)]x + theta*x
+    """
     return -.5 * np.dot(x, np.dot(J - np.diag(J.diagonal()), x)) + np.dot(theta, x)
 
 
 def integer_to_binary(state, N):
-    """ given state 0, ..., 2 **N - 1, returns corresponding binary vector x """
+    """ given state 0, ..., 2\*\*N - 1, returns corresponding binary vector x """
     return np.binary_repr(state, N)
 
 
 def sample_from_ising(J, theta, num_samples=2):
-    """ WARNING:  MIGHT NOT BE WORKING PROPERLY !!!
+    """
+    WARNING:  MIGHT NOT BE WORKING PROPERLY !!!
     
-        given Ising model (J, theta) on N neurons produce num_samples samples 
-        returns: a (N x num_samples) binary matrix with each column a binary vector (Ising sample)
+    given Ising model (J, theta) on N neurons produce num_samples samples
+    returns: a (N x num_samples) binary matrix with each column a binary vector (Ising sample)
     """
     N = len(theta)
 
@@ -231,17 +237,16 @@ def poisson_marginals(means, accuracy=1e-10):
     
     Outputs:
     pmfs: a cell-array of vectors, where the k-th element is the probability
-      mass function of the k-th Poisson random variable. 
+    mass function of the k-th Poisson random variable.
     supports: a cell-array of vectors, where the k-th element is a vector of
-      integers of the states that the k-th Poisson random variable would take
-      with probability larger than "acc". E.g., P(kth
-      RV==supports{k}(1))=pmfs{k}(1);
+    integers of the states that the k-th Poisson random variable would take
+    with probability larger than "acc". E.g., P(kth
+    RV==supports{k}(1))=pmfs{k}(1);
     
     Code from the paper: 'Generating spike-trains with specified
     correlations', Macke et al., submitted to Neural Computation
     
-    www.kyb.mpg.de/bethgegroup/code/efficientsampling
-
+    http://www.kyb.mpg.de/bethgegroup/code/efficientsampling
     """
 
     from scipy.stats import poisson
@@ -305,37 +310,31 @@ def find_dg_any_marginal(pmfs, bin_cov, supports, accuracy=1e-10):
     
     Inputs:
     pmfs: the probability mass functions of the marginal distribution of the
-      input-random variables. Must be a cell-array with n elements, each of
-      which is a vector which sums to one
+    input-random variables. Must be a cell-array with n elements, each of
+    which is a vector which sums to one
     Sigma: The covariance matrix of the input-random variable. The function
-      does not check for admissability, i.e. results might be wrong if there
-      exists no random variable which has the specified marginals and
-      covariance.
+    does not check for admissability, i.e. results might be wrong if there
+    exists no random variable which has the specified marginals and
+    covariance.
     supports: The support of each dimension of the input random variable.
-      Must be a cell-array with n elements, each of whcih is a vector with
-      increasing entries giving the possible values of each random variable,
-      e.g. if the first dimension of the rv is 1 with probability .2, 3 with
-      prob .8, then pmfs{1}=[.2,.8], supports{1}=[1,3]; If no support is
-      specified, then each is taken to be [0:numel(pdfs{k}-1];
+    Must be a cell-array with n elements, each of whcih is a vector with
+    increasing entries giving the possible values of each random variable,
+    e.g. if the first dimension of the rv is 1 with probability .2, 3 with
+    prob .8, then pmfs{1}=[.2,.8], supports{1}=[1,3]; If no support is
+    specified, then each is taken to be [0:numel(pdfs{k}-1];
     
     Outputs:
     gammas: the discretization thresholds, as described in the paper. When
-      sampling. The k-th dimension of the output random variable is f if e.g.
-      supports{k}(1)=f and gammas{k}(f) <= U(k) <= gammas{k}(f+1)
+    sampling. The k-th dimension of the output random variable is f if e.g.
+    supports{k}(1)=f and gammas{k}(f) <= U(k) <= gammas{k}(f+1)
     Lambda: the covariance matrix of the latent Gaussian random variable U
     joints2D: An n by n cell array, where each entry contains the 2
-      dimensional joint distribution of  a pair of dimensions of the DG.
-    
-    Important:
-    This function currently needs both the statistics toolbox and the optimization
-    toolbox, but could easily be rewritten to get rid of the functions from
-    the toolboxes which are used. In addition, the optimization is currently
-    very inefficient, the function could be sped up considerably.
-    
+    dimensional joint distribution of  a pair of dimensions of the DG.
+
     Code from the paper: 'Generating spike-trains with specified
     correlations', Macke et al., submitted to Neural Computation
     
-    www.kyb.mpg.de/bethgegroup/code/efficientsampling
+    http://www.kyb.mpg.de/bethgegroup/code/efficientsampling
     """
     from scipy.optimize import minimize_scalar
 
@@ -406,17 +405,16 @@ def find_dg_any_marginal(pmfs, bin_cov, supports, accuracy=1e-10):
 def sample_dg_any_marginal(gauss_means, gauss_cov, num_samples, supports=None):
     """
     [samples,hists]=SampleDGAnyMarginal(gammas,Lambda,supports,Nsamples)
-      Generate samples for a Multivariate Discretized Gaussian with parameters
-      "gammas" and "Lambda" and "supports". The number of samples generated is "Nsamples"
+    Generate samples for a Multivariate Discretized Gaussian with parameters
+    gammas" and "Lambda" and "supports". The number of samples generated is "Nsamples"
 
-      input and output arguments are as described in "DGAnyMarginal"
+    input and output arguments are as described in "DGAnyMarginal"
 
     Usage:
-
     Code from the paper: 'Generating spike-trains with specified
     correlations', Macke et al., submitted to Neural Computation
 
-    www.kyb.mpg.de/bethgegroup/code/efficientsampling
+    http://www.kyb.mpg.de/bethgegroup/code/efficientsampling
     """
 
     d = gauss_cov.shape[0]

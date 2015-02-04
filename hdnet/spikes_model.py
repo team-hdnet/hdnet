@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
+# This file is part of the hdnet package
+# Copyright 2014 the authors, see file AUTHORS.
+# Licensed under the GPLv3, see file LICENSE for details
+
 """
     hdnet.spikes_model
     ~~~~~~~~~~~~~~~~~~
 
     Null-models for spikes' statistics.
 
-    :copyright: Copyright 2014 the authors, see AUTHORS.
-    :license: GPLv3, see LICENSE for details.
 """
 
 import os
@@ -23,12 +25,13 @@ from util import Restoreable, hdlog
 
 
 class SpikeModel(Restoreable, object):
-    """ generic model of spikes (and stimulus)
+    """
+    Generic model of spikes (and stimulus).
 
     Parameters
-        spikes: spikes to model
-        stimulus: corresp stimulus if existent
-        window_size: length of time window in binary bins
+    spikes: spikes to model
+    stimulus: corresp stimulus if existent
+    window_size: length of time window in binary bins
     """
     _SAVE_ATTRIBUTES_V1 = ['_window_size', '_learn_time']
     _SAVE_VERSION = 1
@@ -120,9 +123,11 @@ class SpikeModel(Restoreable, object):
         # self.sample_spikes
 
     def distinct_patterns_over_windows(self, window_sizes=[1], trials=None, save_couplings=False, remove_zeros=False):
-        """ Returns tuple: counts, entropies [, couplings]
-                counts, entropies: arrays of size 2 x T x WSizes 
-            (0: empirical from model sample, 1: dynamics from learned model on sample)"""
+        """
+        Returns tuple: counts, entropies [, couplings]
+        counts, entropies: arrays of size 2 x T x WSizes
+        (0: empirical from model sample, 1: dynamics from learned model on sample)
+        """
         trials = trials or range(self._original_spikes.T)
         counts = np.zeros((2, len(trials), len(window_sizes)))
         entropies = np.zeros((2, len(trials), len(window_sizes)))
@@ -189,14 +194,17 @@ class SpikeModel(Restoreable, object):
 
 
 class BernoulliHomogeneous(SpikeModel):
-    """ Bernoulli model of spikes """
+    """
+    Bernoulli model of spikes, homogeneous.
+    """
 
     def sample_from_model(self, trials=None, reshape=False):
-        """ returns Spikes object of 3d numpy arr of windowed iid Bernouli spike trains:
-            (with probabilities = spike rates of each neuron in self at trial t)
-                X:   T (num trials) x (window_size * N) x  (M - window_size + 1)
-                                        binary vector out of a spike time series
-            reshape: returns T(M - window_size + 1) x (ws * N) numpy binary vector
+        """
+        returns Spikes object of 3d numpy arr of windowed iid Bernouli spike trains:
+        (with probabilities = spike rates of each neuron in self at trial t)
+        X:   T (num trials) x (window_size * N) x  (M - window_size + 1)
+        binary vector out of a spike time series
+        reshape: returns T(M - window_size + 1) x (ws * N) numpy binary vector
         """
         trials = trials or xrange(self._original_spikes.T)
         X = np.zeros(
@@ -220,7 +228,7 @@ class BernoulliHomogeneous(SpikeModel):
 
 
 class BernoulliInhomogeneous(SpikeModel):
-    """ Bernoulli model of spikes """
+    """ Bernoulli model of spikes, inhomogeneous (i.e. varying rate over time). """
 
     def sample_from_model(self, averaging_window_size = 20, trials=None, reshape=False):
         trials = trials or xrange(self._original_spikes.T)
@@ -256,11 +264,15 @@ class BernoulliInhomogeneous(SpikeModel):
 
 
 class Shuffled(SpikeModel):
-    """ shuffle spikes """
+    """
+    Shuffled spikes
+    """
 
     def sample_from_model(self, trials=None, trial_independence=True, reshape=False):
-        """ returns new Spikes object: permutes spikes_arr in time
-            trial_independence: diff permutation for each trial """
+        """
+        returns new Spikes object: permutes spikes_arr in time
+        trial_independence: diff permutation for each trial
+        """
         idx = np.random.permutation(self._original_spikes.M)
         new_arr = np.zeros(self._original_spikes.spikes_arr.shape)
         for i in xrange(self._original_spikes.T):
@@ -273,14 +285,17 @@ class Shuffled(SpikeModel):
 
 
 class Ising(SpikeModel):
-    """ Ising / Hopfield model of spikes 
-        WARNING:  NOT QUITE WORKING !!! """
+    """
+    Ising / Hopfield model of spikes
+    WARNING:  NOT QUITE WORKING !!!
+    """
 
     def sample_from_model(self, J=None, theta=None, trials=None, reshape=False):
-        """ WARNING: NOT FUNCTIONING PROPERLY I THINK
+        """
+        WARNING: NOT FUNCTIONING PROPERLY
 
         returns new spikes object with iid Ising spike trains:
-            (with Ising model determined by learning with MPF)
+        (with Ising model determined by learning with MPF)
         """
 
         trials = trials or range(self._original_spikes.T)
@@ -340,6 +355,7 @@ class DichotomizedGaussian(SpikeModel):
 class DichotomizedGaussianPoisson(SpikeModel):
 
     def sample_from_model(self, trials=None, reshape=False):
+
         trials = trials or range(self._original_spikes.T)
         spikes_windowed = self._original_spikes.to_windowed(self._window_size, trials)
         X = np.zeros((len(trials), self._original_spikes.N, self._original_spikes.M))

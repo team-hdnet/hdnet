@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
+# This file is part of the hdnet package
+# Copyright 2014 the authors, see file AUTHORS.
+# Licensed under the GPLv3, see file LICENSE for details
+
 """
     hdnet.data
     ~~~~~~~~~~
 
     Data import and transformation functionality.
 
-    :copyright: Copyright 2014 the authors, see AUTHORS.
-    :license: GPLv3, see LICENSE for details.
 """
+from hdnet.spikes import Spikes
 
 __version__ = "0.1"
 
@@ -17,6 +20,10 @@ from util import hdlog
 
 
 class Reader(object):
+    """
+    Abstract reader class. Subclasses habe to implement method
+    read_spikes(self, \*args, \*\*kwargs)
+    """
     def __init__(self):
         object.__init__(self)
 
@@ -25,19 +32,37 @@ class Reader(object):
 
 
 class KlustaKwickReader(Reader):
-    """ Class for reading KlustaKwick data sets
-        https://github.com/klusta-team/klustakwik/
-
-    Parameters
-        path_or_files: path of data set or list of *.res.* files to load
-        rate: sampling rate [in Hz]
-        discard_first_cluster: discard first cluster, usually taked for unclassified spikes (defualt True)
+    """
+    Class for reading KlustaKwick data sets
+    https://github.com/klusta-team/klustakwik
     """
     def __init__(self):
         Reader.__init__(self)
 
     @staticmethod
     def read_spikes(path_or_files, rate, first_cluster=2, filter_silent=True, return_status=False):
+        """
+        Reader for KlustaKwick files. https://github.com/klusta-team/klustakwik
+
+        Parameters
+        ----------
+        path_or_files : string
+            path of data set or list of \*.res.\* files to load
+        rate : float
+            sampling rate [in Hz]
+        discard_first_cluster : integer, optional
+            discard first n clusters, usually taked for unclassified spikes (default 2)
+        filter_silent : boolean, optional
+            filter out clusters that have no spikes (default True)
+        return_status : boolean, optional
+            if True returns a status dictionary along with data as second return value (default False)
+
+        Returns
+        -------
+            spikes_times : numpy array
+                returns numpy array of spike times in all clusters. Float values represent spike times
+                in seconds (i.e. a value of 1.0 represents a spike at time 1s)
+        """
 
         if isinstance(path_or_files, (str, unicode)):
             # glob all res files
@@ -116,11 +141,40 @@ class KlustaKwickReader(Reader):
 
 
 class Binner(object):
+    """
+    Spike time binner class.
+    """
     def __init__(self):
         object.__init__(self)
 
     @staticmethod
     def bin_spike_times(spike_times, bin_size, t_min=None, t_max=None):
+        """
+        Bins given spike_times into bins of size bin_size. Spike times
+        expected in seconds (i.e. 1.0 for a spike at second 1, 0.5 for a
+        spike happening at 500ms).
+
+        Takes optional arguments t_min and t_max that can be used to restrict
+        the time range (default t_min = minimum of all spike times in
+        spike_times, default t_max = maximum of all spike times in
+        spike_times)
+
+        Parameters
+        ----------
+        spike_times : array_like
+            2d array of spike times of cells
+        bin_size : float
+            bin size to be used for binning (1ms = 0.001)
+        t_min : float, optional
+            time of leftmost bin (default None)
+        t_max : float, optional
+            time of rightmost bin (default None)
+
+        Returns
+        -------
+            spikes : :class:`.Spikes`
+                Spikes class containing binned spikes.
+        """
         t_min_dat = np.inf
         t_max_dat = -np.inf
 
@@ -153,7 +207,7 @@ class Binner(object):
                 binned[pos, indices] = 1
                 pos += 1
 
-        return binned
+        return Spikes(spikes_arr=binned)
 
 
 # end of source

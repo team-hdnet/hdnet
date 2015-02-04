@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
+# This file is part of the hdnet package
+# Copyright 2014 the authors, see file AUTHORS.
+# Licensed under the GPLv3, see file LICENSE for details
+
 """
     hdnet.spikes
     ~~~~~~~~~~~~
 
     Spikes class handling multi-neuron , multi-trial spike trains.
 
-    :copyright: Copyright 2014 the authors, see AUTHORS.
-    :license: GPLv3, see LICENSE for details.
 """
 
 __version__ = "0.1"
@@ -18,15 +20,16 @@ from visualization import save_matrix_whole_canvas
 
 
 class Spikes(Restoreable, object):
-    """ Class for handling binary time-series datasets
+    """
+    Class for handling binary time-series datasets
 
     Parameters
-        npz_file: file_name of N x M numpy array containing M time bin steps of N neurons' spikes
-                        OR T x N x M numpy array of T trials, repeated stimulus
-        spikes_arr:  T x N x M array of spikes (T always present even when T = 1)
+    npz_file: file_name of N x M numpy array containing M time bin steps of N neurons' spikes
+    OR T x N x M numpy array of T trials, repeated stimulus
+    spikes_arr:  T x N x M array of spikes (T always present even when T = 1)
+    preprocess: makes data into binary {0,1} (Heaviside)
+    override for other operations on raw data
 
-        preprocess: makes data into binary {0,1} (Heaviside)
-                    override for other operations on raw data
     """
     _SAVE_ATTRIBUTES_V1 = ['_spikes_arr', '_T', '_N', '_M']
     _SAVE_VERSION = 1
@@ -153,10 +156,11 @@ class Spikes(Restoreable, object):
         return self
 
     def to_windowed(self, window_size=1, trials=None, reshape=False):
-        """ returns new Spikes object of 3d numpy arr of windowed spike trains:
-                X:   T (num trials) x (window_size * N) x  (M - window_size + 1)
-                                        binary vector out of a spike time series
-            reshape: returns T(M - window_size + 1) x (ws * N) numpy binary vector
+        """
+        returns new Spikes object of 3d numpy arr of windowed spike trains:
+        X:   T (num trials) x (window_size * N) x  (M - window_size + 1)
+        binary vector out of a spike time series
+        reshape: returns T(M - window_size + 1) x (ws * N) numpy binary vector
         """
         trials = trials or range(self._T)
         X = np.zeros((len(trials), window_size * self._N, self._M - window_size + 1))
@@ -175,10 +179,11 @@ class Spikes(Restoreable, object):
         return Spikes(spikes_arr=X)
 
     def load_from_spikes_times(self, spike_times_lists, bin_size=1):
-        """ loads a spike train from a list of arrays of spike times
-            bin_size: in millisec
-                - the jth item in the list corresponds to the jth neuron
-                  it is the 1d array of spike times (micro sec) for that neuron
+        """
+        loads a spike train from a list of arrays of spike times
+        bin_size: in millisec
+        the jth item in the list corresponds to the jth neuron
+        it is the 1d array of spike times (micro sec) for that neuron
         """
         if len(spike_times_lists) == 0: return
         self.max_millisec = - np.inf
@@ -197,9 +202,10 @@ class Spikes(Restoreable, object):
         self._spikes_arr = np.double((np.sign(self._spikes_arr) + 1) // 2)
 
     def rasterize(self, trials=None, start=0, stop=None, save_png_name=None):
-        """ return *new* (copied) numpy array of size (TN x M)
-            trials: e.g. [1, 5, 6], None is all
-            save_png_name: if not None then only saves
+        """
+        return *new* (copied) numpy array of size (TN x M)
+        trials: e.g. [1, 5, 6], None is all
+        save_png_name: if not None then only saves
         """
         stop = stop or self._M
         trials = trials or range(self._T)
@@ -212,9 +218,10 @@ class Spikes(Restoreable, object):
             return sub_spikes_arr.copy().reshape((len(trials) * self._N, stop - start))
 
     def covariance(self, trials=None, start=0, stop=None, save_png_name=None):
-        """ return *new* numpy array of size (T x N x N) which is covariance matrix betwn neurons
-            trials: e.g. [0, 1, 5, 6], None is all
-            save_png_name: if not None then only saves
+        """
+        return *new* numpy array of size (T x N x N) which is covariance matrix betwn neurons
+        trials: e.g. [0, 1, 5, 6], None is all
+        save_png_name: if not None then only saves
         """
         stop = stop or self._M
         trials = trials or range(self._T)

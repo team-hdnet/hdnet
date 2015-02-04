@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
+# This file is part of the hdnet package
+# Copyright 2014 the authors, see file AUTHORS.
+# Licensed under the GPLv3, see file LICENSE for details
+
 """
-    hdnet.TITLE
+    hdnet.stats
     ~~~~~~~~~~~
 
-    DESCRIPTION
+    Statistics module.
 
-    :copyright: Copyright 2014 the authors, see AUTHORS.
-    :license: GPLv3, see LICENSE for details.
 """
 
 __version__ = "0.1"
@@ -34,7 +36,7 @@ def compute_label_markov_probabilities(sequence):
     over this sequence
     :param sequence: 1d list or numpy array of labels
     :return: Markov transition probability matrix of labels in sequence as
-             2d numpy array
+    2d numpy array
     """
     sequence = np.atleast_1d(sequence)
     n_fp = len(set(sequence))
@@ -84,14 +86,14 @@ def compute_markov_graph(markov_probabilities, node_labels=None,
     package NetworkX. Each directed edge (x, y) is assigned as weight the
     Markov transition probability from label x to label y.
     :param markov_probabilities: Markov transition probabilities of labels,
-     2d numpy array
+    2d numpy array
     :param node_labels: remapped labels (optional, default None)
     :param thres: weight threshold for edges; only edges above that weight
-     are included in the graph (default 0)
+    are included in the graph (default 0)
     :param no_loop: boolean flag specifiying handling of self-loops; if set
-     to True, self-loops are discarded.
+    to True, self-loops are discarded.
     :return: NetworkX DiGraph with lables as nodes and Markov transition
-     probabilities as edges
+    probabilities as edges
     """
     import networkx as nx
 
@@ -227,8 +229,8 @@ def calculate_loops_entropy_scores(g, n, node_entropies, min_len=5, max_len=20, 
     :param n: base node
     :param node_entropies: 1d array of node entropies
     :return: (loops, scores), where loops is a 1d array of loops and scores a
-     1d array of loop scores. Index in scores identical to index in loops,
-     arrays sorted by score (ascending).
+    1d array of loop scores. Index in scores identical to index in loops,
+    arrays sorted by score (ascending).
     """
     import networkx as nx
     loops = []
@@ -255,8 +257,8 @@ def calculate_paths_entropy_scores(g, n1, n2, node_entropies, min_len=5, max_len
     :param n2: end node
     :param node_entropies: 1d array of node entropies
     :return: (paths, scores), where paths is a 1d array of paths and scores a
-     1d array of path scores. Index in scores identical to index in paths,
-     arrays sorted by score (ascending).
+    1d array of path scores. Index in scores identical to index in paths,
+    arrays sorted by score (ascending).
     """
     import networkx as nx
     paths = [ p for p in nx.all_simple_paths(g, n1, n2, cutoff=max_len) if len(p) >= min_len]

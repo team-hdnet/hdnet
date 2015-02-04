@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
+# This file is part of the hdnet package
+# Copyright 2014 the authors, see file AUTHORS.
+# Licensed under the GPLv3, see file LICENSE for details
+
 """
     hdnet.hopfield
     ~~~~~~~~~~~~~~
 
-    HopfieldNet: Hopfield network python class with hopfield dynamics [Hopfield, PNAS, 1982]
-    Built in learning/training of network is outer product learning rule (OPR).
-
-    HopfieldNetMPF: Hopfield network using Minimum Probability Flow (MPF)
-    (Sohl-Dickstein, Battaglino, Deweese, 2009) for training / learning of binary patterns
-
-    :copyright: Copyright 2014 the authors, see AUTHORS.
-    :license: GPLv3, see LICENSE for details.
+    Classes providing Hopfield network functionality, both dynamics and training.
 """
 
 import numpy as np
@@ -32,14 +29,13 @@ from hdnet.util import Restoreable, hdlog
 
 
 class HopfieldNet(Restoreable, object):
-    """ Class for a binary Hopfield network
+    """
+    Hopfield network class with binary hopfield dynamics [Hopfield, PNAS, 1982]
+    Built in learning/training of network is outer product learning rule (OPR).
 
     Main Parameters:
-    -----------
-    N: int
-        length of {0,1} binary vectors
-    J: float array
-        Hopfield connectivity matrix of network
+    N: int: length of {0,1} binary vectors
+    J: float array: Hopfield connectivity matrix of network
     theta: array of thresholds for the nodes
     """
 
@@ -103,14 +99,15 @@ class HopfieldNet(Restoreable, object):
         self._learn_iterations = 0  # how many learning steps have been taken so far
 
     def __call__(self, X, converge=True, max_iter=10 ** 5, clamped_nodes=None):
-        """ Usage:  my_Hopfield_net(X) returns the Hopfield dynamics update to patterns
-            stored in rows of M x N matrix X
+        """
+        Usage:  my_Hopfield_net(X) returns the Hopfield dynamics update to patterns
+        stored in rows of M x N matrix X
 
-            if converge = False then 1 update run through the neurons is performed
-            else: Hopfield dynamics run on X until convergence OR max_iter iterations reached
-            (NOTE: set max_iter = Inf to always force convergence)
+        if converge = False then 1 update run through the neurons is performed
+        else: Hopfield dynamics run on X until convergence OR max_iter iterations reached
+        (NOTE: set max_iter = Inf to always force convergence)
 
-            clamped_nodes is dictionary of those nodes not to update during the dynamics
+        clamped_nodes is dictionary of those nodes not to update during the dynamics
         """
         if clamped_nodes is None:
             clamped_nodes = {}
@@ -140,7 +137,8 @@ class HopfieldNet(Restoreable, object):
             return X
 
     def learn_all(self, X):
-        """ learning M patterns in Hopfield net using OPR [Hopfield, 82]
+        """
+        learning M patterns in Hopfield net using OPR [Hopfield, 82]
 
         X: (M, N)-dim array
             M binary patterns of length N to be stored
@@ -157,12 +155,13 @@ class HopfieldNet(Restoreable, object):
         self._J[np.eye(self._N, dtype=bool)] *= 0
 
     def hopfield_binary_dynamics(self, X, update="asynchronous", clamped_nodes=None):  #, cython=CYTHON):
-        """ applying Hopfield dynamics on X
+        """
+        applying Hopfield dynamics on X
 
-            update can be "asynchronous" or "synchronous"
+        update can be "asynchronous" or "synchronous"
 
-            clamped_nodes is dict of those nodes *not* to change in the dynamics
-            (clamped does not work with cython right now)
+        clamped_nodes is dict of those nodes *not* to change in the dynamics
+        (clamped does not work with cython right now)
         """
         # if cython:
         #     import dynamics
@@ -216,7 +215,8 @@ class HopfieldNet(Restoreable, object):
         return count_arr
 
     def J_norm(self):
-        """ vector of row 2-norms of J
+        """
+        vector of row 2-norms of J
         """
         return np.sqrt((self._J ** 2).sum(1))
 
@@ -254,26 +254,23 @@ class HopfieldNet(Restoreable, object):
 
 
 class HopfieldNetMPF(HopfieldNet):
-    """ Class for a Hopfield network with MPF learning rule
+    """
+    Hopfield network, with training using Minimum Probability Flow (MPF)
+    (Sohl-Dickstein, Battaglino, Deweese, 2009) for training / learning of binary patterns
 
     Parameters:
-    -----------
     N: int
-        length of {0,1} binary vectors
+    length of {0,1} binary vectors
     J: float array
-        Hopfield connectivity matrix of network
+    Hopfield connectivity matrix of network
     theta: array of thresholds for the nodes
 
     Conventions:
-        Note: J_{ij} for i not j = weight W_{ij} between neuron i and j
-              J_{ii} = 0
-        where (Hopfield) dynamics on input x are
-            Out_i(x) = H(\sum_{j not i} J_{ij}x_j - theta_i)
-        Here, H = Heaviside function:  H(r) = 1 r > 0, H(r) = 0 if r <= 0.
+    Note: J_{ij} for i not j = weight W_{ij} between neuron i and j, J_{ii} = 0
+    where (Hopfield) dynamics on input x are Out_i(x) = H(\sum_{j not i} J_{ij}x_j - theta_i).
+    Here, H = Heaviside function:  H(r) = 1 r > 0, H(r) = 0 if r <= 0.
 
-        Note energy function is:
-            Energy(x) = -.5 x^T[J-diag(J)]x + theta*x
-
+    Note energy function is: Energy(x) = -.5 x^T[J-diag(J)]x + theta*x
     """
 
     def reset(self):
