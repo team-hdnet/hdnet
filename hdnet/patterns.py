@@ -9,6 +9,7 @@
     :license: GPLv3, see LICENSE for details.
 """
 
+import os
 import numpy as np
 from util import hdlog, Restoreable
 
@@ -26,6 +27,7 @@ class Counter(Restoreable, object):
     _SAVE_ATTRIBUTES_V1 = ['_counts', '_patterns', '_lookup_patterns',
                         '_sequence', '_skipped_patterns', '_seen_sequence']
     _SAVE_VERSION = 1
+    _SAVE_TYPE = 'Counter'
 
     @staticmethod
     def key_for_pattern(pattern):
@@ -42,6 +44,7 @@ class Counter(Restoreable, object):
     def __init__(self, counter=None, save_sequence=True):
         object.__init__(self)
         Restoreable.__init__(self)
+
         self._counts = {}
         self._patterns = []
         self._lookup_patterns = {}
@@ -211,32 +214,32 @@ class Counter(Restoreable, object):
 
         return stim_avgs
 
-    # representation
-
-    def __repr__(self):
-        return '<Counter: {n} patterns ({u} unique)>'.format(n=sum(self._counts.values()), u=len(self._counts))
-
     # i/o
 
     def save(self, filename='counter', extra=None):
         """ save as numpy array .npz file """
         # TODO: document
-        return super(Counter, self).save(filename=filename,
+        return super(Counter, self)._save(filename=filename,
                                          attributes=self._SAVE_ATTRIBUTES_V1, version=self._SAVE_VERSION,
                                          extra=extra)
 
     @classmethod
     def load(cls, filename='counter', load_extra=False):
         # TODO: document
-        return super(Counter, cls).load(filename=filename, load_extra=load_extra)
+        return super(Counter, cls)._load(filename=filename, load_extra=load_extra)
 
-    def load_v1(self, contents, load_extra=False):
-        hdlog.debug('loading Counter patterns, format version 1')
-        return Restoreable.load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
+    def _load_v1(self, contents, load_extra=False):
+        hdlog.debug('Loading Counter patterns, format version 1')
+        return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
 
     @classmethod
-    def load_legacy(cls, filename='patterns_raw'):
-        hdlog.info("loading Counter patterns from legacy file '%s'" % filename)
+    def load_legacy(cls, filename='counter'):
+        base, ext = os.path.splitext(filename)
+        if not ext:
+            ext = ".npz"
+        filename = base + ext
+
+        hdlog.info("Loading Counter patterns from legacy file '%s'" % filename)
         instance = cls()
         contents = np.load(filename)
         instance._counts = dict(zip(contents['count_keys'], contents['count_values']))
@@ -246,17 +249,18 @@ class Counter(Restoreable, object):
         contents.close()
         return instance
 
-
-class PatternsRaw(Counter):
-    # TODO: document
-
-    def __init__(self, patterns_raw=None, save_sequence=True):
-        super(PatternsRaw, self).__init__(counter=patterns_raw, save_sequence=save_sequence)
-
     # representation
 
     def __repr__(self):
-        return '<PatternsRaw: {n} patterns ({u} unique)>'.format(n=sum(self._counts.values()), u=len(self._counts))
+        return '<Counter: {n} patterns ({u} unique)>'.format(n=sum(self._counts.values()), u=len(self._counts))
+
+
+class PatternsRaw(Counter):
+    # TODO: document
+    _SAVE_TYPE = 'PatternsRaw'
+
+    def __init__(self, patterns_raw=None, save_sequence=True):
+        super(PatternsRaw, self).__init__(counter=patterns_raw, save_sequence=save_sequence)
 
     # i/o
 
@@ -270,9 +274,14 @@ class PatternsRaw(Counter):
         # TODO: document
         return super(PatternsRaw, cls).load(filename=filename, load_extra=load_extra)
 
-    def load_v1(self, contents, load_extra=False):
-        hdlog.debug('loading PatternsRaw patterns, format version 1')
-        return Restoreable.load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
+    def _load_v1(self, contents, load_extra=False):
+        hdlog.debug('Loading PatternsRaw patterns, format version 1')
+        return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
+
+    # representation
+
+    def __repr__(self):
+        return '<PatternsRaw: {n} patterns ({u} unique)>'.format(n=sum(self._counts.values()), u=len(self._counts))
 
 
 class PatternsHopfield(Counter):
@@ -288,6 +297,7 @@ class PatternsHopfield(Counter):
                         '_sequence', '_skipped_patterns', '_seen_sequence',
                         '_mtas', '_mtas_raw']
     _SAVE_VERSION = 1
+    _SAVE_TYPE = 'PatternsHopfield'
 
     def __init__(self, learner=None, patterns_hopfield=None, save_sequence=True, save_raw=True):
         super(PatternsHopfield, self).__init__(save_sequence=save_sequence)
@@ -424,11 +434,6 @@ class PatternsHopfield(Counter):
         # TODO implement
         pass
 
-    # representation
-
-    def __repr__(self):
-        return '<PatternsHopfield: {n} patterns ({u} unique)>'.format(n=sum(self._counts.values()), u=len(self._counts))
-
     # i/o
 
     def save(self, filename='patterns_hopfield', extra=None):
@@ -438,15 +443,20 @@ class PatternsHopfield(Counter):
     @classmethod
     def load(cls, filename='patterns_hopfield', load_extra=False):
         # TODO: document
-        return super(PatternsHopfield, cls).load(filename=filename, load_extra=load_extra)
+        return super(PatternsHopfield, cls)._load(filename=filename, load_extra=load_extra)
 
-    def load_v1(self, contents, load_extra=False):
-        hdlog.debug('loading PatternsHopfield patterns, format version 1')
-        return Restoreable.load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
+    def _load_v1(self, contents, load_extra=False):
+        hdlog.debug('Loading PatternsHopfield patterns, format version 1')
+        return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
 
     @classmethod
     def load_legacy(cls, filename='patterns_hopfield'):
-        hdlog.info("loading PatternHopfield patterns from legacy file '%s'" % filename)
+        base, ext = os.path.splitext(filename)
+        if not ext:
+            ext = ".npz"
+        filename = base + ext
+
+        hdlog.info("Loading PatternHopfield patterns from legacy file '%s'" % filename)
         instance = cls()
         contents = np.load(filename)
         instance._counts = dict(zip(contents['count_keys'], contents['count_values']))
@@ -457,6 +467,11 @@ class PatternsHopfield(Counter):
         instance._sequence = contents['sequence']
         contents.close()
         return instance
+
+    # representation
+
+    def __repr__(self):
+        return '<PatternsHopfield: {n} patterns ({u} unique)>'.format(n=sum(self._counts.values()), u=len(self._counts))
 
 
 # end of source

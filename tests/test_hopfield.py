@@ -13,15 +13,14 @@ import unittest
 from time import time as now
 import numpy as np
 
-from hdnet.hopfield import HopfieldNet
-from hdnet.hopfield_mpf import HopfieldNetMPF
+from hdnet.hopfield import HopfieldNet, HopfieldNetMPF
 
 
 class TestHopfield(unittest.TestCase):
 
     def test_basic(self):
         MPF = HopfieldNetMPF(N=3)
-        MPF.J = np.array([[0, -1, 1], [-1, 0, 2], [1, 2, 0]])
+        MPF._J = np.array([[0, -1, 1], [-1, 0, 2], [1, 2, 0]])
 
         x = np.array([0, 1, 0])
         y = MPF(x, converge=False)

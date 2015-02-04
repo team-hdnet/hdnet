@@ -23,60 +23,65 @@ class Restoreable(object):
     #mixin class for saving
     """
     Mixin class for supporting of saving and loading of contents in compressed
-    numpy format (savez). Supports file versioning and type identification.
+    numpy format (numpy.savez). Supports file versioning and type identification.
     """
     _VERSION_FIELD = 'hdnet_version'
     _TYPE_FIELD = 'hdnet_kind'
+    _SAVE_TYPE = ''
 
     def __init__(self):
         object.__init__(self)
 
-    def save(self, filename, attributes, version, extra=None):
+    def _save(self, filename, attributes, version, extra=None):
         base, ext = os.path.splitext(filename)
         if not ext:
             ext = ".npz"
         filename = base + ext
 
-        hdlog.info("saving to file '%s'" % filename)
+        hdlog.info("Saving to file '%s'" % filename)
 
         if extra is None:
             extra = {}
 
         for key in attributes:
-            value = getattr(self, key)
+            if not hasattr(self, key):
+                hdlog.debug("Skipping attribute '{k}'".format(k=key))
+                value = None
+            else:
+                value = getattr(self, key)
             if isinstance(value, dict):
                 extra['DICT_KEYS_' + key] = value.keys()
                 extra['DICT_VALUES_' + key] = value.values()
             else:
                 extra[key] = value
         extra[Restoreable._VERSION_FIELD] = version
-        extra[Restoreable._TYPE_FIELD] = self.__class__.__name__
-        hdlog.info("kind '%s'" % extra[Restoreable._TYPE_FIELD])
+        extra[Restoreable._TYPE_FIELD] = self._SAVE_TYPE
+        hdlog.debug("Kind '%s'" % extra[Restoreable._TYPE_FIELD])
         np.savez(filename, **extra)
 
     @classmethod
-    def load(cls, filename, load_extra=False):
+    def _load(cls, filename, load_extra=False):
         instance = cls()
         base, ext = os.path.splitext(filename)
         if not ext:
             ext = ".npz"
         filename = base + ext
 
-        hdlog.info("loading from file '%s'" % filename)
-        contents = Restoreable.load_raw(filename)
+        hdlog.info("Loading from file '%s'" % filename)
+        contents = Restoreable._load_raw(filename)
 
         if not Restoreable._VERSION_FIELD in contents or not Restoreable._TYPE_FIELD in contents:
-            hdlog.error("file does not seem to be a valid hdnet data file, missing version / type!")
+            hdlog.error("File does not seem to be a valid hdnet data file, missing version / type!")
             return instance
 
-        if not contents[Restoreable._TYPE_FIELD] == np.array(instance.__class__.__name__):
-            hdlog.error("file has wrong type: expected '%s', got '%s'" % (
-                instance.__class__.__name__, str(contents[Restoreable._TYPE_FIELD])))
+        if not contents[Restoreable._TYPE_FIELD] == np.array(instance._SAVE_TYPE):
+            hdlog.error("File has wrong type: expected '%s', got '%s'" % (
+                instance._SAVE_TYPE, str(contents[Restoreable._TYPE_FIELD])))
             return instance
 
-        loader_name = 'load_v' + str(contents[Restoreable._VERSION_FIELD])
+        loader_name = '_load_v' + str(contents[Restoreable._VERSION_FIELD])
         if not hasattr(instance, loader_name):
-            hdlog.error("class '%s' does not have a loader for file version %d!" % (
+            hdlog.error("Class '%s' does not have a loader for file version %d!" % (
                 instance.__class__.__name__, contents[Restoreable._VERSION_FIELD]))
             return instance
 
@@ -84,10 +89,10 @@ class Restoreable(object):
         return loader(contents, load_extra=load_extra)
 
     @staticmethod
-    def load_attributes(instance, contents, attributes):
+    def _load_attributes(instance, contents, attributes):
         for attr in attributes:
             if not attr in contents.keys() and not 'DICT_KEYS_' + attr in contents.keys():
-                hdlog.info("attribute '%s' not in file" % attr)
+                hdlog.info("Attribute '%s' not in file" % attr)
                 continue
             if 'DICT_KEYS_' + attr in contents.keys():
                 value = dict(zip(contents['DICT_KEYS_' + attr],
@@ -98,7 +103,7 @@ class Restoreable(object):
         return instance
 
     @staticmethod
-    def load_raw(filename):
+    def _load_raw(filename):
         base, ext = os.path.splitext(filename)
         if not ext:
             ext = ".npz"
@@ -107,5 +112,6 @@ class Restoreable(object):
         data = {key: contents[key] for key in contents.keys()}
         contents.close()
         return data
+
 
 # end of source

@@ -19,45 +19,86 @@ from sampling import sample_from_bernoulli, sample_from_ising, sample_from_dicho
     find_latent_gaussian, poisson_marginals, find_dg_any_marginal, sample_dg_any_marginal
 from util import hdlog
 
+
 class SpikeModel(object):
     """ generic model of spikes (and stimulus)
 
     Parameters
         spikes: spikes to model
-        stimulus: corresp stimulus if exists
+        stimulus: corresp stimulus if existent
         window_size: length of time window in binary bins
     """
 
     def __init__(self, spikes=None, stimulus=None, window_size=1, learner=None):
-        self.stimulus = stimulus
-        self.window_size = window_size
-        self.learner = learner or None
-        self.original_spikes = spikes
-        self.learn_time = None
+        self._stimulus = stimulus
+        self._window_size = window_size
+        self._learner = learner or None
+        self._original_spikes = spikes
+        self._learn_time = None
+        self._sample_spikes = None
+        self._raw_patterns = None
+        self._hopfield_patterns = None
+        self._hopfield_spikes = None
+
+    @property
+    def stimulus(self):
+        return self._stimulus
+
+    @property
+    def window_size(self):
+        return self._window_size
+
+    @property
+    def learner(self):
+        return self._learner
+
+    @property
+    def original_spikes(self):
+        return self._original_spikes
+
+    @property
+    def learn_time(self):
+        return self._learn_time
+
+    @property
+    def sample_spikes(self):
+        return self._sample_spikes
+
+    @property
+    def raw_patterns(self):
+        return self._raw_patterns
+
+    @property
+    def hopfield_patterns(self):
+        return self._hopfield_patterns
+
+    @property
+    def hopfield_spikes(self):
+        return self._hopfield_spikes
 
     def fit(self, trials=None, remove_zeros=False, reshape=False):
         # TODO: take care of remove_zeros
-        self.sample_spikes = self.sample_from_model(trials=trials, reshape=reshape)
-        self.learner = Learner(spikes=self.sample_spikes)
-        self.learner.learn_from_spikes(remove_zeros=remove_zeros)
+        self._sample_spikes = self.sample_from_model(trials=trials, reshape=reshape)
+        self._learner = Learner(spikes=self._sample_spikes)
+        self._learner.learn_from_spikes(remove_zeros=remove_zeros)
 
     def chomp(self):
         hdlog.debug("Chomping samples from model")
-        self.empirical = PatternsRaw(save_sequence=True)
-        self.empirical.chomp_spikes(spikes=self.sample_spikes)
-        hdlog.info("%d-bit (empirical): %d patterns (H = %1.3f)" % (
-            self.sample_spikes.N, len(self.empirical), self.empirical.entropy()))
+        self._raw_patterns = PatternsRaw(save_sequence=True)
+        self._raw_patterns.chomp_spikes(spikes=self._sample_spikes)
+        hdlog.info("Raw: %d-bit, %d patterns (H = %1.4f)" % (
+            self._sample_spikes.N, len(self._raw_patterns), self._raw_patterns.entropy()))
 
         hdlog.debug("Chomping dynamics (from network learned on the samples) applied to samples")
-        self.memories = PatternsHopfield(learner=self.learner, save_sequence=True)
-        self.memories.chomp_spikes(spikes=self.sample_spikes)
-        hdlog.info("%d-bit (hopnet): %d memories (H = %1.3f)" % (
-            self.sample_spikes.N, len(self.memories), self.memories.entropy()))
+        self._hopfield_patterns = PatternsHopfield(learner=self._learner, save_sequence=True)
+        self._hopfield_patterns.chomp_spikes(spikes=self._sample_spikes)
+        hdlog.info("Hopfield: %d-bit, %d patterns (H = %1.4f)" % (
+            self._sample_spikes.N, len(self._hopfield_patterns), self._hopfield_patterns.entropy()))
 
         # print "Before dynamics:"
         # print self.sample_spikes.spikes_arr
         # print "Applied dynamics:"
-        self.hopfield_spikes_arr = self.memories.apply_dynamics(spikes=self.sample_spikes, reshape=True)
+        self._hopfield_spikes = self._hopfield_patterns.apply_dynamics(spikes=self._sample_spikes, reshape=True)
         # ma_err = np.abs(self.sample_spikes.spikes_arr - hop_model_spikes).mean()
         #        print hop_model_spikes
         # print "Mean prediction: %1.4f/1.0 (vs guess zero: %1.4f)" % (
@@ -69,7 +110,7 @@ class SpikeModel(object):
         """ Returns tuple: counts, entropies [, couplings]
                 counts, entropies: arrays of size 2 x T x WSizes 
             (0: empirical from model sample, 1: dynamics from learned model on sample)"""
-        trials = trials or range(self.original_spikes.T)
+        trials = trials or range(self._original_spikes.T)
         counts = np.zeros((2, len(trials), len(window_sizes)))
         entropies = np.zeros((2, len(trials), len(window_sizes)))
 
@@ -83,7 +124,7 @@ class SpikeModel(object):
             for c, trial in enumerate(trials):
                 hdlog.info("Trial %d | ws %d" % (trial, window_size))
 
-                self.window_size = window_size
+                self._window_size = window_size
 
                 t = now()
                 self.fit(trials=[trial], remove_zeros=remove_zeros)
@@ -92,22 +133,22 @@ class SpikeModel(object):
                 tot_learn_time += diff
 
                 if save_couplings:
-                    couplings[ws].append(self.learner.network.J.copy())
+                    couplings[ws].append(self._learner.network.J.copy())
 
                 self.chomp()
-                entropies[0, c, ws] = self.empirical.entropy()
-                counts[0, c, ws] = len(self.empirical)
-                entropies[1, c, ws] = self.memories.entropy()
-                counts[1, c, ws] = len(self.memories)
+                entropies[0, c, ws] = self._raw_patterns.entropy()
+                counts[0, c, ws] = len(self._raw_patterns)
+                entropies[1, c, ws] = self._hopfield_patterns.entropy()
+                counts[1, c, ws] = len(self._hopfield_patterns)
 
         hdlog.info("Total learn time: %1.3f mins" % (tot_learn_time / 60.))
-        self.learn_time = tot_learn_time
+        self._learn_time = tot_learn_time
         if save_couplings:
             return counts, entropies, couplings
         return counts, entropies
 
     def sample_from_model(self, trials=None, reshape=False):
-        return self.original_spikes.to_windowed(window_size=self.window_size, trials=trials, reshape=reshape)
+        return self._original_spikes.to_windowed(window_size=self._window_size, trials=trials, reshape=reshape)
 
 
 class BernoulliHomogeneous(SpikeModel):
@@ -120,14 +161,14 @@ class BernoulliHomogeneous(SpikeModel):
                                         binary vector out of a spike time series
             reshape: returns T(M - window_size + 1) x (ws * N) numpy binary vector
         """
-        trials = trials or xrange(self.original_spikes.T)
+        trials = trials or xrange(self._original_spikes.T)
         X = np.zeros(
-            (len(trials), self.window_size * self.original_spikes.N, self.original_spikes.M - self.window_size + 1))
+            (len(trials), self._window_size * self._original_spikes.N, self._original_spikes.M - self._window_size + 1))
 
-        sample_spikes = self.original_spikes.to_windowed(trials=trials, window_size=self.window_size)
+        sample_spikes = self._original_spikes.to_windowed(trials=trials, window_size=self._window_size)
         for c, t in enumerate(trials):
             p = sample_spikes.spikes_arr[c, :, :].mean(axis=1)
-            X[c, :, :] = sample_from_bernoulli(p, self.original_spikes.M - self.window_size + 1)
+            X[c, :, :] = sample_from_bernoulli(p, self._original_spikes.M - self._window_size + 1)
 
         if reshape:
             Y = np.zeros((X.shape[0] * X.shape[2], X.shape[1]))
@@ -145,14 +186,14 @@ class BernoulliInhomogeneous(SpikeModel):
     """ Bernoulli model of spikes """
 
     def sample_from_model(self, averaging_window_size = 20, trials=None, reshape=False):
-        trials = trials or xrange(self.original_spikes.T)
+        trials = trials or xrange(self._original_spikes.T)
         X = np.zeros(
-            (len(trials), self.window_size * self.original_spikes.N, self.original_spikes.M - self.window_size + 1))
+            (len(trials), self._window_size * self._original_spikes.N, self._original_spikes.M - self._window_size + 1))
 
         for c, t in enumerate(trials):
-            num_neurons = self.original_spikes.N
-            num_samples = self.original_spikes.M
-            spikes_arr = self.original_spikes.spikes_arr
+            num_neurons = self._original_spikes.N
+            num_samples = self._original_spikes.M
+            spikes_arr = self._original_spikes.spikes_arr
 
             ps = []
             for i in xrange(num_neurons):
@@ -162,7 +203,7 @@ class BernoulliInhomogeneous(SpikeModel):
             ps = np.array(ps)
 
             for j in xrange(num_neurons):
-                for i in xrange(0, self.original_spikes.M - self.window_size + 1):
+                for i in xrange(0, self._original_spikes.M - self._window_size + 1):
                     X[c, j, i] = int(np.random.random() < ps[j, i / averaging_window_size])
                     # sample_from_Bernoulli([ps[j,i/numbins]], 1).ravel()[0]
 
@@ -183,15 +224,15 @@ class Shuffled(SpikeModel):
     def sample_from_model(self, trials=None, trial_independence=True, reshape=False):
         """ returns new Spikes object: permutes spikes_arr in time
             trial_independence: diff permutation for each trial """
-        idx = np.random.permutation(self.original_spikes.M)
-        new_arr = np.zeros(self.original_spikes.spikes_arr.shape)
-        for i in xrange(self.original_spikes.T):
+        idx = np.random.permutation(self._original_spikes.M)
+        new_arr = np.zeros(self._original_spikes.spikes_arr.shape)
+        for i in xrange(self._original_spikes.T):
             if trial_independence:
-                idx = np.random.permutation(self.original_spikes.M)
-            arr = self.original_spikes.spikes_arr[i, :, :].copy()
+                idx = np.random.permutation(self._original_spikes.M)
+            arr = self._original_spikes.spikes_arr[i, :, :].copy()
             new_arr[i] = arr[:, idx]
         return Spikes(new_arr).to_windowed(
-            window_size=self.window_size, trials=trials)
+            window_size=self._window_size, trials=trials)
 
 
 class Ising(SpikeModel):
@@ -205,10 +246,10 @@ class Ising(SpikeModel):
             (with Ising model determined by learning with MPF)
         """
 
-        trials = trials or range(self.original_spikes.T)
-        X = np.zeros((len(trials), self.original_spikes.N, self.original_spikes.M))
+        trials = trials or range(self._original_spikes.T)
+        X = np.zeros((len(trials), self._original_spikes.N, self._original_spikes.M))
 
-        learner = Learner(spikes=self.original_spikes)
+        learner = Learner(spikes=self._original_spikes)
 
         no_net = False
         if J is None or theta is None:
@@ -217,18 +258,18 @@ class Ising(SpikeModel):
         for c, t in enumerate(trials):
             if no_net:
                 learner.learn_from_spikes(window_size=1, trials=[t])
-                J = learner.network.J
-                theta = learner.network.theta
-            X[c, :, :] = sample_from_ising(J, theta, self.original_spikes.M)
+                J = learner._network.J
+                theta = learner._network.theta
+            X[c, :, :] = sample_from_ising(J, theta, self._original_spikes.M)
 
         return Spikes(spikes_arr=X)
 
 
 class DichotomizedGaussian(SpikeModel):
     def sample_from_model(self, trials=None, reshape=False):
-        trials = trials or range(self.original_spikes.T)
-        spikes_windowed = self.original_spikes.to_windowed(self.window_size, trials)
-        X = np.zeros((len(trials), self.original_spikes.N, self.original_spikes.M))
+        trials = trials or range(self._original_spikes.T)
+        spikes_windowed = self._original_spikes.to_windowed(self._window_size, trials)
+        X = np.zeros((len(trials), self._original_spikes.N, self._original_spikes.M))
 
         # statistics
         for c, t in enumerate(trials):
@@ -236,16 +277,16 @@ class DichotomizedGaussian(SpikeModel):
             bin_cov = np.cov(spikes_windowed.spikes_arr[t, :, :])
             gauss_means, gauss_cov = find_latent_gaussian(bin_means, bin_cov)
 
-            for i in xrange(0, spikes_windowed.M, self.window_size):
+            for i in xrange(0, spikes_windowed.M, self._window_size):
                 x = sample_from_dichotomized_gaussian(bin_means, bin_cov, 1, gauss_means, gauss_cov)
-                X[c, :, i:i+self.window_size] = x.reshape(self.original_spikes.N, self.window_size)
+                X[c, :, i:i+self._window_size] = x.reshape(self._original_spikes.N, self._window_size)
 
-            if spikes_windowed.M % self.window_size != 0:
-                stub = spikes_windowed.M % self.window_size
+            if spikes_windowed.M % self._window_size != 0:
+                stub = spikes_windowed.M % self._window_size
                 x = sample_from_dichotomized_gaussian(bin_means, bin_cov, 1, gauss_means, gauss_cov)
 
                 X[c, :, spikes_windowed.M - stub : spikes_windowed.M] = \
-                    x.reshape(self.original_spikes.N, self.window_size)[:, :stub]
+                    x.reshape(self._original_spikes.N, self._window_size)[:, :stub]
 
         if reshape:
             Y = np.zeros((X.shape[0] * X.shape[2], X.shape[1]))
@@ -262,9 +303,9 @@ class DichotomizedGaussian(SpikeModel):
 class DichotomizedGaussianPoisson(SpikeModel):
 
     def sample_from_model(self, trials=None, reshape=False):
-        trials = trials or range(self.original_spikes.T)
-        spikes_windowed = self.original_spikes.to_windowed(self.window_size, trials)
-        X = np.zeros((len(trials), self.original_spikes.N, self.original_spikes.M))
+        trials = trials or range(self._original_spikes.T)
+        spikes_windowed = self._original_spikes.to_windowed(self._window_size, trials)
+        X = np.zeros((len(trials), self._original_spikes.N, self._original_spikes.M))
 
         # statistics
         for c, t in enumerate(trials):
@@ -278,7 +319,7 @@ class DichotomizedGaussianPoisson(SpikeModel):
             gauss_means, gauss_cov, joints = find_dg_any_marginal(pmfs, bin_cov, supports)
 
             # generate samples
-            samples, hists = sample_dg_any_marginal(gauss_means, gauss_cov, self.original_spikes.M, supports)
+            samples, hists = sample_dg_any_marginal(gauss_means, gauss_cov, self._original_spikes.M, supports)
 
             X[c, :, :] = samples.T
 

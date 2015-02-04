@@ -29,7 +29,7 @@ class TestPatternsHopfield(TestTmpPath):
 
     def test_counter(self):
         spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))
-        print spikes.spikes_arr
+        print spikes._spikes_arr
         counter = Counter()
         counter.chomp_spikes(spikes)
         print counter._counts
@@ -74,7 +74,7 @@ class TestPatternsHopfield(TestTmpPath):
 
         spikes_arr = np.random.randn(5, 10000)
         spikes = Spikes(spikes_arr=spikes_arr)
-        self.assertTrue(np.abs(spikes.spikes_arr[0, :, :].mean() - .5) < .1)
+        self.assertTrue(np.abs(spikes._spikes_arr[0, :, :].mean() - .5) < .1)
         empirical = Counter()
         empirical.chomp_spikes(spikes)
         empirical_w2 = Counter()
@@ -83,7 +83,7 @@ class TestPatternsHopfield(TestTmpPath):
 
     def test_patterns_raw(self):
         spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))
-        print spikes.spikes_arr
+        print spikes._spikes_arr
         patterns = PatternsRaw()
         patterns.chomp_spikes(spikes)
         print patterns._counts
@@ -158,7 +158,7 @@ class TestPatternsHopfield(TestTmpPath):
         # self.assertTrue(np.mean(patterns.pattern_to_binary_matrix(1) == [[0, 0], [0, 1], [1, 0]]))
         # self.assertTrue(np.mean(patterns.pattern_to_mta_matrix(1) == [[0, 0], [0, 1], [1, .5]]))
         
-        print spikes.spikes_arr
+        print spikes._spikes_arr
         print patterns.pattern_to_trial_raster(3)
         # print patterns.pattern_to_mta_matrix(1)
         # print patterns.pattern_to_binary_matrix(1)

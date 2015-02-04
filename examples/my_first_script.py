@@ -49,7 +49,7 @@ plt.title('DichotomizedGaussian covariance')
 spikes_model = SpikeModel(spikes=spikes)
 spikes_model.fit()  # note: this fits a single network to all trials
 spikes_model.chomp()
-converged_spikes = Spikes(spikes_arr=spikes_model.hopfield_spikes_arr)
+converged_spikes = Spikes(spikes_arr=spikes_model.hopfield_spikes)
 plt.matshow(converged_spikes.rasterize(), cmap='gray')
 plt.title('Converge dynamics on Raw data')
 plt.matshow(converged_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
@@ -58,35 +58,35 @@ plt.title('Covariance of converged memories')
 # let's examine more carefully the memories discovered in the Hopnet
 # plot memory label (its chronological appearance) as a function of time
 plt.figure()
-plt.scatter(range(len(spikes_model.memories._sequence)), 1 + np.array(spikes_model.memories._sequence))
+plt.scatter(range(len(spikes_model.hopfield_patterns.sequence)), 1 + np.array(spikes_model.hopfield_patterns.sequence))
 plt.xlabel('time bin')
 plt.ylabel('Memory number (chronological order of appearance)')
 plt.title('Converged memory label at each time bin')
 # versus the Raw data
 plt.figure()
-plt.scatter(range(len(spikes_model.empirical._sequence)), 1 + np.array(spikes_model.empirical._sequence))
+plt.scatter(range(len(spikes_model.raw_patterns.sequence)), 1 + np.array(spikes_model.raw_patterns.sequence))
 plt.ylabel('Raw pattern number (chronological order of appearance)')
 plt.xlabel('time bin')
 plt.title('Raw pattern label at each time bin')
 
 # memories are ordered by their first appearance:
-bin_memories = spikes_model.memories._patterns
+bin_memories = spikes_model.hopfield_patterns.patterns
 arr = np.zeros((spikes_model.original_spikes.N, 2 * len(bin_memories)))
 for c, memory in enumerate(bin_memories):
-    arr[:, c] = spikes_model.memories.fp_to_binary_matrix(c)
+    arr[:, c] = spikes_model.hopfield_patterns.fp_to_binary_matrix(c)
 for c, memory in enumerate(bin_memories):
-    arr[:, c + len(bin_memories)] = spikes_model.memories._mtas[memory] / spikes_model.memories._counts[memory]
+    arr[:, c + len(bin_memories)] = spikes_model.hopfield_patterns.mtas[memory] / spikes_model.hopfield_patterns.counts[memory]
 
 print "Probabilities of each memory:"
-print zip(bin_memories, spikes_model.memories.to_prob_vect())
+print zip(bin_memories, spikes_model.hopfield_patterns.to_prob_vect())
 
 # Saving / Loading
 spikes_model.learner.save('my_learner')
-spikes_model.memories.save('my_memories')
+spikes_model.hopfield_patterns.save('my_memories')
 spikes_model.learner.load('my_learner')
-spikes_model.memories.load('my_memories')
+spikes_model.hopfield_patterns.load('my_memories')
 
-# (Fake) Stimuli !!
+# (Fake) Stimuli
 calvin = np.load('data/calvin.npy')  # 90 by 100 numpy array
 hobbes = np.load('data/hobbes.npy')
 
@@ -100,18 +100,18 @@ plt.matshow(stimulus_arr[1, 0], cmap='gray')
 plt.title('Hobbes Sample Stimulus')
 
 stimulus = Stimulus(stimulus_arr=stimulus_arr)
-avgs = spikes_model.memories.mem_triggered_stim_avgs(stimulus)
+avgs = spikes_model.hopfield_patterns.mem_triggered_stim_avgs(stimulus)
 
 for stm_avg in avgs:
     plt.matshow(stm_avg, cmap='gray')
     plt.title('Memory Triggered Stimulus Average')
 
-# Real Data (woohoo!)
+# Real Data
 spikes = Spikes(spk_folder='data/Blanche/crcns_pvc3_cat_recordings/drifting_bar/spike_data')
 spikes_model = SpikeModel(spikes=spikes)
 spikes_model.fit()  # note: this fits a single network to all trials
 spikes_model.chomp()
-converged_spikes = Spikes(spikes_arr=spikes_model.hopfield_spikes_arr)
+converged_spikes = Spikes(spikes_arr=spikes_model.hopfield_spikes)
 plt.matshow(converged_spikes.rasterize(), cmap='gray')
 plt.title('Converge dynamics on Raw data')
 plt.matshow(converged_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')

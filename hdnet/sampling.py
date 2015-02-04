@@ -403,8 +403,6 @@ def find_dg_any_marginal(pmfs, bin_cov, supports, accuracy=1e-10):
     return gammas, lam, joints
 
 
-
-
 def sample_dg_any_marginal(gauss_means, gauss_cov, num_samples, supports=None):
     """
     [samples,hists]=SampleDGAnyMarginal(gammas,Lambda,supports,Nsamples)
@@ -442,5 +440,6 @@ def sample_dg_any_marginal(gauss_means, gauss_cov, num_samples, supports=None):
         hists[i] = hists[i][0:max(0, len(hists[i]) - 1)]
 
     return samples, np.array(hists)
+
 
 # end of source

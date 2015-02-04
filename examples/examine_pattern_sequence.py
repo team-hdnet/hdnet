@@ -44,7 +44,7 @@ import matplotlib as mpl
 #mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-from hdnet.patterns import Patterns
+from hdnet.patterns import PatternsHopfield
 
 from hdnet.stats import compute_label_probabilities, \
     compute_label_markov_probabilities, \
@@ -62,8 +62,7 @@ n = NUMBER_OF_NEURONS
 ws = WINDOW_SIZE
 
 # load pattern sequence
-patterns = Patterns()
-patterns.load(pattern_file)
+patterns = PatternsHopfield.load(pattern_file)
 sequence = patterns.sequence
 labels = set(sequence)
 n_labels = len(labels)
@@ -82,28 +81,28 @@ label_entropy = compute_label_entropy_markov(markov_probabilities)
 
 # plot label probabilities, markov transition probabilities and node entropy
 fig, ax = plt.subplots()
-plt.hist(label_probabilities, weights=[1. / n_labels] * n_labels,
+ax.hist(label_probabilities, weights=[1. / n_labels] * n_labels,
          bins=50, color='k')
-plt.xlabel('label')
-plt.ylabel('fraction')
+ax.set_xlabel('label')
+ax.set_ylabel('fraction')
 plt.yscale('log', nonposy='clip')
 plt.savefig('label_probabilities.png')
 plt.close()
 
 fig, ax = plt.subplots()
-plt.matshow(markov_probabilities, cmap='Blues',
+mapable = ax.matshow(markov_probabilities, cmap='Blues',
             norm=mpl.colors.LogNorm(vmin=0.01, vmax=1))
-plt.xlabel('to pattern')
-plt.ylabel('from pattern')
-plt.colorbar()
+ax.set_xlabel('to pattern')
+ax.set_ylabel('from pattern')
+plt.colorbar(mapable, ax=ax)
 plt.savefig('label_probabilities_markov.png')
 plt.close()
 
 fig, ax = plt.subplots()
-plt.hist(label_entropy,
+ax.hist(label_entropy,
          weights=[1. / n_labels] * n_labels, bins=50, color='k')
-plt.xlabel('entropy')
-plt.ylabel('fraction')
+ax.set_xlabel('entropy')
+ax.set_ylabel('fraction')
 plt.yscale('log', nonposy='clip')
 plt.tight_layout()
 plt.savefig('label_entropy.png')
@@ -116,7 +115,7 @@ print "Markov graph has %d nodes, %d edges" % (len(markov_graph.nodes()),
 
 # reduce markov graph to most likely occurring labels
 # adjust threshold if needed
-threshold = 30
+threshold = 50
 reduce_graph_brute(markov_graph,
                    np.argsort(label_probabilities)[::-1][:threshold])
 reduce_graph_self_loops(markov_graph)
@@ -133,9 +132,9 @@ plt.savefig('markov_graph_filtered.png')
 # plot memory triggered averages for all nodes of markov graph
 for i, node in enumerate(markov_graph.nodes()):
     fig, ax = plt.subplots() 
-    plt.matshow(patterns.pattern_to_mta_matrix(node).reshape(n, ws),
+    ax.matshow(patterns.pattern_to_mta_matrix(node).reshape(n, ws),
                 vmin=0, vmax=1, cmap='gray')
-    plt.title('node %d\nprobability %f\nentropy %f' % \
+    ax.set_title('node %d\nprobability %f\nentropy %f' % \
               (node, label_probabilities[node], label_entropy[node]),
               loc='left')
     plt.axis('off')
@@ -168,37 +167,37 @@ print "%d loops" % (len(loops))
 n_loops = len(loops)
 loop_len = np.array(map(len, loops))
 fig, ax = plt.subplots() 
-plt.hist(loop_len, weights=[1. / n_loops] * n_loops, bins=50, color='k')
-plt.xlabel('loop length')
-plt.ylabel('fraction')
+ax.hist(loop_len, weights=[1. / n_loops] * n_loops, bins=50, color='k')
+ax.set_xlabel('loop length')
+ax.set_ylabel('fraction')
 plt.locator_params(nbins=3)
 plt.tight_layout()
 plt.savefig('loop_lengths.png')
 plt.close()
 
 fig, ax = plt.subplots() 
-plt.hist(scores, weights=[1. / n_loops] * n_loops, bins=50, color='k')
-plt.xlabel('loop score')
-plt.ylabel('fraction')
+ax.hist(scores, weights=[1. / n_loops] * n_loops, bins=50, color='k')
+ax.set_xlabel('loop score')
+ax.set_ylabel('fraction')
 plt.locator_params(nbins=3)
 plt.tight_layout()
 plt.savefig('loop_scores.png')
 plt.close()
 
 fig, ax = plt.subplots() 
-plt.scatter(loop_len, scores, color='k')
-plt.xlabel('loop length')
-plt.ylabel('loop score')
+ax.scatter(loop_len, scores, color='k')
+ax.set_xlabel('loop length')
+ax.set_ylabel('loop score')
 plt.locator_params(nbins=3)
 plt.tight_layout()
 plt.savefig('loop_lengths_vs_scores_scatter.png')
 plt.close()
 
 fig, ax = plt.subplots() 
-plt.hist2d(loop_len, scores, bins=100)
-plt.xlabel('loop length')
-plt.ylabel('loop score')
-plt.colorbar()
+mapable = ax.hist2d(loop_len, scores, bins=100)[3]
+ax.set_xlabel('loop length')
+ax.set_ylabel('loop score')
+plt.colorbar(mapable, ax=ax)
 plt.locator_params(nbins=3)
 plt.tight_layout()
 plt.savefig('loop_lengths_vs_scores_hist.png')
@@ -209,10 +208,10 @@ filtered_idxs = []
 loop_lens = np.array(map(len, loops))
 sort_idxs_lens = np.argsort(loop_lens)[::-1]
 for idx in sort_idxs_lens:
-	loop = loops[idx]
-	if any([set(loop) < set(loops[i]) for i in filtered_idxs]):
-		continue
-	filtered_idxs.append(idx)
+    loop = loops[idx]
+    if any([set(loop) < set(loops[i]) for i in filtered_idxs]):
+        continue
+    filtered_idxs.append(idx)
 
 filtered_idxs = np.array(filtered_idxs)
 filtered_scores = scores[filtered_idxs]
@@ -224,7 +223,7 @@ print "%d loops filtered" % len(filtered_idxs)
 # adjust if needed
 max_plot = 100
 interesting = np.arange(min(len(filtered_idxs), max_plot))
-	
+
 print "plotting averaged sequences of %d loops.." % (len(interesting))
 
 for i, idx in enumerate(sort_lens_scores):
@@ -232,8 +231,8 @@ for i, idx in enumerate(sort_lens_scores):
     mta_sequence = [patterns.pattern_to_mta_matrix(l).reshape(n, ws) for l in loop]
     combined = combine_windows(np.array(mta_sequence))
     fig, ax = plt.subplots() 
-    plt.matshow(combined, cmap='gray')
-    plt.title('loop %d\nlength %d\nscore %f' % \
+    ax.matshow(combined, cmap='gray')
+    ax.set_title('loop %d\nlength %d\nscore %f' % \
               (idx, len(loop), scores[idx]), loc='left')
     plt.axis('off')
     plt.savefig('likely-%04d.png' % i)

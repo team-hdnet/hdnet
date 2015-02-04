@@ -37,18 +37,18 @@ class KlustaKwickReader(Reader):
         Reader.__init__(self)
 
     @staticmethod
-    def read_spikes(path_or_files, rate, first_cluster=2, filter_silent=True):
+    def read_spikes(path_or_files, rate, first_cluster=2, filter_silent=True, return_status=False):
 
         if isinstance(path_or_files, (str, unicode)):
             # glob all res files
-            hdlog.info('loading klustakwick data from %s' % os.path.abspath(path_or_files))
+            hdlog.info('Loading KlustaKwick data from %s' % os.path.abspath(path_or_files))
             import glob
             res_files = glob.glob(os.path.join(path_or_files, '*.res.*'))
         else:
             res_files = path_or_files
-            hdlog.info('loading klustakwick data from files %s' % str(path_or_files))
+            hdlog.info('Loading KlustaKwick data from files %s' % str(path_or_files))
 
-        hdlog.info('processing %d electrode files' % len(res_files))
+        hdlog.info('Processing %d electrode files' % len(res_files))
 
         spike_times = []
         num_clusters = 0
@@ -59,12 +59,12 @@ class KlustaKwickReader(Reader):
         electrodes = []
 
         for fn_res in res_files:
-            hdlog.debug('processing electrode file "%s"..' % fn_res)
+            hdlog.debug('Processing electrode file "%s"..' % fn_res)
             electrodes.append(int(fn_res[fn_res.rindex('.') + 1:]))
 
             fn_clu = fn_res.replace('.res.', '.clu.')
             if not os.path.exists(fn_clu):
-                raise Exception('cluster file "%s" not found!' % fn_clu)
+                raise Exception('Cluster file "%s" not found!' % fn_clu)
 
             #load time stamps
             times = np.loadtxt(fn_res) * (1. / float(rate))
@@ -75,7 +75,7 @@ class KlustaKwickReader(Reader):
             cluster_seq = clusters[1:]
 
             if cluster_seq.shape[0] != times.shape[0]:
-                raise Exception('data inconsistent for files %s, %s: lengths differ!' % (fn_res, fn_clu))
+                raise Exception('Data inconsistent for files %s, %s: lengths differ!' % (fn_res, fn_clu))
 
             hdlog.debug('%d clusters, %d spikes' % (n_clusters, cluster_seq.shape[0]))
 
@@ -105,11 +105,14 @@ class KlustaKwickReader(Reader):
             'electrodes': electrodes
         }
 
-        hdlog.info('processed %d clusters (%d discarded), %d cells (%d silent discarded), %d spikes total, t_min=%f s, t_max=%f s, delta=%f s' %
+        hdlog.info('Processed %d clusters (%d discarded), %d cells (%d silent discarded), %d spikes total, t_min=%f s, t_max=%f s, delta=%f s' %
                    (num_clusters, first_cluster * len(res_files), num_clusters - cells_filtered, cells_filtered,
                     num_spikes, t_min, t_max, t_max - t_min))
 
-        return spike_times, status
+        if return_status:
+            return spike_times, status
+        else:
+            return spike_times
 
 
 class Binner(object):
@@ -133,13 +136,13 @@ class Binner(object):
             t_max = t_max_dat
 
         if t_min == np.inf or t_max == -np.inf:
-            hdlog.info('no spikes!')
+            hdlog.info('No spikes!')
             return np.zeros((len(spike_times), 1))
 
         bins = np.arange(t_min, t_max + bin_size, bin_size)
         binned = np.zeros((len(spike_times), len(bins)), dtype=int)
 
-        hdlog.info('binning {c} cells between t_min={m} and t_max={M}, {bins} bins'.format(
+        hdlog.info('Binning {c} cells between t_min={m} and t_max={M}, {bins} bins'.format(
             c=binned.shape[0], m=t_min, M=t_max, bins=len(bins)
         ))
 

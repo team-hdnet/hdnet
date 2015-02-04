@@ -20,7 +20,7 @@ class TestStimulus(unittest.TestCase):
     def test_basic(self):
 
         stimulus = Stimulus(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/tiny_stimulus.npz'))
-        self.assertEqual(stimulus.stimulus_arr.shape, (2, 4, 4))
+        self.assertEqual(stimulus._stimulus_arr.shape, (2, 4, 4))
 
         # stimulus = Stimulus(h5_file='test_data/shortmovie.h5')
         # self.assertEqual(stimulus.stimulus_arr.shape, (4500, 32, 32))
