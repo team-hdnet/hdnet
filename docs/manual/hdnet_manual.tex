@@ -289,11 +289,8 @@ Notice that the number of occurrences of the cell assembly with neuron 1 and 5 c
 \textbf{Saving}.  One can save Learners and Memories.
 
 \begin{python}
-spikes_model.learner.save('my_learner')
-spikes_model.memories.save('my_memories')
-
-spikes_model.learner.load('my_learner')
-spikes_model.memories.load('my_memories')
+spikes_model.save('my_spikes_model')
+loaded_spikes_model = SpikesModel.load('my_spikes_model')
 \end{python}
 
 
