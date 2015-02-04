@@ -13,7 +13,8 @@ __version__ = "0.1"
 
 import os
 import numpy as np
-from hdnet.visualization import save_matrix_whole_canvas
+from util import hdlog
+from visualization import save_matrix_whole_canvas
 
 
 class Spikes(object):
@@ -28,6 +29,28 @@ class Spikes(object):
                     override for other operations on raw data
     """
 
+    # factory
+
+    @classmethod
+    def from_spikes_array(cls, spikes_arr, bin_size=1, preprocess=True, **kwargs):
+        return cls(spikes_arr=spikes_arr, bin_size=bin_size, preprocess=preprocess, **kwargs)
+
+    @classmethod
+    def from_npz_file(cls, npz_file, bin_size=1, preprocess=True, **kwargs):
+        return cls(npz_file=npz_file, bin_size=bin_size, preprocess=preprocess, **kwargs)
+
+    @classmethod
+    def from_mat_file(cls, mat_file, bin_size=1, preprocess=True, **kwargs):
+        return cls(mat_file=mat_file, bin_size=bin_size, preprocess=preprocess, **kwargs)
+
+    @classmethod
+    def from_spk_files(cls, spk_files, bin_size=1, preprocess=True, **kwargs):
+        return cls(spk_files=spk_files, bin_size=bin_size, preprocess=preprocess, **kwargs)
+
+    @classmethod
+    def from_spk_folder(cls, spk_folder, bin_size=1, preprocess=True, **kwargs):
+        return cls(spk_folder=spk_folder, bin_size=bin_size, preprocess=preprocess, **kwargs)
+
     def __init__(self, spikes_arr=None, npz_file=None, mat_file=None, spk_files=None, spk_folder=None, bin_size=1,
                  preprocess=True):
         self.filename = npz_file or ''
@@ -37,21 +60,19 @@ class Spikes(object):
         self.M = 0
 
         # TODO: instead of different parameters for different file formats use just two parameters, file and file_format
-
         if spikes_arr is not None:
             self.spikes_arr = spikes_arr
         elif npz_file is not None:
             if os.path.isfile(npz_file):
-                print('File found. Loading %s') % npz_file
+                hdlog.info("File found. Loading '%s'" % npz_file)
                 self.filename = npz_file
                 tmp = np.load(npz_file)
                 self.spikes_arr = tmp[tmp.keys()[0]]
             else:
-                print('Not a file.')
+                hdlog.info("Not a file: '%s'" % npz_file)
                 return
         elif mat_file is not None:
             import scipy.io
-
             mat = scipy.io.loadmat(mat_file)
             self.spikes_arr = mat[mat.keys()[0]]
         elif spk_files is not None:
@@ -78,7 +99,7 @@ class Spikes(object):
 
             for i, fn in enumerate(fns):
                 ext = os.path.splitext(fn)[1]
-                if ext in ('.spk', ):  #  Blanche spike format
+                if ext in ('.spk', ):  #Blanche spike format
                     self.neuron_to_file.append(fn)
                     f = open(os.path.join(spk_folder, fn), 'rb')
                     p = Bits(f)
@@ -96,7 +117,8 @@ class Spikes(object):
         self.N = self.spikes_arr.shape[1]
         self.M = self.spikes_arr.shape[2]
 
-        if preprocess: self.preprocess()
+        if preprocess:
+            self.preprocess()
 
     def restrict_to_most_active_neurons(self, top_neurons=None):
         """ (does not make a copy) if top_neurons is None: sorts the spike_arr """
@@ -164,11 +186,6 @@ class Spikes(object):
         if save_png_name is not None:
             save_matrix_whole_canvas(sub_spikes_arr.reshape((len(trials) * self.N, stop - start)),
                                      save_png_name + '.png', cmap='gray')
-            #from PIL import Image
-            #new_arr = np.round(sub_spikes_arr * 255.).reshape((len(trials) * self.N, stop - start))
-            #new_arr = np.insert(new_arr, range(self.N, len(trials) * self.N, self.N), 127., axis=0)
-            #im_png = Image.fromarray(new_arr).convert('L')
-            #im_png.save(save_png_name + '.png')
         else:
             return sub_spikes_arr.copy().reshape((len(trials) * self.N, stop - start))
 
@@ -189,10 +206,6 @@ class Spikes(object):
         if save_png_name is not None:
             new_arr = new_arr.reshape(len(trials) * self.N, self.N)
             save_matrix_whole_canvas(new_arr, save_png_name + '.png', cmap='gray')
-
-            #from PIL import Image
-            #im_png = Image.fromarray(255. * new_arr).convert('L')
-            #im_png.save(save_png_name + '.png')
         else:
             return new_arr
 

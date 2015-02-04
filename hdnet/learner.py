@@ -12,8 +12,9 @@
 import numpy as np
 import os
 
-import hopfield_mpf
+from hopfield_mpf import HopfieldNetMPF
 from patterns import Counter
+from util import hdlog
 
 
 class Learner(object):
@@ -31,7 +32,7 @@ class Learner(object):
         if spikes is not None:
             self.spikes = spikes
             self.spikes_file = spikes.filename
-            self.network = hopfield_mpf.HopfieldNetMPF(self.spikes.N * self.window_size)
+            self.network = HopfieldNetMPF(self.spikes.N * self.window_size)
 
         if network is not None:
             self.network = network
@@ -48,14 +49,14 @@ class Learner(object):
 
     def learn_from_binary(self, X, remove_zeros=False):
         """ trains on M x N matrix X of M N-length binary vects """
-        self.network = hopfield_mpf.HopfieldNetMPF(len(X[0]))
+        self.network = HopfieldNetMPF(len(X[0]))
         if remove_zeros:
             X_ = X[X.mean(axis=1) != 0., :]  # remove all zeros
-            print "Learning %d %d-bit (nonzero) binary patterns, sparsity %.04f..." % (
-            X_.shape[0], X_.shape[1], X_.mean())
+            hdlog.info("Learning %d %d-bit (nonzero) binary patterns, sparsity %.04f..." % (
+                X_.shape[0], X_.shape[1], X_.mean()))
         else:
             X_ = X
-            print "Learning %d %d-bit binary patterns, sparsity %.04f..." % (X_.shape[0], X_.shape[1], X_.mean())
+            hdlog.info("Learning %d %d-bit binary patterns, sparsity %.04f..." % (X_.shape[0], X_.shape[1], X_.mean()))
         self.network.learn_all(X_)
 
     def learn_from_spikes(self, spikes=None, window_size=1, trials=None, remove_zeros=True):
@@ -63,7 +64,7 @@ class Learner(object):
         spikes = spikes or self.spikes
         trials = trials or range(spikes.T)
         self.window_size = window_size
-        self.network = hopfield_mpf.HopfieldNetMPF(spikes.N * self.window_size)
+        self.network = HopfieldNetMPF(spikes.N * self.window_size)
         X = spikes.to_windowed(window_size=self.window_size, trials=trials, reshape=True)
         self.learn_from_binary(X, remove_zeros=remove_zeros)
 
@@ -72,17 +73,16 @@ class Learner(object):
         spikes = spikes or self.spikes
         trials = trials or range(spikes.T)
         self.window_size = window_size
-        self.network = hopfield_mpf.HopfieldNetMPF(spikes.N * self.window_size)
+        self.network = HopfieldNetMPF(spikes.N * self.window_size)
         c = Counter(save_sequence=True)
         c.chomp_spikes(spikes, window_size=self.window_size, rotate=(spikes.N, self.window_size))
-        X = np.array([c.reverse_key(c._patterns[m]) for m in
-                      c._sequence])  # spikes.to_windowed(window_size=self.window_size, trials=trials, reshape=True)
+        X = np.array([Counter.pattern_for_key(c.patterns[m]) for m in c.sequence])
         self.learn_from_binary(X, remove_zeros=remove_zeros)
 
     def save(self, folder_name='my_learner'):
         """ saves as npz's: network, params, spikes filename """
         if os.path.exists(folder_name):  # replace with Exception
-            print "Folder %s exists" % folder_name
+            hdlog.info("Folder %s exists" % folder_name)
             return
 
         os.mkdir(folder_name)
@@ -93,11 +93,11 @@ class Learner(object):
 
     def load(self, folder_name='my_learner'):
         if not os.path.exists(folder_name):
-            print "Folder %s does not exist" % folder_name
+            hdlog.info("Folder %s does not exist" % folder_name)
             return
 
         if not hasattr(self, 'network'):
-            self.network = hopfield_mpf.HopfieldNetMPF()
+            self.network = HopfieldNetMPF()
         self.network.loadz(folder_name + '/network.npz')
 
         d = np.load(folder_name + '/save_vars.npz')

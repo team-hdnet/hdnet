@@ -27,3 +27,6 @@ class TestTmpPath(unittest.TestCase):
     def tearDown(self):
         if os.path.exists(self.TMP_PATH):
             shutil.rmtree(self.TMP_PATH)
+
+
+# end of source

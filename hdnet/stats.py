@@ -12,6 +12,7 @@
 __version__ = "0.1"
 
 import numpy as np
+from util import hdlog
 
 
 def compute_label_probabilities(sequence):
@@ -144,7 +145,7 @@ def reduce_graph_bridge(g):
             pred = g.predecessors(n)
             succ = g.successors(n)
             if len(pred) == 1 and len(succ) == 1:
-                print "removing", succ[0]
+                # print "removing", succ[0]
                 weight = float(np.mean([g.get_edge_data(pred[0],n)['weight'], g.get_edge_data(n,succ[0])['weight']]))
                 g.add_edge(pred[0], succ[0], weight=weight)
                 g.remove_node(n)

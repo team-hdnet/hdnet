@@ -53,3 +53,6 @@ class TestLearner(TestTmpPath):
         spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/spikes_trials.npz'))
         learner = Learner(spikes)
         learner.learn_from_spikes()
+
+
+# end of source

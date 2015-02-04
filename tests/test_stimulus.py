@@ -29,3 +29,5 @@ class TestStimulus(unittest.TestCase):
         # 
         # snap = stimulus.snapshot()
         # stimulus.snapshot(0, 20, 'test')
+
+# end of source

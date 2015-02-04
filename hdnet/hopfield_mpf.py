@@ -13,7 +13,7 @@
 import numpy as np
 
 from hopfield import HopfieldNet
-
+from util import hdlog
 
 class HopfieldNetMPF(HopfieldNet):
     """ Class for a Hopfield network with MPF learning rule
@@ -105,7 +105,7 @@ class HopfieldNetMPF(HopfieldNet):
         Ksum = 0
         dJ = np.zeros((self.N, self.N), dtype=float)
         for batch in xrange(nbatch):
-            # print "batch %i/%i" % (batch+1,nbatch)
+            hdlog.debug("batch %i/%i" % (batch+1,nbatch))
             X = sampler(batch_size)
             S = 2 * X - 1
             Kfull = np.exp(-S * np.dot(X, J.T) + .5 * np.diag(J)[None, :])
@@ -130,13 +130,14 @@ class HopfieldNetMPF(HopfieldNet):
         return K, dJ.ravel()
 
     def optcallback(p):
-        print "."
+        pass
 
-    def store_patterns_using_mpf(self, X):
+    def store_patterns_using_mpf(self, X, **kwargs):
+        # TODO: document
+        # TODO: status printing?
         import scipy.optimize
-
         A, Amin, status = scipy.optimize.fmin_l_bfgs_b(
-            self.objective_gradient_minfunc, self.J.ravel(), args=[X])
+            self.objective_gradient_minfunc, self.J.ravel(), args=[X], **kwargs)
         # A,Amin,status = scipy.optimize.fmin_l_bfgs_b(
         # self.objective_gradient_minfunc, np.zeros(self.N * self.N,), args=[X])
 

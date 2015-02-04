@@ -49,21 +49,21 @@ class HopfieldNet(object):
     theta: array of thresholds for the nodes
     """
 
-    def __init__(self, N=5, J=None, theta=None, name=None, update="asynchronous", symmetric=True):
+    def __init__(self, N=None, J=None, theta=None, name=None, update="asynchronous", symmetric=True):
         self.learn_iterations = 0  # how many learning steps have been taken so far
         self.N = N
         self.symmetric = symmetric
-        if J is None:
+        if J is None and N > 0:
             self.J = np.zeros((self.N, self.N))
         else:
             self.J = J
-        if theta is None:
+        if theta is None and N > 0:
             self.theta = np.zeros(self.N)
         else:
             self.theta = theta
         self.name = name or self.__class__.__name__
         self.update = update
-        self.neuron_order = xrange(self.N)
+        self.neuron_order = xrange(self.N) if self.N else None
         self.last_num_iter_for_convergence = 0  # hopfield dynamics steps previous __call__ took
 
     # for saving network variables using self.savez() function

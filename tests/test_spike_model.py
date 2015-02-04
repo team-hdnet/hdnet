@@ -14,8 +14,8 @@ import unittest
 import numpy as np
 
 from hdnet.spikes import Spikes
-from hdnet.spikes_model import SpikeModel, Shuffled, BernoulliHomogeneous, BernoulliInhomogeneous, DichotomizedGaussian, \
-    DichotomizedGaussianPoisson
+from hdnet.spikes_model import SpikeModel, Shuffled, BernoulliHomogeneous, BernoulliInhomogeneous, \
+    DichotomizedGaussian, DichotomizedGaussianPoisson
 from hdnet.sampling import poisson_marginals, find_dg_any_marginal, sample_dg_any_marginal
 
 
@@ -105,3 +105,6 @@ class TestSpikeModel(unittest.TestCase):
 
         self.assertTrue(samples[:, 0].mean() - 7, 1e-2)
         self.assertTrue(samples[:, 1].mean() - 9, 1e-2)
+
+
+# end of source

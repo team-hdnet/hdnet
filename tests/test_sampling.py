@@ -12,7 +12,8 @@
 import unittest
 import numpy as np
 
-from hdnet.sampling import sample_from_prob_vector, sample_from_bernoulli, sample_from_ising, sample_from_dichotomized_gaussian
+from hdnet.sampling import sample_from_prob_vector, sample_from_bernoulli, sample_from_ising, \
+    sample_from_dichotomized_gaussian
 
 
 class TestSampling(unittest.TestCase):
@@ -48,7 +49,6 @@ class TestSampling(unittest.TestCase):
         self.assertTrue((J.sum(axis=1).argsort() == sample_from_ising(J,
                             theta, num_samples=10000).mean(axis=1).argsort()).sum() >= 2)
 
-
     def test_dichotomous(self):
         np.random.seed(42)
 
@@ -60,3 +60,6 @@ class TestSampling(unittest.TestCase):
 
         self.assertTrue(np.sum(X.mean(axis=1) - np.array([ 0.396,  0.307])) < 1e-5)
         self.assertTrue(np.sum(X.var(axis=1) - np.array([ 0.239184,  0.212751])) < 1e-5)
+
+
+# end of source

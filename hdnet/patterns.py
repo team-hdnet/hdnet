@@ -10,9 +10,10 @@
 """
 
 import numpy as np
+from util import hdlog, Restoreable
 
 
-class Counter(object):
+class Counter(Restoreable, object):
     """ Catalogues binary vectors and their prevalence
 
     Parameters
@@ -21,6 +22,10 @@ class Counter(object):
         lookup_patterns:  dictionary of (key_for_pattern, patterns index)
         sequence:  list over trials T of (lists of indices where fp found in spikes dataset)
     """
+
+    _SAVE_ATTRIBUTES_V1 = ['_counts', '_patterns', '_lookup_patterns',
+                        '_sequence', '_skipped_patterns', '_seen_sequence']
+    _SAVE_VERSION = 1
 
     @staticmethod
     def key_for_pattern(pattern):
@@ -35,6 +40,8 @@ class Counter(object):
         return np.array([int(k) for k in list(key)])
 
     def __init__(self, counter=None, save_sequence=True):
+        object.__init__(self)
+        Restoreable.__init__(self)
         self._counts = {}
         self._patterns = []
         self._lookup_patterns = {}
@@ -192,78 +199,52 @@ class Counter(object):
         stim_avgs = []
         stm_arr = stimulus.stimulus_arr
         arr = np.zeros((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:])
+
         for t in xrange(stm_arr.shape[0]):
             arr[t * stm_arr.shape[1]:(t + 1) * stm_arr.shape[1]] = stm_arr[t]
-        print arr.shape
+
         for c, pattern in enumerate(self._patterns):
             idx = (self._sequence == c)
-            print idx
             stim_avgs.append(arr[idx].mean(axis=0))
             # if c > 1:
             #     stop
+
         return stim_avgs
 
     # representation
 
     def __repr__(self):
-        return '<Counter: {n} patterns ({u} unique)>'.format(n=sum(self._counts), u=len(self._counts))
+        return '<Counter: {n} patterns ({u} unique)>'.format(n=sum(self._counts.values()), u=len(self._counts))
 
     # i/o
 
-    def save(self, filename='counter', **kwargs):
+    def save(self, filename='counter', extra=None):
         """ save as numpy array .npz file """
         # TODO: document
-        if not filename[:-4] == '.npz':
-            filename += '.npz'
-        kwargs.update(
-            {
-                'count_keys': self._counts.keys(),
-                'count_values': self._counts.values(),
-                'patterns': self._patterns,
-                'sequence': self._sequence,
-                'lookup_patterns_keys': self._lookup_patterns.keys(),
-                'lookup_patterns_values': self._lookup_patterns.values(),
-                'skippedpatterns': self._skipped_patterns,
-                'hdnet_version': 1
-            })
-        np.savez(filename, **kwargs)
+        return super(Counter, self).save(filename=filename,
+                                         attributes=self._SAVE_ATTRIBUTES_V1, version=self._SAVE_VERSION,
+                                         extra=extra)
 
     @classmethod
-    def load(cls, filename='patterns_raw', load_extra=False):
+    def load(cls, filename='counter', load_extra=False):
         # TODO: document
-        if not filename[:-4] == '.npz':
-            filename += '.npz'
+        return super(Counter, cls).load(filename=filename, load_extra=load_extra)
 
+    def load_v1(self, contents, load_extra=False):
+        hdlog.debug('loading Counter patterns, format version 1')
+        return Restoreable.load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
+
+    @classmethod
+    def load_legacy(cls, filename='patterns_raw'):
+        hdlog.info("loading Counter patterns from legacy file '%s'" % filename)
         instance = cls()
         contents = np.load(filename)
-        if not 'hdnet_version' in contents.keys():
-            # legacy loading
-            instance._counts = dict(zip(contents['count_keys'], contents['count_values']))
-            instance._patterns = contents['fp_list']
-            instance._lookup_patterns = dict(zip(contents['lookup_fp_keys'], contents['lookup_fp_values']))
-            instance._sequence = contents['sequence']
-        else:
-            # new loading
-            instance._counts = dict(zip(contents['count_keys'], contents['count_values']))
-            instance._patterns = contents['patterns']
-            instance._lookup_patterns = dict(zip(contents['lookup_patterns_keys'], contents['lookup_patterns_values']))
-            instance._sequence = contents['sequence']
-
-        # potentially load load_extra data
-        if load_extra:
-            extra = {}
-            loaded = ['count_keys', 'count_values', 'patterns', 'lookup_patterns_keys', 'lookup_patterns_values',
-                      'sequence', 'fp_list', 'lookup_fp_keys', 'lookup_fp_values']
-            for key in contents.keys():
-                if key in loaded:
-                    continue
-                extra[key] = contents[key]
-
+        instance._counts = dict(zip(contents['count_keys'], contents['count_values']))
+        instance._patterns = contents['fp_list']
+        instance._lookup_patterns = dict(zip(contents['lookup_fp_keys'], contents['lookup_fp_values']))
+        instance._sequence = contents['sequence']
         contents.close()
-        if load_extra:
-            return instance, extra
-        else:
-            return instance
+        return instance
 
 
 class PatternsRaw(Counter):
@@ -275,13 +256,13 @@ class PatternsRaw(Counter):
     # representation
 
     def __repr__(self):
-        return '<PatternsRaw: {n} patterns ({u} unique)>'.format(n=sum(self._counts), u=len(self._counts))
+        return '<PatternsRaw: {n} patterns ({u} unique)>'.format(n=sum(self._counts.values()), u=len(self._counts))
 
     # i/o
 
-    def save(self, filename='patterns_raw', **kwargs):
+    def save(self, filename='patterns_raw', extra=None):
         # TODO: document
-        super(PatternsRaw, self).save(filename=filename, **kwargs)
+        super(PatternsRaw, self).save(filename, extra=extra)
 
     @classmethod
     def load(cls, filename='patterns_raw', load_extra=False):
@@ -302,6 +283,10 @@ class PatternsHopfield(Counter):
         learner: hopfield network and learning params
         mtas: dict taking bin vects v to sums of orignal binary vectors converging to v
     """
+    _SAVE_ATTRIBUTES_V1 = ['_counts', '_patterns', '_lookup_patterns',
+                        '_sequence', '_skipped_patterns', '_seen_sequence',
+                        '_mtas', '_mtas_raw']
+    _SAVE_VERSION = 1
 
     def __init__(self, learner=None, patterns_hopfield=None, save_sequence=True, save_raw=True):
         super(PatternsHopfield, self).__init__(save_sequence=save_sequence)
@@ -441,36 +426,36 @@ class PatternsHopfield(Counter):
     # representation
 
     def __repr__(self):
-        return '<PatternsHopfield: {n} patterns ({u} unique)>'.format(n=sum(self._counts), u=len(self._counts))
+        return '<PatternsHopfield: {n} patterns ({u} unique)>'.format(n=sum(self._counts.values()), u=len(self._counts))
 
     # i/o
 
-    def save(self, filename='patterns_hopfield', **kwargs):
+    def save(self, filename='patterns_hopfield', extra=None):
         # TODO: document
-        kwargs.update(
-            {
-                'mtas_keys': self._mtas.keys(),
-                'mtas_values': self._mtas.values(),
-                'mtas_raw_values': self._mtas_raw.values(),
-            }
-        )
-        super(PatternsHopfield, self).save(filename=filename, **kwargs)
+        super(PatternsHopfield, self).save(filename=filename, extra=extra)
 
     @classmethod
     def load(cls, filename='patterns_hopfield', load_extra=False):
         # TODO: document
-        instance, extra = super(PatternsHopfield, cls).load(filename=filename, load_extra=True)
-        if 'mtas_keys' in extra:
-            instance._mtas = dict(zip(extra['mtas_keys'], extra['mtas_values']))
-            instance._mtas_raw = dict(zip(extra['mtas_keys'], extra['mtas_raw_values']))
-            del extra['mtas_keys']
-            del extra['mtas_values']
-            del extra['mtas_raw_values']
+        return super(PatternsHopfield, cls).load(filename=filename, load_extra=load_extra)
 
-        if load_extra:
-            return instance, extra
-        else:
-            return instance
+    def load_v1(self, contents, load_extra=False):
+        hdlog.debug('loading PatternsHopfield patterns, format version 1')
+        return Restoreable.load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
+
+    @classmethod
+    def load_legacy(cls, filename='patterns_hopfield'):
+        hdlog.info("loading PatternHopfield patterns from legacy file '%s'" % filename)
+        instance = cls()
+        contents = np.load(filename)
+        instance._counts = dict(zip(contents['count_keys'], contents['count_values']))
+        instance._patterns = contents['fp_list']
+        instance._lookup_patterns = dict(zip(contents['lookup_fp_keys'], contents['lookup_fp_values']))
+        instance._sequence = contents['sequence']
+        instance._mtas = dict(zip(contents['stas_keys'], contents['stas_values']))
+        instance._sequence = contents['sequence']
+        contents.close()
+        return instance
 
 
 # end of source

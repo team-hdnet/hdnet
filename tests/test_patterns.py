@@ -164,3 +164,6 @@ class TestPatternsHopfield(TestTmpPath):
         # print patterns.pattern_to_binary_matrix(1)
         # print patterns.pattern_to_mta_matrix(0)
         # print patterns.pattern_to_binary_matrix(0)
+
+
+# end of source

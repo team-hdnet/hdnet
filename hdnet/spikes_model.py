@@ -15,9 +15,9 @@ from time import time as now
 from spikes import Spikes
 from patterns import PatternsRaw, PatternsHopfield
 from learner import Learner
-from sampling import sample_from_bernoulli, sample_from_ising, sample_from_dichotomized_gaussian, find_latent_gaussian, \
-    poisson_marginals, find_dg_any_marginal, sample_dg_any_marginal
-
+from sampling import sample_from_bernoulli, sample_from_ising, sample_from_dichotomized_gaussian, \
+    find_latent_gaussian, poisson_marginals, find_dg_any_marginal, sample_dg_any_marginal
+from util import hdlog
 
 class SpikeModel(object):
     """ generic model of spikes (and stimulus)
@@ -33,6 +33,7 @@ class SpikeModel(object):
         self.window_size = window_size
         self.learner = learner or None
         self.original_spikes = spikes
+        self.learn_time = None
 
     def fit(self, trials=None, remove_zeros=False, reshape=False):
         # TODO: take care of remove_zeros
@@ -41,17 +42,17 @@ class SpikeModel(object):
         self.learner.learn_from_spikes(remove_zeros=remove_zeros)
 
     def chomp(self):
-        # print "Chomping samples from model"
+        hdlog.debug("Chomping samples from model")
         self.empirical = PatternsRaw(save_sequence=True)
         self.empirical.chomp_spikes(spikes=self.sample_spikes)
-        print "%d-bit (empirical): %d patterns (H = %1.3f)" % (
-            self.sample_spikes.N, len(self.empirical), self.empirical.entropy())
+        hdlog.info("%d-bit (empirical): %d patterns (H = %1.3f)" % (
+            self.sample_spikes.N, len(self.empirical), self.empirical.entropy()))
 
-        # print "Chomping dynamics (from network learned on the samples) applied to samples"
+        hdlog.debug("Chomping dynamics (from network learned on the samples) applied to samples")
         self.memories = PatternsHopfield(learner=self.learner, save_sequence=True)
         self.memories.chomp_spikes(spikes=self.sample_spikes)
-        print "%d-bit (hopnet): %d memories (H = %1.3f)" % (
-            self.sample_spikes.N, len(self.memories), self.memories.entropy())
+        hdlog.info("%d-bit (hopnet): %d memories (H = %1.3f)" % (
+            self.sample_spikes.N, len(self.memories), self.memories.entropy()))
 
         # print "Before dynamics:"
         # print self.sample_spikes.spikes_arr
@@ -80,14 +81,14 @@ class SpikeModel(object):
             couplings[window_size] = []
 
             for c, trial in enumerate(trials):
-                print "Trial %d | ws %d" % (trial, window_size)
+                hdlog.info("Trial %d | ws %d" % (trial, window_size))
 
                 self.window_size = window_size
 
                 t = now()
                 self.fit(trials=[trial], remove_zeros=remove_zeros)
                 diff = now() - t
-                print "[%1.3f min]" % (diff / 60.)
+                hdlog.info("[%1.3f min]" % (diff / 60.))
                 tot_learn_time += diff
 
                 if save_couplings:
@@ -99,8 +100,8 @@ class SpikeModel(object):
                 entropies[1, c, ws] = self.memories.entropy()
                 counts[1, c, ws] = len(self.memories)
 
-        print "Total learn time: %1.3f mins" % (tot_learn_time / 60.)
-        self.learn_sec = tot_learn_time
+        hdlog.info("Total learn time: %1.3f mins" % (tot_learn_time / 60.))
+        self.learn_time = tot_learn_time
         if save_couplings:
             return counts, entropies, couplings
         return counts, entropies

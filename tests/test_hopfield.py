@@ -9,9 +9,7 @@
     :license: GPLv3, see LICENSE for details.
 """
 
-import os
 import unittest
-import shutil
 from time import time as now
 import numpy as np
 
@@ -74,8 +72,8 @@ class TestHopfield(unittest.TestCase):
         OPR.learn_all(data)
 
         recall = (data == OPR.hopfield_binary_dynamics(data)).all(1).mean()
-#        recall = (data == OPR.hopfield_binary_dynamics(data, model='OPR')).all(1).mean()
-#        recall = OPR.exact_recalled(data, model='OPR')
+        # recall = (data == OPR.hopfield_binary_dynamics(data, model='OPR')).all(1).mean()
+        # recall = OPR.exact_recalled(data, model='OPR')
         print "OPR Performance (%d/%d): %1.2f in %1.2f s" % (M, N, 100 * recall, now() - t)
         self.assertTrue(recall > .8)
 
@@ -84,7 +82,7 @@ class TestHopfield(unittest.TestCase):
         data = (np.random.random((M, N)) < .5).astype('int')
         OPR.learn_all(data)
         recall = (data == OPR.hopfield_binary_dynamics(data)).all(1).mean()
-#        recall = (data == OPR.hopfield_binary_dynamics(data, model='OPR')).all(1).mean()
+        # recall = (data == OPR.hopfield_binary_dynamics(data, model='OPR')).all(1).mean()
         # recall = OPR.exact_recalled(data)
         print "OPR Performance (%d/%d): %1.2f in %1.2f s" % (M, N, 100 * recall, now() - t)
         self.assertTrue(recall < .5)
@@ -108,6 +106,8 @@ class TestHopfield(unittest.TestCase):
         OPR = HopfieldNet(N)
         OPR.learn_all(data)
         recall = (data == OPR.hopfield_binary_dynamics(data)).all(1).mean()
-#        recall = OPR.exact_recalled(data)
+        # recall = OPR.exact_recalled(data)
         print "OPR Performance (%d/%d): %1.2f in %1.2f s" % (M, N, 100 * recall, now() - t)
         self.assertTrue(recall < .01)
+
+# end of source

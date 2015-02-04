@@ -12,7 +12,7 @@
 import os
 
 import numpy as np
-from hdnet.visualization import save_matrix_whole_canvas
+from visualization import save_matrix_whole_canvas
 
 
 class Stimulus(object):
