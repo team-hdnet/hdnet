@@ -252,72 +252,114 @@ class Spikes(Restoreable, object):
     @property
     def spikes_arr(self):
         """
-        Missing documentation
+        Returns underlying numpy array representing spikes, with
+        dimensions organized as follows (trials, neurons, bins)
         
         Returns
         -------
-        Value : Type
-            Description
+        spikes : 3d numpy array
         """
         return self._spikes_arr
 
     @property
-    def N(self):
+    def num_neurons(self):
         """
-        Missing documentation
-        
+        Returns number of neurons represented by this class.
+
         Returns
         -------
-        Value : Type
-            Description
+        number of neurons : int
         """
         return self._N
 
     @property
-    def M(self):
+    def N(self):
         """
-        Missing documentation
+        Returns number of neurons represented by this class,
+        shortcut for :meth:`~Spikes.num_neurons`.
         
         Returns
         -------
-        Value : Type
-            Description
+        number of neurons : int
+        """
+        return self._N
+
+    @property
+    def num_bins(self):
+        """
+        Returns number of bins represented by this class.
+
+        Returns
+        -------
+        number of bins : int
+        """
+        return self._M
+
+
+    @property
+    def M(self):
+        """
+        Returns number of bins represented by this class,
+        shortcut for :meth:`~Spikes.num_bins`.
+        
+        Returns
+        -------
+        number of bins : int
         """
         return self._M
 
     @property
-    def T(self):
+    def num_trials(self):
         """
-        Missing documentation
-        
+        Returns number of trials represented by this class.
+
         Returns
         -------
-        Value : Type
-            Description
+        number of trials : int
         """
         return self._T
 
-    def restrict_to_most_active_neurons(self, top_neurons=None):
+    @property
+    def T(self):
         """
+        Returns number of trials represented by this class,
+        shortcut for :meth:`~Spikes.num_trials`.
+
+        Returns
+        -------
+        number of trials : int
+        """
+        return self._T
+
+    def restrict_to_most_active_neurons(self, top_neurons=None, copy=False):
+        """
+        Restricts the selection to the :param:`top_neurons` most active
         (does not make a copy) if top_neurons is None: sorts the spike_arr
         
         Parameters
         ----------
-        top_neurons : Type, optional
-            Description (default None)
-        
+        top_neurons : int, optional
+            number of most active neurons to choose, if None all are chosen (default None)
+        copy : bool, optional
+            if True returns a new Spikes class with selected neurons, if False
+            the changes are made in place, dropping all but the selected neurons (default False)
+
         Returns
         -------
-        Value : Type
-            Description
+        spikes : Spikes
+            an instance of :class:`.Spikes` class
         """
         self._N = top_neurons or self._N
         activity = self._spikes_arr[:, :, :].mean(axis=0).mean(axis=1)
         idx = activity.argsort()
         self.idx = idx[-self._N:]
         self.mean_activities = activity[self.idx]
-        self._spikes_arr = self._spikes_arr[:, idx[-self._N:], :]
-        return self
+        restricted = self._spikes_arr[:, idx[-self._N:], :]
+        if copy:
+            return Spikes(spikes_arr=restricted)
+        else:
+            self._spikes_arr = restricted
+            return self
 
     def to_windowed(self, window_size=1, trials=None, reshape=False):
         """

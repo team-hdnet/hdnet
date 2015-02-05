@@ -87,39 +87,75 @@ class HopfieldNet(Restoreable, object):
         self._last_num_iter_for_convergence = 0  # hopfield dynamics steps previous __call__ took
         self._learn_iterations = 0  # how many learning steps have been taken so far
 
+
     @property
-    def N(self):
+    def num_nodes(self):
         """
-        Missing documentation
-        
+        Returns the number of nodes in the network.
+
         Returns
         -------
-        Value : Type
-            Description
+        n : int
         """
         return self._N
 
     @property
-    def J(self):
+    def N(self):
         """
-        Missing documentation
+        Returns the number of nodes in the network, shortcut
+        for :meth:`~HopfieldNet.num_nodes`.
         
         Returns
         -------
-        Value : Type
-            Description
+        n : int
+        """
+        return self._N
+
+    @property
+    def coupling_matrix(self):
+        """
+        Returns the N x N matrix (with N denoting the number of nodes in the network)
+        of coupling strengths of nodes in the network.
+
+        Returns
+        -------
+        J : 2d numpy array
         """
         return self._J
 
     @property
-    def theta(self):
+    def J(self):
         """
-        Missing documentation
-        
+        Returns the N x N matrix (with N denoting the number of nodes in the network)
+        of coupling strengths of nodes in the network, shortcut for :meth:`~HopfieldNet.coupling_matrix`.
+
         Returns
         -------
-        Value : Type
-            Description
+        J : 2d numpy array
+        """
+        return self._J
+
+    @property
+    def thresholds(self):
+        """
+        Returns a numpy vector of length N (with N denoting the number of nodes in the network)
+        of thresholds for all nodes.
+
+        Returns
+        -------
+        J : 2d numpy array
+        """
+        return self._theta
+
+    @property
+    def theta(self):
+        """
+        Returns a numpy vector of length N (with N denoting the number of nodes in the network)
+        of thresholds for all nodes, shortcut for :meth:`~HopfieldNet.thresholds`.
+
+        Returns
+        -------
+        J : 2d numpy array
         """
         return self._theta
 
@@ -127,7 +163,7 @@ class HopfieldNet(Restoreable, object):
     def neuron_order(self):
         """
         Missing documentation
-        
+
         Returns
         -------
         Value : Type

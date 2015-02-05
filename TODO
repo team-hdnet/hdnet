@@ -1,6 +1,10 @@
 TODO
 ====
 
+- Spikes: create method calculate_mean_activities, ISIs, variances, etc.
+
+
+
 - Null models module
   * Fix Ising model (Swensen-Wang)
   * GLM [statsmodels]
