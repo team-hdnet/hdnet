@@ -122,12 +122,14 @@ class SpikeModel(Restoreable, object):
         # # distortion
         # self.sample_spikes
 
-    def distinct_patterns_over_windows(self, window_sizes=[1], trials=None, save_couplings=False, remove_zeros=False):
+    def distinct_patterns_over_windows(self, window_sizes=None, trials=None, save_couplings=False, remove_zeros=False):
         """
         Returns tuple: counts, entropies [, couplings]
         counts, entropies: arrays of size 2 x T x WSizes
         (0: empirical from model sample, 1: dynamics from learned model on sample)
         """
+        if window_sizes is None:
+            window_sizes = [1]
         trials = trials or range(self._original_spikes.T)
         counts = np.zeros((2, len(trials), len(window_sizes)))
         entropies = np.zeros((2, len(trials), len(window_sizes)))
