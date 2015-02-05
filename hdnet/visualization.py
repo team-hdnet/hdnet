@@ -39,6 +39,21 @@ except ImportError, e:
 
 
 def plot_matrix_whole_canvas(matrix, **kwargs):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    matrix : Type
+        Description
+    kwargs : Type
+        Description
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     plt.axis("off")
     ax = plt.axes([0, 0, 1, 1])
     ax.matshow(matrix, **kwargs)
@@ -46,6 +61,23 @@ def plot_matrix_whole_canvas(matrix, **kwargs):
 
 
 def save_matrix_whole_canvas(matrix, fname, **kwargs):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    matrix : Type
+        Description
+    fname : Type
+        Description
+    kwargs : Type
+        Description
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     plt.figure()
     plot_matrix_whole_canvas(matrix, **kwargs)
     plt.savefig(fname)
@@ -66,6 +98,47 @@ def raster_plot_psth(spikes_arr,
                      hist_y=False,
                      color_raster='#070d0d',
                      color_hist='#070d0d'):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    spikes_arr : Type
+        Description
+    trial : int, optional
+        Description (default 0)
+    start_idx : int, optional
+        Description (default 0)
+    stop_idx : Type, optional
+        Description (default None)
+    bin_size : int, optional
+        Description (default 0.002)
+    hist_bin_size : int, optional
+        Description (default 0.005)
+    label_x : str, optional
+        Description (default 'time [s]')
+    label_y_hist_x : str, optional
+        Description (default '[Hz]')
+    label_y_raster : str, optional
+        Description (default 'neuron')
+    label_x_hist_y : Type, optional
+        Description (default None)
+    fig_size : Type, optional
+        Description (default None)
+    hist_x : bool, optional
+        Description (default True)
+    hist_y : bool, optional
+        Description (default False)
+    color_raster : str, optional
+        Description (default '#070d0d')
+    color_hist : str, optional
+        Description (default '#070d0d')
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     """
      Displays as raster plot (optionally with PSTH below) of a group of neurons
     """
@@ -190,6 +263,31 @@ def pattern_rank_plot(
         mark_empirical=None,
         mark_converged=None,
         plot_mtas=True):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    empirical : Type
+        Description
+    patterns : Type
+        Description
+    color_empirical : str, optional
+        Description (default 'g')
+    color_pattern : str, optional
+        Description (default 'r')
+    mark_empirical : Type, optional
+        Description (default None)
+    mark_converged : Type, optional
+        Description (default None)
+    plot_mtas : bool, optional
+        Description (default True)
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     
     hop_vals = np.array(patterns.counts.values())
     hop_idx = hop_vals.argsort()
@@ -287,6 +385,35 @@ def pattern_rank_plot(
 
 
 def plot_memories_distribution_matrix(patterns, trials, t_min=None, t_max=None, p_min=None, p_max=None, v_min=None, v_max=None, cmap='Paired'):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    patterns : Type
+        Description
+    trials : Type
+        Description
+    t_min : Type, optional
+        Description (default None)
+    t_max : Type, optional
+        Description (default None)
+    p_min : Type, optional
+        Description (default None)
+    p_max : Type, optional
+        Description (default None)
+    v_min : Type, optional
+        Description (default None)
+    v_max : Type, optional
+        Description (default None)
+    cmap : str, optional
+        Description (default 'Paired')
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     trial_len = len(patterns.sequence) / trials
 
     if p_min is None:
@@ -348,6 +475,29 @@ def plot_memories_distribution_matrix(patterns, trials, t_min=None, t_max=None, 
 
 
 def plot_all_matrices(matrices, file_names, cmap='gray', colorbar=True, vmin=None, vmax=None):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    matrices : Type
+        Description
+    file_names : Type
+        Description
+    cmap : str, optional
+        Description (default 'gray')
+    colorbar : bool, optional
+        Description (default True)
+    vmin : Type, optional
+        Description (default None)
+    vmax : Type, optional
+        Description (default None)
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     # plot all matrices to files specified
     kwargs = {
         'cmap': cmap
@@ -366,6 +516,14 @@ def plot_all_matrices(matrices, file_names, cmap='gray', colorbar=True, vmin=Non
 
 
 def combine_windows(windows):
+    """
+    Missing documentation
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     # combine list of windows, averaging overlapping regions
     windows = np.atleast_3d(windows)
     n = windows.shape[1]
@@ -388,6 +546,33 @@ def combine_windows(windows):
 
 def plot_graph(g, nodeval=None, cmap1='Blues_r', cmap2='bone_r', 
                node_vmin=None, node_vmax=None, edge_vmin=None, edge_vmax=None):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    g : Type
+        Description
+    nodeval : Type, optional
+        Description (default None)
+    cmap1 : str, optional
+        Description (default 'Blues_r')
+    cmap2 : str, optional
+        Description (default 'bone_r')
+    node_vmin : Type, optional
+        Description (default None)
+    node_vmax : Type, optional
+        Description (default None)
+    edge_vmin : Type, optional
+        Description (default None)
+    edge_vmax : Type, optional
+        Description (default None)
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     import networkx as nx
     fig = plt.figure()
     pos = nx.spring_layout(g)

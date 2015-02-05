@@ -18,6 +18,18 @@ def sample_from_prob_vector(p, num_samples=1):
     """
     given numpy probability vector p on N states produce num_samples samples
     returns: a (num_samples) integer vector with state labeled 0, ..., N-1
+    
+    Parameters
+    ----------
+    p : Type
+        Description
+    num_samples : int, optional
+        Description (default 1)
+    
+    Returns
+    -------
+    Value : Type
+        Description
     """
     N = len(p)
     p = np.array(p)
@@ -37,7 +49,21 @@ def sample_from_prob_vector(p, num_samples=1):
 
 
 def sample_from_bernoulli(p, M=1):
-    """ returns N x M numpy array with M Bernoulli(p) N-bit samples """
+    """
+    returns N x M numpy array with M Bernoulli(p) N-bit samples
+    
+    Parameters
+    ----------
+    p : Type
+        Description
+    M : int, optional
+        Description (default 1)
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     N = len(p)
     p = np.array(p)
     v_cp = np.array([p, ] * M).transpose()
@@ -53,21 +79,63 @@ def energy(J, theta, x):
     """
     Ising Energy of binary pattern x is:
         Ex = -.5 x^T[J-diag(J)]x + theta*x
+    
+    Parameters
+    ----------
+    J : Type
+        Description
+    theta : Type
+        Description
+    x : Type
+        Description
+    
+    Returns
+    -------
+    Value : Type
+        Description
     """
     return -.5 * np.dot(x, np.dot(J - np.diag(J.diagonal()), x)) + np.dot(theta, x)
 
 
 def integer_to_binary(state, N):
-    """ given state 0, ..., 2\*\*N - 1, returns corresponding binary vector x """
+    """
+    given state 0, ..., 2\*\*N - 1, returns corresponding binary vector x
+    
+    Parameters
+    ----------
+    state : Type
+        Description
+    N : Type
+        Description
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     return np.binary_repr(state, N)
 
 
 def sample_from_ising(J, theta, num_samples=2):
     """
     WARNING:  MIGHT NOT BE WORKING PROPERLY !!!
-    
+
     given Ising model (J, theta) on N neurons produce num_samples samples
     returns: a (N x num_samples) binary matrix with each column a binary vector (Ising sample)
+    
+    Parameters
+    ----------
+    J : Type
+        Description
+    theta : Type
+        Description
+    num_samples : int, optional
+        Description (default 2)
+    
+    Returns
+    -------
+    Value : Type
+        Description
     """
     N = len(theta)
 
@@ -110,9 +178,13 @@ def ltqnorm(p):
     Time-stamp:  2000-07-19 18:26:14
     E-mail:      pjacklam@online.no
     WWW URL:     http://home.online.no/~pjacklam
+    
+    Returns
+    -------
+    Value : Type
+        Description
     """
     import math
-
 
     if p <= 0 or p >= 1:
         # The original perl code exits here, we'll throw an exception instead
@@ -155,6 +227,14 @@ def ltqnorm(p):
 
 
 def ltqnorm_nd(arr):
+    """
+    Missing documentation
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     if len(arr) == 0:
         return arr
     shape = arr.shape
@@ -167,7 +247,22 @@ def find_latent_gaussian(bin_means, bin_cov, accuracy=1e-10):
     binary Bernulli vector X with mean m and covariances c according to
     X = 0 <=> U < -g
     X = 1 <=> U > -g
-    Adopted from www.kyb.mpg.de/bethgegroup/code/efficientsampling
+
+    Adapted from from www.kyb.mpg.de/bethgegroup/code/efficientsampling
+    
+    Parameters
+    ----------
+    bin_means : Type
+        Description
+    bin_cov : Type
+        Description
+    accuracy : int, optional
+        Description (default 1e-10)
+    
+    Returns
+    -------
+    Value : Type
+        Description
     """
     from statsmodels.sandbox.distributions.multivariate import mvstdnormcdf
 
@@ -205,6 +300,29 @@ def find_latent_gaussian(bin_means, bin_cov, accuracy=1e-10):
 
 
 def sample_from_dichotomized_gaussian(bin_means, bin_cov, num_samples, gauss_means=None, gauss_cov=None, accuracy=1e-10):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    bin_means : Type
+        Description
+    bin_cov : Type
+        Description
+    num_samples : Type
+        Description
+    gauss_means : Type, optional
+        Description (default None)
+    gauss_cov : Type, optional
+        Description (default None)
+    accuracy : int, optional
+        Description (default 1e-10)
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     from scipy.linalg import sqrtm
 
     return_inv = False
@@ -224,17 +342,17 @@ def sample_from_dichotomized_gaussian(bin_means, bin_cov, num_samples, gauss_mea
 
 
 def poisson_marginals(means, accuracy=1e-10):
-    """    
+    """
     Finds the probability mass functions (pmfs) and approximate supports of a set of
     Poisson random variables with means specified in input "means". The
     second argument, "acc", specifies the desired degree of accuracy. The
     "support" is taken to consist of all values for which the pmfs is greater
     than acc.
-    
+
     Inputs:
     means: the means of the Poisson RVs
     acc: desired accuracy
-    
+
     Outputs:
     pmfs: a cell-array of vectors, where the k-th element is the probability
     mass function of the k-th Poisson random variable.
@@ -242,13 +360,24 @@ def poisson_marginals(means, accuracy=1e-10):
     integers of the states that the k-th Poisson random variable would take
     with probability larger than "acc". E.g., P(kth
     RV==supports{k}(1))=pmfs{k}(1);
-    
+
     Code from the paper: 'Generating spike-trains with specified
     correlations', Macke et al., submitted to Neural Computation
-    
-    http://www.kyb.mpg.de/bethgegroup/code/efficientsampling
-    """
 
+    Adapted from http://www.kyb.mpg.de/bethgegroup/code/efficientsampling
+    
+    Parameters
+    ----------
+    means : Type
+        Description
+    accuracy : int, optional
+        Description (default 1e-10)
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     from scipy.stats import poisson
     import math
 
@@ -267,6 +396,27 @@ def poisson_marginals(means, accuracy=1e-10):
 
 
 def dg_second_moment(u, gauss_mean1, gauss_mean2, support1, support2):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    u : Type
+        Description
+    gauss_mean1 : Type
+        Description
+    gauss_mean2 : Type
+        Description
+    support1 : Type
+        Description
+    support2 : Type
+        Description
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     # subfunction DGSecondMoment: Calculate second Moment of the DG
     # for a given correlation lambda
     #a very, very inefficient function for calculating the second moments of a
@@ -307,7 +457,7 @@ def find_dg_any_marginal(pmfs, bin_cov, supports, accuracy=1e-10):
     [gammas,Lambda,joints2D] = FindDGAnyMarginal(pmfs,Sigma,supports)
     Finds the paramters of a Multivariate Discretized Gaussian with specified marginal
     distributions and covariance matrix
-    
+
     Inputs:
     pmfs: the probability mass functions of the marginal distribution of the
     input-random variables. Must be a cell-array with n elements, each of
@@ -322,7 +472,7 @@ def find_dg_any_marginal(pmfs, bin_cov, supports, accuracy=1e-10):
     e.g. if the first dimension of the rv is 1 with probability .2, 3 with
     prob .8, then pmfs{1}=[.2,.8], supports{1}=[1,3]; If no support is
     specified, then each is taken to be [0:numel(pdfs{k}-1];
-    
+
     Outputs:
     gammas: the discretization thresholds, as described in the paper. When
     sampling. The k-th dimension of the output random variable is f if e.g.
@@ -333,8 +483,24 @@ def find_dg_any_marginal(pmfs, bin_cov, supports, accuracy=1e-10):
 
     Code from the paper: 'Generating spike-trains with specified
     correlations', Macke et al., submitted to Neural Computation
+
+    Adapted from http://www.kyb.mpg.de/bethgegroup/code/efficientsampling
     
-    http://www.kyb.mpg.de/bethgegroup/code/efficientsampling
+    Parameters
+    ----------
+    pmfs : Type
+        Description
+    bin_cov : Type
+        Description
+    supports : Type
+        Description
+    accuracy : int, optional
+        Description (default 1e-10)
+    
+    Returns
+    -------
+    Value : Type
+        Description
     """
     from scipy.optimize import minimize_scalar
 
@@ -414,9 +580,24 @@ def sample_dg_any_marginal(gauss_means, gauss_cov, num_samples, supports=None):
     Code from the paper: 'Generating spike-trains with specified
     correlations', Macke et al., submitted to Neural Computation
 
-    http://www.kyb.mpg.de/bethgegroup/code/efficientsampling
+    Adapted from http://www.kyb.mpg.de/bethgegroup/code/efficientsampling
+    
+    Parameters
+    ----------
+    gauss_means : Type
+        Description
+    gauss_cov : Type
+        Description
+    num_samples : Type
+        Description
+    supports : Type, optional
+        Description (default None)
+    
+    Returns
+    -------
+    Value : Type
+        Description
     """
-
     d = gauss_cov.shape[0]
 
     if supports is None:

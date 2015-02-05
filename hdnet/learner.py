@@ -32,6 +32,27 @@ class Learner(Restoreable, object):
     _INTERNAL_OBJECTS = zip([HopfieldNet], ['_network'], ['network'])
 
     def __init__(self, spikes=None, network=None, network_file=None, window_size=1, params=None):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        spikes : Type, optional
+            Description (default None)
+        network : Type, optional
+            Description (default None)
+        network_file : Type, optional
+            Description (default None)
+        window_size : int, optional
+            Description (default 1)
+        params : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         object.__init__(self)
         Restoreable.__init__(self)
 
@@ -55,46 +76,165 @@ class Learner(Restoreable, object):
 
     @property
     def network(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._network
 
     @network.setter
     def network(self, value):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        value : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         self._network = value
 
     @property
     def params(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._params
 
     @params.setter
     def params(self, value):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        value : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         self._params = value
 
     @property
     def window_size(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._window_size
 
     @window_size.setter
     def window_size(self, value):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        value : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         self._window_size = value
 
     @property
     def spikes(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._spikes
 
     @spikes.setter
     def spikes(self, value):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        value : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         self._spikes = value
 
     @property
     def spikes_file(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._spikes_file
 
     @spikes_file.setter
     def spikes_file(self, value):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        value : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         self._spikes_file = value
 
     def learn_from_binary(self, X, remove_zeros=False):
-        """ trains on M x N matrix X of M N-length binary vects """
+        """
+        trains on M x N matrix X of M N-length binary vects
+
+        Parameters
+        ----------
+        X : Type
+            Description
+        remove_zeros : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         self.network = HopfieldNetMPF(len(X[0]))
         if remove_zeros:
             X_ = X[X.mean(axis=1) != 0., :]  # remove all zeros
@@ -106,7 +246,25 @@ class Learner(Restoreable, object):
         self.network.learn_all(X_)
 
     def learn_from_spikes(self, spikes=None, window_size=1, trials=None, remove_zeros=True):
-        """ trains network over spikes """
+        """
+        trains network over spikes
+        
+        Parameters
+        ----------
+        spikes : Type, optional
+            Description (default None)
+        window_size : int, optional
+            Description (default 1)
+        trials : Type, optional
+            Description (default None)
+        remove_zeros : bool, optional
+            Description (default True)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         spikes = spikes or self.spikes
         trials = trials or range(spikes.T)
         self.window_size = window_size
@@ -115,7 +273,25 @@ class Learner(Restoreable, object):
         self.learn_from_binary(X, remove_zeros=remove_zeros)
 
     def learn_from_spikes_rot(self, spikes=None, window_size=1, trials=None, remove_zeros=True):
-        """ trains network over spikes """
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        spikes : Type, optional
+            Description (default None)
+        window_size : int, optional
+            Description (default 1)
+        trials : Type, optional
+            Description (default None)
+        remove_zeros : bool, optional
+            Description (default True)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         spikes = spikes or self.spikes
         trials = trials or range(spikes.T)
         self.window_size = window_size
@@ -126,20 +302,61 @@ class Learner(Restoreable, object):
         self.learn_from_binary(X, remove_zeros=remove_zeros)
 
     def save(self, folder_name='learner'):
-        """ saves as npz's: network, params, spikes file_name """
+        """
+        saves as npz's: network, params, spikes file_name
+        
+        Parameters
+        ----------
+        folder_name : str, optional
+            Description (default 'learner')
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         super(Learner, self)._save(
             'learner.npz', self._SAVE_ATTRIBUTES_V1, self._SAVE_VERSION,
             has_internal=True, folder_name=folder_name, internal_objects=self._INTERNAL_OBJECTS)
 
     @classmethod
     def load(cls, folder_name='learner', load_extra=False):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        folder_name : str, optional
+            Description (default 'learner')
+        load_extra : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return super(Learner, cls)._load('learner.npz', has_internal=True,
                                          folder_name=folder_name,
                                          internal_objects=cls._INTERNAL_OBJECTS,
                                          load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        contents : Type
+            Description
+        load_extra : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         hdlog.debug('Loading Learner, format version 1')
         return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
 

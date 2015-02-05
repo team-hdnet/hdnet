@@ -39,26 +39,146 @@ class Spikes(Restoreable, object):
 
     @classmethod
     def from_spikes_array(cls, spikes_arr, bin_size=1, preprocess=True, **kwargs):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        spikes_arr : Type
+            Description
+        bin_size : int, optional
+            Description (default 1)
+        preprocess : bool, optional
+            Description (default True)
+        kwargs : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return cls(spikes_arr=spikes_arr, bin_size=bin_size, preprocess=preprocess, **kwargs)
 
     @classmethod
     def from_npz_file(cls, npz_file, bin_size=1, preprocess=True, **kwargs):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        npz_file : Type
+            Description
+        bin_size : int, optional
+            Description (default 1)
+        preprocess : bool, optional
+            Description (default True)
+        kwargs : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return cls(npz_file=npz_file, bin_size=bin_size, preprocess=preprocess, **kwargs)
 
     @classmethod
     def from_mat_file(cls, mat_file, bin_size=1, preprocess=True, **kwargs):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        mat_file : Type
+            Description
+        bin_size : int, optional
+            Description (default 1)
+        preprocess : bool, optional
+            Description (default True)
+        kwargs : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return cls(mat_file=mat_file, bin_size=bin_size, preprocess=preprocess, **kwargs)
 
     @classmethod
     def from_spk_files(cls, spk_files, bin_size=1, preprocess=True, **kwargs):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        spk_files : Type
+            Description
+        bin_size : int, optional
+            Description (default 1)
+        preprocess : bool, optional
+            Description (default True)
+        kwargs : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return cls(spk_files=spk_files, bin_size=bin_size, preprocess=preprocess, **kwargs)
 
     @classmethod
     def from_spk_folder(cls, spk_folder, bin_size=1, preprocess=True, **kwargs):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        spk_folder : Type
+            Description
+        bin_size : int, optional
+            Description (default 1)
+        preprocess : bool, optional
+            Description (default True)
+        kwargs : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return cls(spk_folder=spk_folder, bin_size=bin_size, preprocess=preprocess, **kwargs)
 
     def __init__(self, spikes_arr=None, npz_file=None, mat_file=None, spk_files=None, spk_folder=None, bin_size=1,
                  preprocess=True):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        spikes_arr : Type, optional
+            Description (default None)
+        npz_file : Type, optional
+            Description (default None)
+        mat_file : Type, optional
+            Description (default None)
+        spk_files : Type, optional
+            Description (default None)
+        spk_folder : Type, optional
+            Description (default None)
+        bin_size : int, optional
+            Description (default 1)
+        preprocess : bool, optional
+            Description (default True)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         object.__init__(self)
         Restoreable.__init__(self)
 
@@ -131,22 +251,66 @@ class Spikes(Restoreable, object):
 
     @property
     def spikes_arr(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._spikes_arr
 
     @property
     def N(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._N
 
     @property
     def M(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._M
 
     @property
     def T(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._T
 
     def restrict_to_most_active_neurons(self, top_neurons=None):
-        """ (does not make a copy) if top_neurons is None: sorts the spike_arr """
+        """
+        (does not make a copy) if top_neurons is None: sorts the spike_arr
+        
+        Parameters
+        ----------
+        top_neurons : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         self._N = top_neurons or self._N
         activity = self._spikes_arr[:, :, :].mean(axis=0).mean(axis=1)
         idx = activity.argsort()
@@ -161,6 +325,20 @@ class Spikes(Restoreable, object):
         X:   T (num trials) x (window_size * N) x  (M - window_size + 1)
         binary vector out of a spike time series
         reshape: returns T(M - window_size + 1) x (ws * N) numpy binary vector
+        
+        Parameters
+        ----------
+        window_size : int, optional
+            Description (default 1)
+        trials : Type, optional
+            Description (default None)
+        reshape : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
         """
         trials = trials or range(self._T)
         X = np.zeros((len(trials), window_size * self._N, self._M - window_size + 1))
@@ -184,6 +362,18 @@ class Spikes(Restoreable, object):
         bin_size: in millisec
         the jth item in the list corresponds to the jth neuron
         it is the 1d array of spike times (micro sec) for that neuron
+        
+        Parameters
+        ----------
+        spike_times_lists : Type
+            Description
+        bin_size : int, optional
+            Description (default 1)
+        
+        Returns
+        -------
+        Value : Type
+            Description
         """
         if len(spike_times_lists) == 0: return
         self.max_millisec = - np.inf
@@ -198,6 +388,14 @@ class Spikes(Restoreable, object):
                     self._spikes_arr[c, a] = 1
 
     def preprocess(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         """ converts to binary """
         self._spikes_arr = np.double((np.sign(self._spikes_arr) + 1) // 2)
 
@@ -206,6 +404,22 @@ class Spikes(Restoreable, object):
         return *new* (copied) numpy array of size (TN x M)
         trials: e.g. [1, 5, 6], None is all
         save_png_name: if not None then only saves
+        
+        Parameters
+        ----------
+        trials : Type, optional
+            Description (default None)
+        start : int, optional
+            Description (default 0)
+        stop : Type, optional
+            Description (default None)
+        save_png_name : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
         """
         stop = stop or self._M
         trials = trials or range(self._T)
@@ -222,6 +436,22 @@ class Spikes(Restoreable, object):
         return *new* numpy array of size (T x N x N) which is covariance matrix betwn neurons
         trials: e.g. [0, 1, 5, 6], None is all
         save_png_name: if not None then only saves
+        
+        Parameters
+        ----------
+        trials : Type, optional
+            Description (default None)
+        start : int, optional
+            Description (default 0)
+        stop : Type, optional
+            Description (default None)
+        save_png_name : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
         """
         stop = stop or self._M
         trials = trials or range(self._T)
@@ -241,15 +471,42 @@ class Spikes(Restoreable, object):
     # i/o
 
     def save(self, file_name='spikes', extra=None):
-        """ save as numpy array .npz file """
-        # TODO: document
+        """
+        save as numpy array .npz file
+        
+        Parameters
+        ----------
+        file_name : str, optional
+            Description (default 'spikes')
+        extra : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return super(Spikes, self)._save(file_name=file_name,
                                          attributes=self._SAVE_ATTRIBUTES_V1, version=self._SAVE_VERSION,
                                          extra=extra)
 
     @classmethod
     def load(cls, file_name='spikes', load_extra=False):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        file_name : str, optional
+            Description (default 'spikes')
+        load_extra : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return super(Spikes, cls)._load(file_name=file_name, load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):

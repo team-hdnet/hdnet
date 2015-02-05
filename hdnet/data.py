@@ -25,9 +25,32 @@ class Reader(object):
     read_spikes(self, \*args, \*\*kwargs)
     """
     def __init__(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         object.__init__(self)
 
     def read_spikes(self, *args, **kwargs):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        args : Type
+            Description
+        kwargs : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         raise NotImplementedError('Reader class is abstract')
 
 
@@ -37,13 +60,21 @@ class KlustaKwickReader(Reader):
     https://github.com/klusta-team/klustakwik
     """
     def __init__(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         Reader.__init__(self)
 
     @staticmethod
     def read_spikes(path_or_files, rate, first_cluster=2, filter_silent=True, return_status=False):
         """
         Reader for KlustaKwick files. https://github.com/klusta-team/klustakwik
-
+        
         Parameters
         ----------
         path_or_files : string
@@ -59,9 +90,9 @@ class KlustaKwickReader(Reader):
 
         Returns
         -------
-            spikes_times : numpy array
-                returns numpy array of spike times in all clusters. Float values represent spike times
-                in seconds (i.e. a value of 1.0 represents a spike at time 1s)
+        spikes_times : numpy array
+            returns numpy array of spike times in all clusters. Float values represent spike times
+            in seconds (i.e. a value of 1.0 represents a spike at time 1s)
         """
 
         if isinstance(path_or_files, (str, unicode)):
@@ -172,8 +203,8 @@ class Binner(object):
 
         Returns
         -------
-            spikes : :class:`.Spikes`
-                Spikes class containing binned spikes.
+        spikes : :class:`.Spikes`
+            Spikes class containing binned spikes.
         """
         t_min_dat = np.inf
         t_max_dat = -np.inf

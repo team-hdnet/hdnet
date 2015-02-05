@@ -34,17 +34,48 @@ class Counter(Restoreable, object):
 
     @staticmethod
     def key_for_pattern(pattern):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         """ Transforms a numpy binary array into a string """
         # TODO: document
         return ''.join(str(k) for k in pattern.astype(np.int).ravel())
 
     @staticmethod
     def pattern_for_key(key):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         """ Transforms string into a numpy binary array """
         # TODO: document
         return np.array([int(k) for k in list(key)])
 
     def __init__(self, counter=None, save_sequence=True):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        counter : Type, optional
+            Description (default None)
+        save_sequence : bool, optional
+            Description (default True)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         object.__init__(self)
         Restoreable.__init__(self)
 
@@ -61,44 +92,125 @@ class Counter(Restoreable, object):
 
     @property
     def counts(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         # TODO: document
         return self._counts
 
     @property
     def patterns(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         # TODO: document
         return self._patterns
 
     @property
     def lookup_patterns(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         # TODO: document
         return self._lookup_patterns
 
     @property
     def sequence(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         # TODO: document
         return self._sequence
 
     @property
     def skipped_patterns(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         # TODO: document
         return self._skipped_patterns
 
     @property
     def seen_sequence(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         # TODO: document
         return self._seen_sequence
 
     def __add__(self, acc):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        acc : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         # TODO: document
         return self.merge_counts(acc)
 
     def __len__(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         # TODO: document
         return len(self._counts.keys())
 
     def merge_counts(self, counter):
-        """ Combine counts with another Counter """
+        """
+        Combine counts with another Counter
+        
+        Parameters
+        ----------
+        counter : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         # TODO: document
         for key in counter.counts.keys():
             key_ = Counter.key_for_pattern(Counter.pattern_for_key(key))
@@ -106,7 +218,21 @@ class Counter(Restoreable, object):
         return self
 
     def add_key(self, key, value=1):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        key : Type
+            Description
+        value : int, optional
+            Description (default 1)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         if key in self._counts:
             self._counts[key] += value
             return True
@@ -116,13 +242,48 @@ class Counter(Restoreable, object):
         return False
 
     def chomp(self, X, add_new=True, rotate=None):
-        """ M x N numpy array X as input (N neurons, M vects) """
-        # TODO: document
+        """
+        M x N numpy array X as input (N neurons, M vects)
+
+        Parameters
+        ----------
+        X : Type
+            Description
+        add_new : bool, optional
+            Description (default True)
+        rotate : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         for x in X:
             self.chomp_vector(x, add_new=add_new, rotate=rotate)
 
     def chomp_spikes(self, spikes, add_new=True, window_size=1, trials=None, rotate=None):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        spikes : Type
+            Description
+        add_new : bool, optional
+            Description (default True)
+        window_size : int, optional
+            Description (default 1)
+        trials : Type, optional
+            Description (default None)
+        rotate : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         if rotate and add_new:
             self._skipped_patterns = 0
         X = spikes.to_windowed(window_size=window_size, trials=trials, reshape=True)
@@ -130,8 +291,23 @@ class Counter(Restoreable, object):
         return self
 
     def chomp_vector(self, x, add_new=True, rotate=None):
-        """ stores bin vects (originally x) y and order of occurence """
-        # TODO: document
+        """
+        stores bin vects (originally x) y and order of occurence
+
+        Parameters
+        ----------
+        x : Type
+            Description
+        add_new : bool, optional
+            Description (default True)
+        rotate : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         bin_x = Counter.key_for_pattern(x)
 
         numrot = 0
@@ -167,8 +343,19 @@ class Counter(Restoreable, object):
         return bin_x, new_pattern, numrot
 
     def to_prob_vect(self, parent=None):
-        """ if parent (= counter object) present then return prob vector in that space """
-        # TODO: document
+        """
+        if parent (= counter object) present then return prob vector in that space
+        
+        Parameters
+        ----------
+        parent : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         if parent is not None:
             values = np.zeros(len(parent.counts))
             for i in xrange(len(self._counts)):
@@ -181,18 +368,48 @@ class Counter(Restoreable, object):
         return probs
 
     def entropy(self):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         probs = self.to_prob_vect()
         return -(probs * np.log2(probs)).sum()
 
     def pattern_to_binary_matrix(self, m):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        m : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         key = self._patterns[m]
         return Counter.pattern_for_key(key)
 
     def top_binary_matrices(self, m):
-        """ finds top m likely memories """
-        # TODO: document
+        """
+        finds top m likely memories
+        
+        Parameters
+        ----------
+        m : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         top_binary = []
         idx = np.array(self._counts.values()).argsort()[-m:]
         for i in idx:
@@ -200,8 +417,19 @@ class Counter(Restoreable, object):
         return top_binary
 
     def mem_triggered_stim_avgs(self, stimulus):
-        """ returns the average stimulus appearing when a given binary pattern appears """
-        # TODO: document
+        """
+        returns the average stimulus appearing when a given binary pattern appears
+        
+        Parameters
+        ----------
+        stimulus : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         stim_avgs = []
         stm_arr = stimulus.stimulus_arr
         arr = np.zeros((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:])
@@ -220,15 +448,42 @@ class Counter(Restoreable, object):
     # i/o
 
     def save(self, file_name='counter', extra=None):
-        """ save as numpy array .npz file """
-        # TODO: document
+        """
+        save as numpy array .npz file
+        
+        Parameters
+        ----------
+        file_name : str, optional
+            Description (default 'counter')
+        extra : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return super(Counter, self)._save(file_name=file_name,
                                          attributes=self._SAVE_ATTRIBUTES_V1, version=self._SAVE_VERSION,
                                          extra=extra)
 
     @classmethod
     def load(cls, file_name='counter', load_extra=False):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        file_name : str, optional
+            Description (default 'counter')
+        load_extra : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return super(Counter, cls)._load(file_name=file_name, load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
@@ -263,21 +518,78 @@ class PatternsRaw(Counter):
     _SAVE_TYPE = 'PatternsRaw'
 
     def __init__(self, patterns_raw=None, save_sequence=True):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        patterns_raw : Type, optional
+            Description (default None)
+        save_sequence : bool, optional
+            Description (default True)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         super(PatternsRaw, self).__init__(counter=patterns_raw, save_sequence=save_sequence)
 
     # i/o
 
     def save(self, file_name='patterns_raw', extra=None):
-        """ save as numpy array .npz file """
-        # TODO: document
+        """
+        save as numpy array .npz file
+
+        Parameters
+        ----------
+        file_name : str, optional
+            Description (default 'patterns_raw')
+        extra : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return super(PatternsRaw, self).save(file_name=file_name, extra=extra)
 
     @classmethod
     def load(cls, file_name='patterns_raw', load_extra=False):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        file_name : str, optional
+            Description (default 'patterns_raw')
+        load_extra : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return super(PatternsRaw, cls).load(file_name=file_name, load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        contents : Type
+            Description
+        load_extra : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         hdlog.debug('Loading PatternsRaw patterns, format version 1')
         return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
 
@@ -303,6 +615,25 @@ class PatternsHopfield(Counter):
     _SAVE_TYPE = 'PatternsHopfield'
 
     def __init__(self, learner=None, patterns_hopfield=None, save_sequence=True, save_raw=True):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        learner : Type, optional
+            Description (default None)
+        patterns_hopfield : Type, optional
+            Description (default None)
+        save_sequence : bool, optional
+            Description (default True)
+        save_raw : bool, optional
+            Description (default True)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         super(PatternsHopfield, self).__init__(save_sequence=save_sequence)
 
         self._learner = learner or None
@@ -315,16 +646,46 @@ class PatternsHopfield(Counter):
 
     @property
     def mtas(self):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._mtas
 
     @property
     def mtas_raw(self):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._mtas_raw
 
     def add_key(self, key, value=1, raw=None):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        key : Type
+            Description
+        value : int, optional
+            Description (default 1)
+        raw : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         known_key = super(PatternsHopfield, self).add_key(key, value)
 
         if known_key:
@@ -339,8 +700,19 @@ class PatternsHopfield(Counter):
         return known_key
 
     def merge_counts(self, patterns_hopfield):
-        """ combine your counts with another counter """
-        # TODO: document
+        """
+        combine your counts with another PatternsHopfield class
+        
+        Parameters
+        ----------
+        patterns_hopfield : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         for key in patterns_hopfield.counts.keys():
             o_key = Counter.key_for_pattern(self._learner.network(Counter.pattern_for_key(key)))
             # TODO fix merging wrt mtas / raw
@@ -352,16 +724,48 @@ class PatternsHopfield(Counter):
         return self
 
     def chomp(self, X, add_new=True, rotate=None):
-        """ M x N numpy array X as input (N neurons, M vects) """
-        # TODO: document
+        """
+        M x N numpy array X as input (N neurons, M vects)
+        
+        Parameters
+        ----------
+        X : Type
+            Description
+        add_new : bool, optional
+            Description (default True)
+        rotate : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         # TODO warn if no network
         Y = self._learner.network(X)
         for x, y in zip(X, Y):
             self.chomp_vector(x, y, add_new=add_new, rotate=rotate)
 
     def chomp_vector(self, x, y, add_new=True, rotate=None):
-        """ stores bin vects (originally x) y and order of occurence """
-        # TODO: document
+        """
+        stores bin vects (originally x) y and order of occurence
+        
+        Parameters
+        ----------
+        x : Type
+            Description
+        y : Type
+            Description
+        add_new : bool, optional
+            Description (default True)
+        rotate : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         bin_y, new_pattern, numrot = super(PatternsHopfield, self).chomp_vector(y, add_new=add_new, rotate=rotate)
 
         if rotate and numrot > 0:
@@ -379,7 +783,27 @@ class PatternsHopfield(Counter):
         return x, bin_y, new_pattern, numrot
 
     def apply_dynamics(self, spikes, add_new=True, window_size=1, trials=None, reshape=True):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        spikes : Type
+            Description
+        add_new : bool, optional
+            Description (default True)
+        window_size : int, optional
+            Description (default 1)
+        trials : Type, optional
+            Description (default None)
+        reshape : bool, optional
+            Description (default True)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         X = spikes.to_windowed(window_size=window_size, trials=trials, reshape=True)
         # TODO warn if no network
         Y = self._learner.network(X)
@@ -397,23 +821,70 @@ class PatternsHopfield(Counter):
         return Spikes(spikes_arr=Y)
 
     def pattern_to_mta_matrix(self, m):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        m : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         key = self._patterns[m]
         return self._mtas[key] / self._counts[key]
 
     def pattern_to_raw_patterns(self, m):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        m : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         key = self._patterns[m]
         return np.array(self._mtas_raw[key])
 
     def pattern_to_mta_std(self, m):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        m : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         raw_patterns = self.pattern_to_raw_patterns(m)
         return raw_patterns.std(axis=0)
 
     def top_mta_matrices(self, count):
-        """ finds (top count likely memory)-triggered averages """
-        # TODO: document
+        """
+        finds (top count likely memory)-triggered averages
+        
+        Parameters
+        ----------
+        count : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         top_mtas = []
         idx = np.array(self._counts.values()).argsort()[-count:]
         for i in idx:
@@ -421,7 +892,25 @@ class PatternsHopfield(Counter):
         return np.array(top_mtas)
 
     def pattern_to_trial_raster(self, m, start=0, stop=None, trials=None):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        m : Type
+            Description
+        start : int, optional
+            Description (default 0)
+        stop : Type, optional
+            Description (default None)
+        trials : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         stop = stop or self._learner.spikes.M
         trials = trials or range(self._learner.spikes.T)
         key = self._patterns[m]
@@ -432,20 +921,59 @@ class PatternsHopfield(Counter):
         return hits
 
     def approx_basin_size(self, max_corrupt_bits=1):
-        """ average bits corruption memory can stand """
-        # TODO: document
+        """
+        average bits corruption memory can stand
+        
+        Parameters
+        ----------
+        max_corrupt_bits : int, optional
+            Description (default 1)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         # TODO implement
         pass
 
     # i/o
 
     def save(self, file_name='patterns_hopfield', extra=None):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        file_name : str, optional
+            Description (default 'patterns_hopfield')
+        extra : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         super(PatternsHopfield, self).save(file_name=file_name, extra=extra)
 
     @classmethod
     def load(cls, file_name='patterns_hopfield', load_extra=False):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        file_name : str, optional
+            Description (default 'patterns_hopfield')
+        load_extra : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return super(PatternsHopfield, cls)._load(file_name=file_name, load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):

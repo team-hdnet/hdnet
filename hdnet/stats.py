@@ -20,8 +20,13 @@ from util import hdlog
 def compute_label_probabilities(sequence):
     """
     Computes probabilities of labels as empirical probabilities over sequence
-    :param sequence: 1d list or array of labels
-    :return: 1d numpy array of empirical probabilities
+    sequence: 1d list or array of labels
+    1d numpy array of empirical probabilities
+    
+    Returns
+    -------
+    Value : Type
+        Description
     """
     import collections
     c = collections.Counter(sequence)
@@ -34,9 +39,14 @@ def compute_label_markov_probabilities(sequence):
     """
     Computes Markov transition probabilities of all labels occuring in sequence
     over this sequence
-    :param sequence: 1d list or numpy array of labels
-    :return: Markov transition probability matrix of labels in sequence as
+    sequence: 1d list or numpy array of labels
+    Markov transition probability matrix of labels in sequence as
     2d numpy array
+    
+    Returns
+    -------
+    Value : Type
+        Description
     """
     sequence = np.atleast_1d(sequence)
     n_fp = len(set(sequence))
@@ -56,8 +66,20 @@ def compute_label_entropy_markov(markov_probabilities, eps=1e-9):
     """
     Computes the entropy of each label using its Markov transition probabilities
     in the space of all labels
-    :param markov_probabilities: Markov transition probabilities of labels
-    :return: entropies of labels as 1d numpy array
+    markov_probabilities: Markov transition probabilities of labels
+    entropies of labels as 1d numpy array
+    
+    Parameters
+    ----------
+    markov_probabilities : Type
+        Description
+    eps : int, optional
+        Description (default 1e-9)
+    
+    Returns
+    -------
+    Value : Type
+        Description
     """
     h = lambda a: -sum(a * np.log2(a))
     return np.abs(np.array([h(x[x > eps]) for x in markov_probabilities.copy()]))
@@ -67,9 +89,18 @@ def remove_repeating_labels_from_sequence(sequence, repetitions=2):
     """
     Removes all consecutive repetitions occuring more than repetitions times
     (default: 2) from sequence
-    :param sequence:
-    :param repetitions:
-    :return:
+
+    Parameters
+    ----------
+    sequence : Type
+        Description
+    repetitions : int, optional
+        Description (default 2)
+    
+    Returns
+    -------
+    Value : Type
+        Description
     """
     seq_filtered = []
     for i in xrange(repetitions, len(sequence)):
@@ -85,15 +116,31 @@ def compute_markov_graph(markov_probabilities, node_labels=None,
     Computes the directed state transition graph over all labels using the
     package NetworkX. Each directed edge (x, y) is assigned as weight the
     Markov transition probability from label x to label y.
-    :param markov_probabilities: Markov transition probabilities of labels,
+    markov_probabilities: Markov transition probabilities of labels,
     2d numpy array
-    :param node_labels: remapped labels (optional, default None)
-    :param thres: weight threshold for edges; only edges above that weight
+    node_labels: remapped labels (optional, default None)
+    thres: weight threshold for edges; only edges above that weight
     are included in the graph (default 0)
-    :param no_loop: boolean flag specifiying handling of self-loops; if set
+    no_loop: boolean flag specifiying handling of self-loops; if set
     to True, self-loops are discarded.
-    :return: NetworkX DiGraph with lables as nodes and Markov transition
+    NetworkX DiGraph with lables as nodes and Markov transition
     probabilities as edges
+    
+    Parameters
+    ----------
+    markov_probabilities : Type
+        Description
+    node_labels : Type, optional
+        Description (default None)
+    thres : int, optional
+        Description (default 0)
+    no_loop : bool, optional
+        Description (default False)
+    
+    Returns
+    -------
+    Value : Type
+        Description
     """
     import networkx as nx
 
@@ -122,6 +169,14 @@ def compute_markov_graph(markov_probabilities, node_labels=None,
 
 
 def reduce_graph_self_loops(g):
+    """
+    Missing documentation
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     removed = 0
     for n in g.nodes():
         if g.has_edge(n, n):
@@ -130,6 +185,21 @@ def reduce_graph_self_loops(g):
     return removed
 
 def reduce_graph_brute(g, filtered_nodes):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    g : Type
+        Description
+    filtered_nodes : Type
+        Description
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     # remove all nodes not in filtered_nodes
     for n in g.nodes():
         if not n in filtered_nodes:
@@ -138,6 +208,14 @@ def reduce_graph_brute(g, filtered_nodes):
 
 
 def reduce_graph_bridge(g):
+    """
+    Missing documentation
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     # reduce bridge at v: u -> v -> w
     # becomes u -> w
     removed = 1
@@ -156,6 +234,14 @@ def reduce_graph_bridge(g):
 
 
 def reduce_graph_stub(g):
+    """
+    Missing documentation
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     # recursively remove all stub nodes with no successors 
     removed = 1
     while removed > 0:
@@ -168,6 +254,14 @@ def reduce_graph_stub(g):
 
 
 def reduce_graph_loop(g):
+    """
+    Missing documentation
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     # remove all loop nodes v, i.e. u -> v -> u
     removed = 1
     while removed > 0:
@@ -182,6 +276,23 @@ def reduce_graph_loop(g):
 
 
 def reduce_graph_nloop(g, n, node):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    g : Type
+        Description
+    n : Type
+        Description
+    node : Type
+        Description
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     import networkx as nx
 
     pred = g.predecessors(node)
@@ -193,6 +304,14 @@ def reduce_graph_nloop(g, n, node):
 
 
 def reduce_graph_triangles(g):
+    """
+    Missing documentation
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     import itertools
     removed = 1
     while removed > 0:
@@ -212,6 +331,21 @@ def reduce_graph_triangles(g):
 
 
 def reduce_graph_out_degree(g, thres):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    g : Type
+        Description
+    thres : Type
+        Description
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     removed = 0
     for n in g.nodes():
         if g.out_degree(n) > thres:
@@ -225,12 +359,34 @@ def calculate_loops_entropy_scores(g, n, node_entropies, min_len=5, max_len=20, 
     Calculate entropy scores of loops (simple closed paths) in g starting and
     terminating in given node n. An entropy score of a path is the sum of the
     entropies (as specified in node_entropies) of each node contained in the path.
-    :param g: NetworkX graph
-    :param n: base node
-    :param node_entropies: 1d array of node entropies
-    :return: (loops, scores), where loops is a 1d array of loops and scores a
+    g: NetworkX graph
+    n: base node
+    node_entropies: 1d array of node entropies
+    (loops, scores), where loops is a 1d array of loops and scores a
     1d array of loop scores. Index in scores identical to index in loops,
     arrays sorted by score (ascending).
+    
+    Parameters
+    ----------
+    g : Type
+        Description
+    n : Type
+        Description
+    node_entropies : Type
+        Description
+    min_len : int, optional
+        Description (default 5)
+    max_len : int, optional
+        Description (default 20)
+    weighting : Type, optional
+        Description (default None)
+    weighting_element : Type, optional
+        Description (default None)
+    
+    Returns
+    -------
+    Value : Type
+        Description
     """
     import networkx as nx
     loops = []
@@ -252,13 +408,33 @@ def calculate_paths_entropy_scores(g, n1, n2, node_entropies, min_len=5, max_len
     Calculate entropy scores of all simple paths in g from n1 to n2.
     An entropy score of a path is the sum of the entropies (as specified in
     node_entropies) of each node contained in the path.
-    :param g: NetworkX graph
-    :param n1: start node
-    :param n2: end node
-    :param node_entropies: 1d array of node entropies
-    :return: (paths, scores), where paths is a 1d array of paths and scores a
+    g: NetworkX graph
+    n1: start node
+    n2: end node
+    node_entropies: 1d array of node entropies
+    (paths, scores), where paths is a 1d array of paths and scores a
     1d array of path scores. Index in scores identical to index in paths,
     arrays sorted by score (ascending).
+    
+    Parameters
+    ----------
+    g : Type
+        Description
+    n1 : Type
+        Description
+    n2 : Type
+        Description
+    node_entropies : Type
+        Description
+    min_len : int, optional
+        Description (default 5)
+    max_len : int, optional
+        Description (default 20)
+    
+    Returns
+    -------
+    Value : Type
+        Description
     """
     import networkx as nx
     paths = [ p for p in nx.all_simple_paths(g, n1, n2, cutoff=max_len) if len(p) >= min_len]

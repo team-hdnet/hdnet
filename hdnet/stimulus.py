@@ -33,6 +33,25 @@ class Stimulus(Restoreable, object):
     _SAVE_TYPE = 'Stimulus'
 
     def __init__(self, stimulus_arr=None, npz_file=None, h5_file=None, preprocess=True):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        stimulus_arr : Type, optional
+            Description (default None)
+        npz_file : Type, optional
+            Description (default None)
+        h5_file : Type, optional
+            Description (default None)
+        preprocess : bool, optional
+            Description (default True)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         object.__init__(self)
         Restoreable.__init__(self)
 
@@ -64,22 +83,70 @@ class Stimulus(Restoreable, object):
 
     @property
     def stimulus_arr(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._stimulus_arr
 
     @property
     def M(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._M
 
     @property
     def X(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._X
 
     def preprocess(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         pass
 
     def snapshot(self, start=0, stop=None, save_png_name=None):
-        """ Returns a matrix or saves a PNG of avg of data between start and stop times
-            save_png_name: if not None then only saves (PIL needs to be installed) """
+        """
+        Returns a matrix or saves a PNG of avg of data between start and stop times
+        save_png_name: if not None then only saves picture
+        
+        Parameters
+        ----------
+        start : int, optional
+            Description (default 0)
+        stop : Type, optional
+            Description (default None)
+        save_png_name : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         stop = stop or self._M
         sub_stim_arr = self._stimulus_arr[start:stop].mean(axis=0)
 
@@ -96,15 +163,42 @@ class Stimulus(Restoreable, object):
     # i/o
 
     def save(self, file_name='stimulus', extra=None):
-        """ save as numpy array .npz file """
-        # TODO: document
+        """
+        save as numpy array .npz file
+        
+        Parameters
+        ----------
+        file_name : str, optional
+            Description (default 'stimulus')
+        extra : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return super(Stimulus, self)._save(file_name=file_name,
                                          attributes=self._SAVE_ATTRIBUTES_V1, version=self._SAVE_VERSION,
                                          extra=extra)
 
     @classmethod
     def load(cls, file_name='stimulus', load_extra=False):
-        # TODO: document
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        file_name : str, optional
+            Description (default 'stimulus')
+        load_extra : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return super(Stimulus, cls)._load(file_name=file_name, load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):

@@ -43,6 +43,25 @@ class SpikeModel(Restoreable, object):
                               'patterns_raw', 'patterns_hopfield', 'stimulus', 'learner'])
 
     def __init__(self, spikes=None, stimulus=None, window_size=1, learner=None):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        spikes : Type, optional
+            Description (default None)
+        stimulus : Type, optional
+            Description (default None)
+        window_size : int, optional
+            Description (default 1)
+        learner : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         object.__init__(self)
         Restoreable.__init__(self)
 
@@ -58,47 +77,144 @@ class SpikeModel(Restoreable, object):
 
     @property
     def stimulus(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._stimulus
 
     @property
     def window_size(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._window_size
 
     @property
     def learner(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._learner
 
     @property
     def original_spikes(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._original_spikes
 
     @property
     def learn_time(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._learn_time
 
     @property
     def sample_spikes(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._sample_spikes
 
     @property
     def raw_patterns(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._raw_patterns
 
     @property
     def hopfield_patterns(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._hopfield_patterns
 
     @property
     def hopfield_spikes(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._hopfield_spikes
 
     def fit(self, trials=None, remove_zeros=False, reshape=False):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        trials : Type, optional
+            Description (default None)
+        remove_zeros : bool, optional
+            Description (default False)
+        reshape : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         # TODO: take care of remove_zeros
         self._sample_spikes = self.sample_from_model(trials=trials, reshape=reshape)
         self._learner = Learner(spikes=self._sample_spikes)
         self._learner.learn_from_spikes(remove_zeros=remove_zeros)
 
     def chomp(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         hdlog.debug("Chomping samples from model")
         self._raw_patterns = PatternsRaw(save_sequence=True)
         self._raw_patterns.chomp_spikes(spikes=self._sample_spikes)
@@ -127,6 +243,22 @@ class SpikeModel(Restoreable, object):
         Returns tuple: counts, entropies [, couplings]
         counts, entropies: arrays of size 2 x T x WSizes
         (0: empirical from model sample, 1: dynamics from learned model on sample)
+        
+        Parameters
+        ----------
+        window_sizes : Type, optional
+            Description (default None)
+        trials : Type, optional
+            Description (default None)
+        save_couplings : bool, optional
+            Description (default False)
+        remove_zeros : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
         """
         if window_sizes is None:
             window_sizes = [1]
@@ -168,16 +300,58 @@ class SpikeModel(Restoreable, object):
         return counts, entropies
 
     def sample_from_model(self, trials=None, reshape=False):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        trials : Type, optional
+            Description (default None)
+        reshape : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._original_spikes.to_windowed(window_size=self._window_size, trials=trials, reshape=reshape)
 
     def save(self, folder_name='spikes_model'):
-        """ saves as npz's: network, params, spikes file_name """
+        """
+        saves as npz's: network, params, spikes file_name
+        
+        Parameters
+        ----------
+        folder_name : str, optional
+            Description (default 'spikes_model')
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         super(SpikeModel, self)._save(
             'spikes_model.npz', self._SAVE_ATTRIBUTES_V1, self._SAVE_VERSION,
             has_internal=True, folder_name=folder_name, internal_objects=self._INTERNAL_OBJECTS)
 
     @classmethod
     def load(cls, folder_name='spikes_model', load_extra=False):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        folder_name : str, optional
+            Description (default 'spikes_model')
+        load_extra : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         # TODO: document
         return super(SpikeModel, cls)._load('spikes_model.npz', has_internal=True,
                                             folder_name=folder_name,
@@ -185,12 +359,35 @@ class SpikeModel(Restoreable, object):
                                             load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        contents : Type
+            Description
+        load_extra : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         hdlog.debug('Loading SpikeModel, format version 1')
         return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
 
     # representation
 
     def __repr__(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return '<SpikeModel: {s}, window size {ws}>'.\
             format(s=repr(self.original_spikes), ws=self.window_size)
 
@@ -207,6 +404,18 @@ class BernoulliHomogeneous(SpikeModel):
         X:   T (num trials) x (window_size * N) x  (M - window_size + 1)
         binary vector out of a spike time series
         reshape: returns T(M - window_size + 1) x (ws * N) numpy binary vector
+        
+        Parameters
+        ----------
+        trials : Type, optional
+            Description (default None)
+        reshape : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
         """
         trials = trials or xrange(self._original_spikes.T)
         X = np.zeros(
@@ -233,6 +442,23 @@ class BernoulliInhomogeneous(SpikeModel):
     """ Bernoulli model of spikes, inhomogeneous (i.e. varying rate over time). """
 
     def sample_from_model(self, averaging_window_size = 20, trials=None, reshape=False):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        averaging_window_size : int, optional
+            Description (default 20)
+        trials : Type, optional
+            Description (default None)
+        reshape : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         trials = trials or xrange(self._original_spikes.T)
         X = np.zeros(
             (len(trials), self._window_size * self._original_spikes.N, self._original_spikes.M - self._window_size + 1))
@@ -274,6 +500,20 @@ class Shuffled(SpikeModel):
         """
         returns new Spikes object: permutes spikes_arr in time
         trial_independence: diff permutation for each trial
+        
+        Parameters
+        ----------
+        trials : Type, optional
+            Description (default None)
+        trial_independence : bool, optional
+            Description (default True)
+        reshape : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
         """
         idx = np.random.permutation(self._original_spikes.M)
         new_arr = np.zeros(self._original_spikes.spikes_arr.shape)
@@ -298,6 +538,22 @@ class Ising(SpikeModel):
 
         returns new spikes object with iid Ising spike trains:
         (with Ising model determined by learning with MPF)
+        
+        Parameters
+        ----------
+        J : Type, optional
+            Description (default None)
+        theta : Type, optional
+            Description (default None)
+        trials : Type, optional
+            Description (default None)
+        reshape : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
         """
 
         trials = trials or range(self._original_spikes.T)
@@ -321,6 +577,21 @@ class Ising(SpikeModel):
 
 class DichotomizedGaussian(SpikeModel):
     def sample_from_model(self, trials=None, reshape=False):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        trials : Type, optional
+            Description (default None)
+        reshape : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         trials = trials or range(self._original_spikes.T)
         spikes_windowed = self._original_spikes.to_windowed(self._window_size, trials)
         X = np.zeros((len(trials), self._original_spikes.N, self._original_spikes.M))
@@ -357,6 +628,21 @@ class DichotomizedGaussian(SpikeModel):
 class DichotomizedGaussianPoisson(SpikeModel):
 
     def sample_from_model(self, trials=None, reshape=False):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        trials : Type, optional
+            Description (default None)
+        reshape : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
 
         trials = trials or range(self._original_spikes.T)
         spikes_windowed = self._original_spikes.to_windowed(self._window_size, trials)
