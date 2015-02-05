@@ -15,7 +15,7 @@ from hdnet.spikes_model import SpikeModel, BernoulliHomogeneous, DichotomizedGau
 spikes_arr = (np.random.random((2, 10, 200)) < .05).astype(int)
 spikes_arr[0, [1, 5], ::5] = 1  # insert correlations
 spikes_arr[1, [2, 3, 6], ::11] = 1  # insert correlations
-spikes = Spikes(spikes_arr=spikes_arr)
+spikes = Spikes(spikes=spikes_arr)
 
 # let's look at them: quick save as PNG or make PSTH pyplot
 plt.matshow(spikes.rasterize(), cmap='gray')
@@ -30,7 +30,7 @@ spikes_model = BernoulliHomogeneous(spikes=spikes)
 BH_sample_spikes = spikes_model.sample_from_model()
 plt.matshow(BH_sample_spikes.rasterize(), cmap='gray')
 plt.title('BernoulliHomogeneous sample')
-print "%1.4f means" % BH_sample_spikes.spikes_arr.mean()
+print "%1.4f means" % BH_sample_spikes.spikes.mean()
 plt.matshow(BH_sample_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
 plt.title('BernoulliHomogeneous covariance')
 
@@ -41,7 +41,7 @@ spikes_model = DichotomizedGaussian(spikes=spikes)
 DG_sample_spikes = spikes_model.sample_from_model()
 plt.matshow(DG_sample_spikes.rasterize(), cmap='gray')
 plt.title('DichotomizedGaussian sample')
-print "%1.4f means" % DG_sample_spikes.spikes_arr.mean()
+print "%1.4f means" % DG_sample_spikes.spikes.mean()
 plt.matshow(DG_sample_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
 plt.title('DichotomizedGaussian covariance')
 
@@ -109,7 +109,7 @@ spikes = Spikes(spk_folder='data/Blanche/crcns_pvc3_cat_recordings/drifting_bar/
 spikes_model = SpikeModel(spikes=spikes)
 spikes_model.fit()  # note: this fits a single network to all trials
 spikes_model.chomp()
-converged_spikes = Spikes(spikes_arr=spikes_model.hopfield_spikes)
+converged_spikes = Spikes(spikes=spikes_model.hopfield_spikes)
 plt.matshow(converged_spikes.rasterize(), cmap='gray')
 plt.title('Converge dynamics on Raw data')
 plt.matshow(converged_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')

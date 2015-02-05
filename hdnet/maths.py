@@ -17,7 +17,8 @@ import numpy as np
 def heaviside(X, dtype=None):
     r"""
     Heaviside function: given M x N numpy array, return points-wise Heaviside:
-    :math:`H(r)=1 \text{ if } r > 0 \text{ else } H(r)=0`
+
+    .. math:: H(r)= 1 & \text{ if } r > 0, \text{ else } 0
     
     Parameters
     ----------

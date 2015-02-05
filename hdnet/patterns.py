@@ -818,7 +818,7 @@ class PatternsHopfield(Counter):
             for n in xrange(N):
                 Y_[:, n, :] = Y[:, n].reshape((T, M))
             Y = Y_
-        return Spikes(spikes_arr=Y)
+        return Spikes(spikes=Y)
 
     def pattern_to_mta_matrix(self, m):
         """

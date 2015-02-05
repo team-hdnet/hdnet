@@ -177,7 +177,7 @@ def ltqnorm(p):
     Author:      Peter John Acklam
     Time-stamp:  2000-07-19 18:26:14
     E-mail:      pjacklam@online.no
-    WWW URL:     http://home.online.no/~pjacklam
+    WWW URL:     `<http://home.online.no/~pjacklam>`_
     
     Returns
     -------
@@ -248,7 +248,7 @@ def find_latent_gaussian(bin_means, bin_cov, accuracy=1e-10):
     X = 0 <=> U < -g
     X = 1 <=> U > -g
 
-    Adapted from from www.kyb.mpg.de/bethgegroup/code/efficientsampling
+    Adapted from `<www.kyb.mpg.de/bethgegroup/code/efficientsampling>`_
     
     Parameters
     ----------
@@ -364,7 +364,7 @@ def poisson_marginals(means, accuracy=1e-10):
     Code from the paper: 'Generating spike-trains with specified
     correlations', Macke et al., submitted to Neural Computation
 
-    Adapted from http://www.kyb.mpg.de/bethgegroup/code/efficientsampling
+    Adapted from `<http://www.kyb.mpg.de/bethgegroup/code/efficientsampling>`_
     
     Parameters
     ----------
@@ -484,7 +484,7 @@ def find_dg_any_marginal(pmfs, bin_cov, supports, accuracy=1e-10):
     Code from the paper: 'Generating spike-trains with specified
     correlations', Macke et al., submitted to Neural Computation
 
-    Adapted from http://www.kyb.mpg.de/bethgegroup/code/efficientsampling
+    Adapted from `<http://www.kyb.mpg.de/bethgegroup/code/efficientsampling>`_
     
     Parameters
     ----------
@@ -580,7 +580,7 @@ def sample_dg_any_marginal(gauss_means, gauss_cov, num_samples, supports=None):
     Code from the paper: 'Generating spike-trains with specified
     correlations', Macke et al., submitted to Neural Computation
 
-    Adapted from http://www.kyb.mpg.de/bethgegroup/code/efficientsampling
+    Adapted from `<http://www.kyb.mpg.de/bethgegroup/code/efficientsampling>`_
     
     Parameters
     ----------

@@ -60,7 +60,6 @@ class Learner(Restoreable, object):
 
         if spikes is not None:
             self._spikes = spikes
-            self._spikes_file = spikes.file_name
             self._network = HopfieldNetMPF(self._spikes.N * self._window_size)
 
         if network is not None:

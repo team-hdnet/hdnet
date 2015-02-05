@@ -32,14 +32,6 @@ class Restoreable(object):
     _SAVE_TYPE = ''
 
     def __init__(self):
-        """
-        Missing documentation
-        
-        Returns
-        -------
-        Value : Type
-            Description
-        """
         object.__init__(self)
 
     def _save(self, file_name, attributes, version, has_internal=False, folder_name=None,

@@ -7,73 +7,44 @@
     hdnet.data
     ~~~~~~~~~~
 
-    Data import and transformation functionality.
+    Data import and transformation functionality for hdnet.
+    Contains import / read functionality for a number of different
+    formats such as KlustaKwick and Matlab.
+    Regarding Matlab files note the two different (incompatible)
+    file formats that can be read with :class:`.MatlabReaderLegacy`
+    and :class:`.MatlabReaderHDF5`, depending on the version of Matlab
+    that you use.
 
 """
-from hdnet.spikes import Spikes
 
 __version__ = "0.1"
 
 import numpy as np
 import os
+
 from util import hdlog
+from hdnet.spikes import Spikes
 
 
 class Reader(object):
     """
-    Abstract reader class. Subclasses habe to implement method
-    read_spikes(self, \*args, \*\*kwargs)
+    Abstract Reader class, all readers inherit from this class.
     """
     def __init__(self):
-        """
-        Missing documentation
-        
-        Returns
-        -------
-        Value : Type
-            Description
-        """
         object.__init__(self)
-
-    def read_spikes(self, *args, **kwargs):
-        """
-        Missing documentation
-        
-        Parameters
-        ----------
-        args : Type
-            Description
-        kwargs : Type
-            Description
-        
-        Returns
-        -------
-        Value : Type
-            Description
-        """
-        raise NotImplementedError('Reader class is abstract')
 
 
 class KlustaKwickReader(Reader):
     """
-    Class for reading KlustaKwick data sets
-    https://github.com/klusta-team/klustakwik
+    Class for reading `KlustaKwick <https://github.com/klusta-team/klustakwik>`_ data sets.
     """
     def __init__(self):
-        """
-        Missing documentation
-        
-        Returns
-        -------
-        Value : Type
-            Description
-        """
         Reader.__init__(self)
 
     @staticmethod
     def read_spikes(path_or_files, rate, first_cluster=2, filter_silent=True, return_status=False):
         """
-        Reader for KlustaKwick files. https://github.com/klusta-team/klustakwik
+        Reader for `KlustaKwick <https://github.com/klusta-team/klustakwik>`_ files.
         
         Parameters
         ----------
@@ -82,7 +53,7 @@ class KlustaKwickReader(Reader):
         rate : float
             sampling rate [in Hz]
         discard_first_cluster : integer, optional
-            discard first n clusters, usually taked for unclassified spikes (default 2)
+            discard first n clusters, commonly used for unclassified spikes (default 2)
         filter_silent : boolean, optional
             filter out clusters that have no spikes (default True)
         return_status : boolean, optional
@@ -171,9 +142,362 @@ class KlustaKwickReader(Reader):
             return spike_times
 
 
+class MatlabReaderLegacy(Reader):
+    """
+    Class for reading legacy Matlab .mat files created by Matlab
+    versions prior to 7.3
+
+    Instantiate with ``reader = MatlabReaderLegacy(file_name)``.
+    List available Matlab objects with :meth:`get_keys`.
+    Access contents with ``reader['NAME_OF_MATLAB_OBJECT']`` or
+    ``reader.get_object('NAME_OF_MATLAB_OBJECT')``.
+
+    .. note::
+
+        This class needs the Python module :mod:`scipy`
+
+    Parameters
+    ----------
+    file_name : str
+        File name of Matlab file
+    """
+    def __init__(self, file_name):
+        Reader.__init__(self)
+        self.contents = None
+        self.read(file_name)
+
+    def __getitem__(self, item):
+        return self.get_object(item)
+
+    def read(self, file_name):
+        """
+        Reads a Matlab file.
+
+        Parameters
+        ----------
+        file_name : str
+            Name of file to read
+
+        Returns
+        -------
+        contents : dict (key: object)
+            contents of file
+        """
+        if not os.path.exists(file_name):
+            hdlog.warn("File '{}' does not exist!".format(file_name))
+            return
+        import scipy.io
+        self.contents = scipy.io.loadmat(file_name, struct_as_record=True)
+        return self.contents
+
+    def get_keys(self):
+        """
+        Returns names of Matlab objects in file.
+
+        Returns
+        -------
+        keys : list of str
+            List of Matlab objects in file
+        """
+        if not self.contents:
+            return None
+        return self.contents.keys()
+
+    def get_objects(self):
+        """
+        Returns dictionary of all Matlab objects in file.
+
+        Returns
+        -------
+        objects : dictionary (key: object)
+            Dictionary of Matlab objects in file
+        """
+        return self.contents
+
+    def get_object(self, key):
+        """
+        Returns a Matlab object with given name from the file
+        and ``None`` if no such object exists.
+
+        Parameters
+        ----------
+        key : str
+            Name of Matlab object to retrieve
+
+        Returns
+        -------
+        object : numpy array
+            Matlab object,
+            ``None`` if no object with name :attr:`key` exists
+        """
+        if not self.contents or not key in self.contents:
+            return None
+        else:
+            return self.contents[key]
+
+
+class MatlabReaderHDF5(Reader):
+    """
+    Class for reading new Matlab .mat files created by Matlab
+    versions >= 7.3.
+
+    Instantiate with ``reader = MatlabReaderHDF5(file_name)``.
+    List available Matlab objects with :meth:`get_keys`.
+    Access contents with ``reader['NAME_OF_MATLAB_OBJECT']``.
+    (The object will be converted to a numpy array. To access
+    the underlying HD5 object, call :meth:`get_object_raw`)
+
+    .. note::
+
+        This class needs the Python module :mod:`h5py`
+
+    Parameters
+    ----------
+    file_name : str
+        File name of Matlab file
+    """
+    def __init__(self, file_name):
+        Reader.__init__(self)
+        self.file = None
+        self.open(file_name)
+
+    def __getitem__(self, item):
+        return self.get_item_numpy(item)
+
+    def open(self, file_name):
+        """
+        Opens a Matlab file of HDF format (version >= 7.3).
+        Do not forget to close the file with :meth:`close`
+        after reading its contents.
+
+        Parameters
+        ----------
+        file_name : str
+            Name of file to read
+
+        Returns
+        -------
+        file : :class:`h5py.File` object
+            Opened Matlab file
+        """
+        if not os.path.exists(file_name):
+            hdlog.warn("File '{}' does not exist!".format(file_name))
+            return
+        import h5py
+        self.file = h5py.File(file_name)
+
+    def close(self):
+        """
+        Closes the Matlab file if currently open.
+
+        Returns
+        -------
+        Nothing
+        """
+        if self.file:
+            self.file.close()
+            self.file = None
+
+    def get_hdf5(self):
+        """
+        Returns underlying HDF5 file object belonging to Matlab file.
+
+        Returns
+        -------
+        file : hdf5 file
+            HDF5 file containing Matlab objects
+        """
+        return self.file
+
+    def keys(self):
+        """
+        Returns names of Matlab objects in file, ``None``
+        if no file open.
+
+        Returns
+        -------
+        keys : list of str, or ``None``
+            List of Matlab objects in file
+        """
+        if not self.file:
+            return None
+        return self.file.keys()
+
+    def get_object_raw(self, key):
+        """
+        Returns object with given name :attr:`key`
+        from the Matlab file in raw h5py representation
+        and ``None`` if no file currently open or an
+        object with given name does not exist.
+
+        Parameters
+        ----------
+        key : str
+            Name of object to be loaded
+
+        Returns
+        -------
+        object : h5py object
+            Matlab object, or ``None``
+        """
+        if not self.file:
+            return None
+        return self.file.get(key)
+
+    def get_object_numpy(self, key):
+        """
+        Returns object with given name :attr:`key`
+        from the Matlab file in numpy format
+        and ``None`` if no file currently open or
+        an object with given name does not exist.
+
+        Parameters
+        ----------
+        key : str
+            Name of object to be loaded
+
+        Returns
+        -------
+        object : numpy array or ``None``
+            Matlab object as numpy array, or ``None``
+        """
+        raw = self.get_object_raw(key)
+        if raw is None:
+            return None
+        else:
+            return np.array(raw)
+
+
+class SpkReader(Reader):
+    """
+    Reader for spk file format. See CRCNS Tim Blanche data set.
+
+    .. note::
+
+        This class needs the :mod:`bitstring` module.
+
+    .. warning::
+
+        During testing we encountered errornous data on some
+        Linux 64 bit installations. Take care.
+
+    """
+
+    @staticmethod
+    def read_spk_files(spk_files, bin_size=1):
+        """
+        Loads spike times from a list of spk files.
+        The j-th item in the list corresponds to the j-th neuron.
+        It is the 1d array of spike times (microsec) for that neuron.
+
+        Parameters
+        ----------
+        spk_files : list of str
+            List of strings containing spk file names
+        bin_size : int, optional
+            Bin size in milliseconds (default 1)
+
+        Returns
+        -------
+        spikes : numpy array
+            numpy array containing binned spike times
+        """
+        from bitstring import Bits
+        neuron_to_file = []
+        time_stamps = []
+        bin_size = bin_size or 1
+
+        for fn in spk_files:
+            neuron_to_file.append(fn)
+            f = open(fn, 'rb')
+            p = Bits(f)
+            fmt = str(p.length / 64) + ' * (intle:64)'
+            time_stamps.append(p.unpack(fmt))
+        spikes = SpkReader.load_from_spikes_times(time_stamps, bin_size=bin_size)
+        return Spikes(spikes)
+
+    @staticmethod
+    def read_spk_folder(spk_folder, bin_size=1):
+        """
+        Loads spike times from all spk files in a given folder.
+        The j-th item in the list corresponds to the j-th neuron.
+        It is the 1d array of spike times (microsec) for that neuron.
+
+        Parameters
+        ----------
+        spk_folder : str
+            Path containing spk file names
+        bin_size : int, optional
+            Bin size in milliseconds (default 1)
+
+        Returns
+        -------
+        spikes : numpy array
+            numpy array containing binned spike times
+        """
+        from bitstring import Bits
+        neuron_to_file = []
+        time_stamps = []
+        bin_size = bin_size or 1
+        fns = os.listdir(spk_folder)
+        for i, fn in enumerate(fns):
+            ext = os.path.splitext(fn)[1]
+            if ext in ('.spk', ):  # Blanche spike format
+                neuron_to_file.append(fn)
+                f = open(os.path.join(spk_folder, fn), 'rb')
+                p = Bits(f)
+                fmt = str(p.length / 64) + ' * (intle:64)'
+                time_stamps.append(p.unpack(fmt))
+            spikes = SpkReader.load_from_spikes_times(time_stamps, bin_size=bin_size)
+            return Spikes(spikes)
+
+
+    @staticmethod
+    def load_from_spikes_times(spike_times_lists, bin_size=1):
+        """
+        Loads a spike train from a list of arrays of spike times.
+        The j-th item in the list corresponds to the j-th neuron.
+        It is the 1d array of spike times (microsec) for that neuron.
+
+        Parameters
+        ----------
+        spike_times_lists : Type
+            Description
+        bin_size : int, optional
+            Bin size in milliseconds (default 1)
+
+        Returns
+        -------
+        spikes : numpy array
+            numpy array containing binned spike times
+        """
+        if len(spike_times_lists) == 0:
+            return np.array([])
+        max_millisec = - np.inf
+        for spike_times in spike_times_lists:
+            milisec = 1. * (spike_times[-1]) / (10 ** 3)
+            max_millisec = max(max_millisec, milisec)
+        spikes_arr = np.zeros((len(spike_times_lists), np.int(max_millisec) / bin_size + 1))
+        for c, spike_times in enumerate(spike_times_lists):
+            for spike_time in spike_times:
+                a = int(spike_time / (1000. * bin_size))
+                if a < spikes_arr.shape[1]:
+                    spikes_arr[c, a] = 1
+        return spikes_arr
+
+
 class Binner(object):
     """
-    Spike time binner class.
+    Spike time binner class. Provides methods that take spike times as list of times
+    and bin them.
+
+    **Example**:
+    Combined use with KlustaKwick reader::
+
+        spikes_times = KlustaKwickReader.read_spikes(DIRECTORY, SAMPLING_RATE)
+        # bin to 1ms bins
+        binned_spikes_1ms = Binner.bin_spike_times(spikes_times, 0.001)
+
     """
     def __init__(self):
         object.__init__(self)
@@ -238,7 +562,7 @@ class Binner(object):
                 binned[pos, indices] = 1
                 pos += 1
 
-        return Spikes(spikes_arr=binned)
+        return Spikes(spikes=binned)
 
 
 # end of source

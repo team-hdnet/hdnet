@@ -459,18 +459,23 @@ class HopfieldNet(Restoreable, object):
         return (S * Y / self.Wnorm).min()
 
     def energy(self, x):
-        """
-        energy Ex = -.5 x^T[J-diag(J)]x + theta*x
+        r"""
+        Calculates the energy of a pattern ``x`` according to the
+        Hopfield network.
+
+        The energy of a pattern ``x`` computes as:
+
+        .. math:: E(x) = -\frac{1}{2} x^T \cdot [J - \text{diag}(J)] \cdot x + \theta\cdot x
         
         Parameters
         ----------
-        x : Type
-            Description
+        x : numpy array
+            Input pattern
         
         Returns
         -------
-        Value : Type
-            Description
+        energy : float
+            Energy of input pattern according to Hopfield network.
         """
         return -.5 * np.dot(x, np.dot(self._J - np.diag(self._J.diagonal()), x)) + np.dot(self._theta, x)
 

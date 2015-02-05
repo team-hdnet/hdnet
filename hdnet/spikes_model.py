@@ -228,13 +228,13 @@ class SpikeModel(Restoreable, object):
             self._sample_spikes.N, len(self._hopfield_patterns), self._hopfield_patterns.entropy()))
 
         # print "Before dynamics:"
-        # print self.sample_spikes.spikes_arr
+        # print self.sample_spikes.spikes
         # print "Applied dynamics:"
         self._hopfield_spikes = self._hopfield_patterns.apply_dynamics(spikes=self._sample_spikes, reshape=True)
-        # ma_err = np.abs(self.sample_spikes.spikes_arr - hop_model_spikes).mean()
+        # ma_err = np.abs(self.sample_spikes.spikes - hop_model_spikes).mean()
         #        print hop_model_spikes
         # print "Mean prediction: %1.4f/1.0 (vs guess zero: %1.4f)" % (
-        #    (1 - ma_err), 1 - np.abs(self.sample_spikes.spikes_arr).mean())
+        #    (1 - ma_err), 1 - np.abs(self.sample_spikes.spikes).mean())
         # # distortion
         # self.sample_spikes
 
@@ -423,7 +423,7 @@ class BernoulliHomogeneous(SpikeModel):
 
         sample_spikes = self._original_spikes.to_windowed(trials=trials, window_size=self._window_size)
         for c, t in enumerate(trials):
-            p = sample_spikes.spikes_arr[c, :, :].mean(axis=1)
+            p = sample_spikes.spikes[c, :, :].mean(axis=1)
             X[c, :, :] = sample_from_bernoulli(p, self._original_spikes.M - self._window_size + 1)
 
         if reshape:
@@ -435,7 +435,7 @@ class BernoulliHomogeneous(SpikeModel):
                     tot += 1
             return Y
 
-        return Spikes(spikes_arr=X)
+        return Spikes(spikes=X)
 
 
 class BernoulliInhomogeneous(SpikeModel):
@@ -466,7 +466,7 @@ class BernoulliInhomogeneous(SpikeModel):
         for c, t in enumerate(trials):
             num_neurons = self._original_spikes.N
             num_samples = self._original_spikes.M
-            spikes_arr = self._original_spikes.spikes_arr
+            spikes_arr = self._original_spikes.spikes
 
             ps = []
             for i in xrange(num_neurons):
@@ -488,7 +488,7 @@ class BernoulliInhomogeneous(SpikeModel):
                     Y[tot, :] = X[t, :, c]
                     tot += 1
             return Y
-        return Spikes(spikes_arr=X)
+        return Spikes(spikes=X)
 
 
 class Shuffled(SpikeModel):
@@ -516,11 +516,11 @@ class Shuffled(SpikeModel):
             Description
         """
         idx = np.random.permutation(self._original_spikes.M)
-        new_arr = np.zeros(self._original_spikes.spikes_arr.shape)
+        new_arr = np.zeros(self._original_spikes.spikes.shape)
         for i in xrange(self._original_spikes.T):
             if trial_independence:
                 idx = np.random.permutation(self._original_spikes.M)
-            arr = self._original_spikes.spikes_arr[i, :, :].copy()
+            arr = self._original_spikes.spikes[i, :, :].copy()
             new_arr[i] = arr[:, idx]
         return Spikes(new_arr).to_windowed(
             window_size=self._window_size, trials=trials)
@@ -528,7 +528,7 @@ class Shuffled(SpikeModel):
 
 class Ising(SpikeModel):
     """
-    Ising / Hopfield model of spikes
+    Class modeling the Ising / Hopfield model of spikes
     WARNING:  NOT QUITE WORKING !!!
     """
 
@@ -572,10 +572,13 @@ class Ising(SpikeModel):
                 theta = learner._network.theta
             X[c, :, :] = sample_from_ising(J, theta, self._original_spikes.M)
 
-        return Spikes(spikes_arr=X)
+        return Spikes(spikes=X)
 
 
 class DichotomizedGaussian(SpikeModel):
+    """
+    Class modeling the dichotomized Gaussian model of spikes.
+    """
     def sample_from_model(self, trials=None, reshape=False):
         """
         Missing documentation
@@ -598,8 +601,8 @@ class DichotomizedGaussian(SpikeModel):
 
         # statistics
         for c, t in enumerate(trials):
-            bin_means = spikes_windowed.spikes_arr[t, :, :].mean(axis=1)
-            bin_cov = np.cov(spikes_windowed.spikes_arr[t, :, :])
+            bin_means = spikes_windowed.spikes[t, :, :].mean(axis=1)
+            bin_cov = np.cov(spikes_windowed.spikes[t, :, :])
             gauss_means, gauss_cov = find_latent_gaussian(bin_means, bin_cov)
 
             for i in xrange(0, spikes_windowed.M, self._window_size):
@@ -622,10 +625,13 @@ class DichotomizedGaussian(SpikeModel):
                     tot += 1
             return Y
 
-        return Spikes(spikes_arr=X)
+        return Spikes(spikes=X)
 
 
 class DichotomizedGaussianPoisson(SpikeModel):
+    """
+    Class modeling the dichotomized Gaussian model of spikes, with Poisson marginals.
+    """
 
     def sample_from_model(self, trials=None, reshape=False):
         """
@@ -650,8 +656,8 @@ class DichotomizedGaussianPoisson(SpikeModel):
 
         # statistics
         for c, t in enumerate(trials):
-            bin_means = spikes_windowed.spikes_arr[t, :, :].mean(axis=1)
-            bin_cov = np.cov(spikes_windowed.spikes_arr[t, :, :])
+            bin_means = spikes_windowed.spikes[t, :, :].mean(axis=1)
+            bin_cov = np.cov(spikes_windowed.spikes[t, :, :])
 
             # calculate marginal distribution of Poisson
             pmfs, cmfs, supports = poisson_marginals(bin_means)
@@ -673,7 +679,7 @@ class DichotomizedGaussianPoisson(SpikeModel):
                     tot += 1
             return Y
 
-        return Spikes(spikes_arr=X)
+        return Spikes(spikes=X)
 
 
 # end of source
