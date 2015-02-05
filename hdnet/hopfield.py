@@ -103,7 +103,7 @@ class HopfieldNet(Restoreable, object):
     def N(self):
         """
         Returns the number of nodes in the network, shortcut
-        for :meth:`~HopfieldNet.num_nodes`.
+        for :meth:`num_nodes`.
         
         Returns
         -------
@@ -127,7 +127,7 @@ class HopfieldNet(Restoreable, object):
     def J(self):
         """
         Returns the N x N matrix (with N denoting the number of nodes in the network)
-        of coupling strengths of nodes in the network, shortcut for :meth:`~HopfieldNet.coupling_matrix`.
+        of coupling strengths of nodes in the network, shortcut for :meth:`coupling_matrix`.
 
         Returns
         -------
@@ -151,7 +151,7 @@ class HopfieldNet(Restoreable, object):
     def theta(self):
         """
         Returns a numpy vector of length N (with N denoting the number of nodes in the network)
-        of thresholds for all nodes, shortcut for :meth:`~HopfieldNet.thresholds`.
+        of thresholds for all nodes, shortcut for :meth:`thresholds`.
 
         Returns
         -------

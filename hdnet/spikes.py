@@ -276,7 +276,7 @@ class Spikes(Restoreable, object):
     def N(self):
         """
         Returns number of neurons represented by this class,
-        shortcut for :meth:`~Spikes.num_neurons`.
+        shortcut for :meth:`num_neurons`.
         
         Returns
         -------
@@ -300,7 +300,7 @@ class Spikes(Restoreable, object):
     def M(self):
         """
         Returns number of bins represented by this class,
-        shortcut for :meth:`~Spikes.num_bins`.
+        shortcut for :meth:`num_bins`.
         
         Returns
         -------
@@ -323,7 +323,7 @@ class Spikes(Restoreable, object):
     def T(self):
         """
         Returns number of trials represented by this class,
-        shortcut for :meth:`~Spikes.num_trials`.
+        shortcut for :meth:`num_trials`.
 
         Returns
         -------
