@@ -83,6 +83,7 @@ def save_matrix_whole_canvas(matrix, fname, **kwargs):
     plt.savefig(fname)
     plt.close
 
+
 def raster_plot_psth(spikes_arr,
                      trial=0,
                      start_idx=0,
@@ -262,6 +263,8 @@ def pattern_rank_plot(
         color_pattern='r',
         mark_empirical=None,
         mark_converged=None,
+        label_empirical='raw',
+        label_patterns='Hopfield',
         plot_mtas=True):
     """
     Missing documentation
@@ -310,17 +313,21 @@ def pattern_rank_plot(
     else:
         plot = plt
 
-    plot.plot(xrange(1, len(emp_sort) + 1), emp_sort[::-1], color=color_empirical, lw=3)
-    plot.plot(xrange(1, len(hop_sort) + 1), hop_sort[::-1], color=color_pattern, lw=3)
+    plot.plot(xrange(1, len(emp_sort) + 1), emp_sort[::-1], color=color_empirical, lw=3, label=label_empirical)
+    plot.plot(xrange(1, len(hop_sort) + 1), hop_sort[::-1], color=color_pattern, lw=3, label=label_patterns)
 
     if mark_empirical:
-        mark_empirical = np.array(mark_empirical)+1
-        plot.scatter(mark_empirical, [emp_sort[::-1][idx - 1] for idx in mark_empirical], marker='x', s=100, edgecolor=color_empirical,
+        mark_empirical = np.array(mark_empirical) + 1
+        plot.scatter(mark_empirical, [emp_sort[::-1][idx - 1] for idx in mark_empirical], marker='x', s=100,
+                     edgecolor=color_empirical,
                      facecolor=color_empirical, linewidth=3, alpha=1.0)
     if mark_converged:
-        mark_converged = np.array(mark_converged)+1
+        mark_converged = np.array(mark_converged) + 1
         plot.scatter(mark_converged, [hop_sort[::-1][idx - 1] for idx in mark_converged], marker='x',
                      s=100, edgecolor=color_pattern, facecolor=color_pattern, linewidth=3, alpha=1.0)
+
+        if label_empirical is not None and label_patterns is not None:
+            plot.legend(loc='upper right')
 
     plt.tight_layout(pad=0.1)
 
@@ -334,7 +341,7 @@ def pattern_rank_plot(
         nullfmt = mpl.ticker.NullFormatter()
 
         for i in xrange(len(mark_converged)):
-            #empirical
+            # empirical
             axs2[0, i].xaxis.set_major_formatter(nullfmt)
             axs2[0, i].yaxis.set_major_formatter(nullfmt)
             if HAS_PRETTYPLOTLIB:
@@ -544,7 +551,7 @@ def combine_windows(windows):
     return combined
 
 
-def plot_graph(g, nodeval=None, cmap1='Blues_r', cmap2='bone_r', 
+def plot_graph(g, nodeval=None, cmap1='Blues_r', cmap2='bone_r',
                node_vmin=None, node_vmax=None, edge_vmin=None, edge_vmax=None):
     """
     Missing documentation
@@ -574,6 +581,7 @@ def plot_graph(g, nodeval=None, cmap1='Blues_r', cmap2='bone_r',
         Description
     """
     import networkx as nx
+
     fig = plt.figure()
     pos = nx.spring_layout(g)
     kwargs = {}
