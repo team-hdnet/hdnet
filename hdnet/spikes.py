@@ -43,7 +43,7 @@ class Spikes(Restoreable, object):
 
     Returns
     -------
-    spikes : instance of :class:`Spikes` class
+    spikes : instance of :class:`.Spikes` class
 
     """
     _SAVE_ATTRIBUTES_V1 = ['_spikes', '_T', '_N', '_M']
@@ -292,19 +292,18 @@ class Spikes(Restoreable, object):
 
     def save(self, file_name='spikes', extra=None):
         """
-        save as numpy array .npz file
-        
+        Saves contents to file.
+
         Parameters
         ----------
         file_name : str, optional
-            Description (default 'spikes')
-        extra : Type, optional
-            Description (default None)
-        
+            File name to save to (default 'spikes')
+        extra : dict, optional
+            Extra information to save to file (default None)
+
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         return super(Spikes, self)._save(file_name=file_name,
                                          attributes=self._SAVE_ATTRIBUTES_V1, version=self._SAVE_VERSION,
@@ -313,19 +312,26 @@ class Spikes(Restoreable, object):
     @classmethod
     def load(cls, file_name='spikes', load_extra=False):
         """
-        Missing documentation
-        
+        Loads contents from file.
+
+        .. note:
+
+            This is a class method, i.e. loading should be done like
+            this:
+
+            spikes = Spikes.load('file_name')
+
         Parameters
         ----------
         file_name : str, optional
-            Description (default 'spikes')
+            File name to load from (default 'spikes')
         load_extra : bool, optional
-            Description (default False)
-        
+            Flag whether to load extra file contents, if any (default False)
+
         Returns
         -------
-        Value : Type
-            Description
+        spikes : :class:`.Spikes`
+            Instance of :class:`.Spikes` if loaded, `None` upon error
         """
         return super(Spikes, cls)._load(file_name=file_name, load_extra=load_extra)
 

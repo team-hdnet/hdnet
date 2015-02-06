@@ -1,9 +1,10 @@
 hdnet package
 =============
 
-hdnet stands for Hopfield denoising network. It is a Python package
-for denoising and finding structure in parallel spike trains.
-
+`hdnet` stands for Hopfield denoising network. It is a Python package
+providing functionality for data analysis of parallel neural spike
+trains and methods for denoising and finding structure in such data
+sets.
 
 .. automodule:: hdnet.data
     :members:

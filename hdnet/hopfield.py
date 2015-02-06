@@ -33,10 +33,28 @@ class HopfieldNet(Restoreable, object):
     Hopfield network class with binary hopfield dynamics [Hopfield, PNAS, 1982]
     Built in learning/training of network is outer product learning rule (OPR).
 
-    Main Parameters:
-    N: int: length of {0,1} binary vectors
-    J: float array: Hopfield connectivity matrix of network
-    theta: array of thresholds for the nodes
+    Parameters
+    ----------
+    N : int, optional
+        Number of nodes in network (default None)
+    J : numpy array, optional
+        Coupling matrix of size N x N, where N denotes the number
+        of nodes in the network (default None)
+    theta : numpy array, optional
+        Thresholds vector of size N, where N denotes the number
+        of nodes in the network (default None)
+    name : str, optional
+        Name of network (default None)
+    update : str, optional
+        Type of Hopfield dynamics update, "synchronous"
+        or "asynchronous" (default "asynchronous")
+    symmetric : bool, optional
+        Symmetric coupling matrix (default True)
+
+    Returns
+    -------
+    network : :class:`.HopfieldNet`
+        Instance of :class:`.HopfieldNet` class
     """
 
     _SAVE_ATTRIBUTES_V1 = ['_J', '_N', '_theta', '_neuron_order',
@@ -45,34 +63,13 @@ class HopfieldNet(Restoreable, object):
     _SAVE_TYPE = 'HopfieldNet'
 
     def __init__(self, N=None, J=None, theta=None, name=None, update="asynchronous", symmetric=True):
-        """
-        Missing documentation
-        
-        Parameters
-        ----------
-        N : Type, optional
-            Description (default None)
-        J : Type, optional
-            Description (default None)
-        theta : Type, optional
-            Description (default None)
-        name : Type, optional
-            Description (default None)
-        update : str, optional
-            Description (default "asynchronous")
-        symmetric : bool, optional
-            Description (default True)
-        
-        Returns
-        -------
-        Value : Type
-            Description
-        """
         object.__init__(self)
         Restoreable.__init__(self)
+
         self._learn_iterations = 0  # how many learning steps have been taken so far
         self._N = N
         self._symmetric = symmetric
+
         if J is None and N > 0:
             self._J = np.zeros((self._N, self._N))
         else:
@@ -81,12 +78,12 @@ class HopfieldNet(Restoreable, object):
             self._theta = np.zeros(self._N)
         else:
             self._theta = theta
+
         self._name = name or self.__class__.__name__
         self._update = update
         self._neuron_order = xrange(self._N) if self._N else None
         self._last_num_iter_for_convergence = 0  # hopfield dynamics steps previous __call__ took
         self._learn_iterations = 0  # how many learning steps have been taken so far
-
 
     @property
     def num_nodes(self):
@@ -119,7 +116,9 @@ class HopfieldNet(Restoreable, object):
 
         Returns
         -------
-        J : 2d numpy array
+        J : numpy array
+            Coupling matrix of size N x N, where N denotes the number
+            of nodes in the network (default None)
         """
         return self._J
 
@@ -131,7 +130,9 @@ class HopfieldNet(Restoreable, object):
 
         Returns
         -------
-        J : 2d numpy array
+        J : numpy array
+            Coupling matrix of size N x N, where N denotes the number
+            of nodes in the network
         """
         return self._J
 
@@ -143,7 +144,9 @@ class HopfieldNet(Restoreable, object):
 
         Returns
         -------
-        J : 2d numpy array
+        J : numpy array
+            Coupling matrix of size N x N, where N denotes the number
+            of nodes in the network
         """
         return self._theta
 
@@ -155,7 +158,9 @@ class HopfieldNet(Restoreable, object):
 
         Returns
         -------
-        J : 2d numpy array
+        J : numpy array
+            Coupling matrix of size N x N, where N denotes the number
+            of nodes in the network
         """
         return self._theta
 
@@ -209,12 +214,18 @@ class HopfieldNet(Restoreable, object):
 
     def reset(self):
         """
-        Missing documentation
-        
+        Resets the network variables to base state
+        (coupling strengths J, node thresholds theta
+        and other status variables)
+
+        .. note:
+
+            If the network has been trained, this information will
+            be lost!
+
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         self._J = np.zeros((self._N, self._N))
         self._theta = np.zeros(self._N, dtype=float)
@@ -223,30 +234,34 @@ class HopfieldNet(Restoreable, object):
 
     def __call__(self, X, converge=True, max_iter=10 ** 5, clamped_nodes=None):
         """
-        Usage:  my_Hopfield_net(X) returns the Hopfield dynamics update to patterns
-        stored in rows of M x N matrix X
+        Usage: network(X) returns the Hopfield dynamics update to patterns
+        stored in rows of M x N matrix X.
 
         if converge = False then 1 update run through the neurons is performed
         else: Hopfield dynamics run on X until convergence OR max_iter iterations reached
-        (NOTE: set max_iter = Inf to always force convergence)
+        (NOTE: set max_iter = Inf to always force convergence).
 
-        clamped_nodes is dictionary of those nodes not to update during the dynamics
+        clamped_nodes is dictionary of those nodes not to update during the dynamics.
         
         Parameters
         ----------
-        X : Type
-            Description
+        X : numpy array
+            (M, N)-dim array of binary input patterns of length N,
+            where N is the number of nodes in the network
         converge : bool, optional
-            Description (default True)
+            Flag whether to converge Hopfield dynamics. If False,
+            just one step of dynamics is performed (default True)
         max_iter : int, optional
-            Description (default 10 ** 5)
+            Maximal number of iterations of dynamics (default 10 ** 5)
         clamped_nodes : Type, optional
-            Description (default None)
+            List of clamped nodes that are left untouched during
+            dynamics update (default None)
         
         Returns
         -------
-        Value : Type
-            Description
+        patterns : numpy array
+            Converged patterns (memories) of Hopfield dynamics of input
+            argument X
         """
         if clamped_nodes is None:
             clamped_nodes = {}
@@ -277,36 +292,38 @@ class HopfieldNet(Restoreable, object):
 
     def learn_all(self, X):
         """
-        learning M patterns in Hopfield net using OPR [Hopfield, 82]
+        Learning M patterns in Hopfield network using outer product learning
+        rule (OPR) [Hopfield, 82]
 
-        X: (M, N)-dim array
-            M binary patterns of length N to be stored
-        
+        Interface method, calls :meth:`store_patterns_using_outer_products`.
+
         Parameters
         ----------
-        X : Type
-            Description
+        X : numpy array
+            (M, N)-dim array of binary input patterns of length N to be stored,
+            where N is the number of nodes in the network
+
         
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         self.store_patterns_using_outer_products(X)
 
     def store_patterns_using_outer_products(self, X):
         """
-        Missing documentation
+        Store patterns in X using outer product learning rule (OPR).
+        Sets coupling matrix J.
         
         Parameters
         ----------
-        X : Type
-            Description
+        X : numpy array
+            (M, N)-dim array of binary input patterns of length N to be stored,
+            where N is the number of nodes in the network
         
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         self.reset()
         X = np.atleast_2d(X)
@@ -318,21 +335,20 @@ class HopfieldNet(Restoreable, object):
 
     def hopfield_binary_dynamics(self, X, update="asynchronous", clamped_nodes=None):
         """
-        applying Hopfield dynamics on X
-
-        update can be "asynchronous" or "synchronous"
-
+        Applying Hopfield dynamics on X.
+        Update can be "asynchronous" (default) or "synchronous".
         clamped_nodes is dict of those nodes *not* to change in the dynamics
-        (clamped does not work with cython right now)
-        
+
         Parameters
         ----------
-        X : Type
-            Description
+        X : numpy array
+            (M, N)-dim array of binary input patterns of length N,
+            where N is the number of nodes in the network
         update : str, optional
-            Description (default "asynchronous")
-        clamped_nodes : Type, optional
-            Description (default None)
+            Type of Hopfield dynamics update (default "asynchronous")
+        clamped_nodes : dict, optional
+            Dictionary of nodes to leave untouched during dynamics
+            update (default None)
         
         Returns
         -------
@@ -368,11 +384,13 @@ class HopfieldNet(Restoreable, object):
         
         Parameters
         ----------
-        X : Type
-            Description
+        X : numpy array
+            (M, N)-dim array of binary input patterns of length N,
+            where N is the number of nodes in the network
         converge : bool, optional
-            Description (default True)
-        
+            Flag whether to converge Hopfield dynamics. If False,
+            just one step of dynamics is performed (default True)
+
         Returns
         -------
         Value : Type
@@ -382,14 +400,16 @@ class HopfieldNet(Restoreable, object):
 
     def exact_recalled(self, X, converge=True):
         """
-        NEEDS TO BE SPED UP: CURRENTLY TOO SLOW
+        Documentation Missing
         
         Parameters
         ----------
-        X : Type
-            Description
+        X : numpy array
+            (M, N)-dim array of binary input patterns of length N,
+            where N is the number of nodes in the network
         converge : bool, optional
-            Description (default True)
+            Flag whether to converge Hopfield dynamics. If False,
+            just one step of dynamics is performed (default True)
         
         Returns
         -------
@@ -398,22 +418,23 @@ class HopfieldNet(Restoreable, object):
         """
         return (X == self(X, converge=converge)).all(1).mean()
 
-    def num_hopfield_iter(self, X, max_iter=10 ** 3):
+    def num_hopfield_iter(self, X, max_iter=10 ** 5):
         """
-        Returns array consisting of number of hopfield iterations to
-        converge elements in X
+        Returns array consisting of number of Hopfield iterations to
+        converge elements in X.
         
         Parameters
         ----------
-        X : Type
-            Description
+        X : numpy array
+            (M, N)-dim array of binary input patterns of length N,
+            where N is the number of nodes in the network
         max_iter : int, optional
-            Description (default 10 ** 3)
+            Maximal number if iterations to perform per element (default 10 ** 5)
         
         Returns
         -------
-        Value : Type
-            Description
+        count : numpy array
+            Number of iterations performed for each element in X
         """
         count_arr = []
         for x in X:
@@ -431,7 +452,7 @@ class HopfieldNet(Restoreable, object):
 
     def J_norm(self):
         """
-        vector of row 2-norms of J
+        Vector of row 2-norms of J
         
         Returns
         -------
@@ -442,13 +463,14 @@ class HopfieldNet(Restoreable, object):
 
     def compute_kappa(self, X):
         """
-        computes minimum marginal of dynamics update
+        Computes minimum marginal of dynamics update
         
         Parameters
         ----------
-        X : Type
-            Description
-        
+        X : numpy array
+            (M, N)-dim array of binary input patterns of length N,
+            where N is the number of nodes in the network
+
         Returns
         -------
         Value : Type
@@ -469,8 +491,9 @@ class HopfieldNet(Restoreable, object):
         
         Parameters
         ----------
-        x : numpy array
-            Input pattern
+        X : numpy array
+            (M, N)-dim array of binary input patterns of length N,
+            where N is the number of nodes in the network
         
         Returns
         -------
@@ -488,19 +511,18 @@ class HopfieldNet(Restoreable, object):
 
     def save(self, file_name='hopfield_network', extra=None):
         """
-        Missing documentation
+        Saves Hopfield network to file.
         
         Parameters
         ----------
         file_name : str, optional
-            Description (default 'hopfield_network')
-        extra : Type, optional
-            Description (default None)
+            File name to save network to (default 'hopfield_network')
+        extra : dict, optional
+            Extra information to save to file (default None)
         
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         super(HopfieldNet, self)._save(file_name=file_name,
                                       attributes=self._SAVE_ATTRIBUTES_V1,
@@ -510,19 +532,26 @@ class HopfieldNet(Restoreable, object):
     @classmethod
     def load(cls, file_name='hopfield_network', load_extra=False):
         """
-        Missing documentation
+        Loads Hopfield network from file.
+
+        .. note:
+
+            This is a class method, i.e. loading should be done like
+            this:
+
+            net = HopfieldNet.load('file_name')
         
         Parameters
         ----------
         file_name : str, optional
-            Description (default 'hopfield_network')
+            File name to load network from (default 'hopfield_network')
         load_extra : bool, optional
-            Description (default False)
+            Flag whether to load extra file contents, if any (default False)
         
         Returns
         -------
-        Value : Type
-            Description
+        network : :class:`.HopfieldNet`
+            Instance of :class:`.HopfieldNet` if loaded, `None` upon error
         """
         return super(HopfieldNet, cls)._load(file_name=file_name, load_extra=load_extra)
 
@@ -532,7 +561,7 @@ class HopfieldNet(Restoreable, object):
 
 
 class HopfieldNetMPF(HopfieldNet):
-    """
+    r"""
     Hopfield network, with training using Minimum Probability Flow (MPF)
     (Sohl-Dickstein, Battaglino, Deweese, 2009) for training / learning of binary patterns
 
@@ -548,55 +577,47 @@ class HopfieldNetMPF(HopfieldNet):
     where (Hopfield) dynamics on input x are Out_i(x) = H(\sum_{j not i} J_{ij}x_j - theta_i).
     Here, H = Heaviside function:  H(r) = 1 r > 0, H(r) = 0 if r <= 0.
 
-    Note energy function is: Energy(x) = -.5 x^T[J-diag(J)]x + theta*x
-    """
+    Note energy function is:
+    .. math:
 
-    def reset(self):
-        """
-        Missing documentation
-        
-        Returns
-        -------
-        Value : Type
-            Description
-        """
-        super(HopfieldNetMPF, self).reset()
+        Energy(x) = \frac{1}{2} x^T[J-\text{diag}(J)]x + \theta*x
+
+    """
 
     def learn_all(self, X):
         """
-        learning of M memory samples with MPF
+        Learn from M memory samples with Minimum Probability Flow (MPF)
 
-        X: (M, N)-dim array
-            M  N-bit patterns to be stored
-        
         Parameters
         ----------
-        X : Type
-            Description
+        X : numpy array
+            (M, N)-dim array of binary input patterns of length N,
+            where N is the number of nodes in the network
         
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         self.store_patterns_using_mpf(np.asarray(X))
 
     def objective_function(self, X, J=None):
         """
         Note: accepts J with -2 theta on the diagonal
-            Returns the MPF objective function evaluated over patterns X
+        Returns the MPF objective function evaluated over patterns X
         
         Parameters
         ----------
-        X : Type
-            Description
-        J : Type, optional
-            Description (default None)
-        
+        X : numpy array
+            (M, N)-dim array of binary input patterns of length N,
+            where N is the number of nodes in the network
+        J : numpy array, optional
+            Coupling matrix of size N x N, where N denotes the number
+            of nodes in the network (default None)
+
         Returns
         -------
-        Value : Type
-            Description
+        objective_func : numpy array
+            MPF objective function evaluated over patterns X
         """
         if J is None:
             J = self._J.copy()
@@ -620,8 +641,9 @@ class HopfieldNetMPF(HopfieldNet):
             Description
         randstate : Type
             Description
-        J : Type, optional
-            Description (default None)
+        J : numpy array, optional
+            Coupling matrix of size N x N, where N denotes the number
+            of nodes in the network (default None)
         
         Returns
         -------
@@ -643,22 +665,24 @@ class HopfieldNetMPF(HopfieldNet):
 
     def objective_gradient(self, X, J=None, return_K=False):
         """
-        J is a square np.array
-        X is a M x N np.array of binary vectors
+        Computes MPF objective gradient on input data X given coupling
+        strengths J.
         
         Parameters
         ----------
-        X : Type
-            Description
-        J : Type, optional
-            Description (default None)
+        X : numpy array
+            (M, N)-dim array of binary input patterns of length N,
+            where N is the number of nodes in the network
+        J : numpy array, optional
+            Coupling matrix of size N x N, where N denotes the number
+            of nodes in the network (default None)
         return_K : bool, optional
-            Description (default False)
+            Flag wether to return K (default False)
         
         Returns
         -------
-        Value : Type
-            Description
+        dJ [, K] : numpy array [, numpy array]
+            Update to coupling matrix J [and K if return_K is True]
         """
         if J is None:
             J = self._J
@@ -690,8 +714,9 @@ class HopfieldNetMPF(HopfieldNet):
             Description
         randstate : Type
             Description
-        J : Type, optional
-            Description (default None)
+        J : numpy array, optional
+            Coupling matrix of size N x N, where N denotes the number
+            of nodes in the network (default None)
         return_K : bool, optional
             Description (default False)
         
@@ -730,8 +755,9 @@ class HopfieldNetMPF(HopfieldNet):
         ----------
         J : Type
             Description
-        X : Type
-            Description
+        X : numpy array
+            (M, N)-dim array of binary input patterns of length N,
+            where N is the number of nodes in the network
         
         Returns
         -------
@@ -747,8 +773,9 @@ class HopfieldNetMPF(HopfieldNet):
         
         Parameters
         ----------
-        J : Type
-            Description
+        J : numpy array
+            Coupling matrix of size N x N, where N denotes the number
+            of nodes in the network
         sampler : Type
             Description
         sample_size : Type
@@ -781,19 +808,19 @@ class HopfieldNetMPF(HopfieldNet):
 
     def store_patterns_using_mpf(self, X, **kwargs):
         """
-        Missing documentation
+        Stores patterns in X using Minimum Probability Flow (MPF) learning
+        rule.
         
         Parameters
         ----------
-        X : Type
-            Description
-        kwargs : Type
-            Description
-        
+        X : numpy array
+            (M, N)-dim array of binary input patterns of length N,
+            where N is the number of nodes in the network
+
         Returns
         -------
-        Value : Type
-            Description
+        status : dict
+            Dictionary containing status information
         """
         # TODO: document
         # TODO: status printing?
@@ -813,7 +840,7 @@ class HopfieldNetMPF(HopfieldNet):
 
     def learn_from_sampler(self, sampler, sample_size, batch_size=None, use_gpu=False):
         """
-        Missing documentation
+        Learn from sampler
         
         Parameters
         ----------
@@ -831,7 +858,6 @@ class HopfieldNetMPF(HopfieldNet):
         Value : Type
             Description
         """
-        """ To learn from a sampler """
         if use_gpu:
             raise NotImplementedError
         if batch_size is None:

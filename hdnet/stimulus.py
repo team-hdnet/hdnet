@@ -167,19 +167,18 @@ class Stimulus(Restoreable, object):
 
     def save(self, file_name='stimulus', extra=None):
         """
-        save as numpy array .npz file
-        
+        Saves contents to file.
+
         Parameters
         ----------
         file_name : str, optional
-            Description (default 'stimulus')
-        extra : Type, optional
-            Description (default None)
-        
+            File name to save to (default 'stimulus')
+        extra : dict, optional
+            Extra information to save to file (default None)
+
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         return super(Stimulus, self)._save(file_name=file_name,
                                          attributes=self._SAVE_ATTRIBUTES_V1, version=self._SAVE_VERSION,
@@ -188,19 +187,26 @@ class Stimulus(Restoreable, object):
     @classmethod
     def load(cls, file_name='stimulus', load_extra=False):
         """
-        Missing documentation
-        
+        Loads contents from file.
+
+        .. note:
+
+            This is a class method, i.e. loading should be done like
+            this:
+
+            stimulus = Stimulus.load('file_name')
+
         Parameters
         ----------
         file_name : str, optional
-            Description (default 'stimulus')
+            File name to load from (default 'stimulus')
         load_extra : bool, optional
-            Description (default False)
-        
+            Flag whether to load extra file contents, if any (default False)
+
         Returns
         -------
-        Value : Type
-            Description
+        spikes : :class:`.Stimulus`
+            Instance of :class:`.Stimulus` if loaded, `None` upon error
         """
         return super(Stimulus, cls)._load(file_name=file_name, load_extra=load_extra)
 

@@ -1,7 +1,7 @@
 Basic example
 =============
 
-Let us demonstrate the basic usage of hdnet using the following example. The source code for this example can be found in :download:`this example script </../examples/my_first_script.py>` in the ``examples/`` directory.
+Let us demonstrate the basic usage of ``hdnet`` using the following example. The source code for this example can be found in :download:`this example script </../examples/my_first_script.py>` in the ``examples/`` directory.
 
 For demonstration purposes we will start work with a synthetic data set in this tutorial (later we will be working with real spiking data). Spiking activity of 10 hypothetical cells is assumed to be given as independent, identically distributed (i.i.d.) Poisson processes. Upon binning with a given bin width, this yields Bernoulli processes in discrete time. We create such Bernoulli data (as a proxy for real, binned spiking data) and then insert hypothetical correlations by means of a number of co-activations of different cell groups over time (also known as *cell assemblies*).
 
@@ -248,8 +248,4 @@ Let's examine the spontaneous spiking data from anesthetized cat visual cortex a
 
 TBC
 
-References
-----------
-
-.. bibliography:: references.bib
 

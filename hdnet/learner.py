@@ -19,12 +19,26 @@ from util import Restoreable, hdlog
 
 
 class Learner(Restoreable, object):
-    """ takes spikes and learns a network on windowed patterns
-    
+    """
+    Takes spikes and learns a network on windowed patterns.
+
     Parameters
-        network: Hopfield network
-        spikes: 
-        window_size: number of contiguous N-bit (N neurons) vectors in time to train on
+    ----------
+    spikes : :class:`.Spikes`, optional
+        Spikes class instance to use (default None)
+    network : :class:`.HopfieldNet`, optional
+        HopfieldNetwork class instance to use (default None)
+    network_file : str, optional
+        File name of Hopfield network to load (default None)
+    window_size : int, optional
+        Size of window in bins (default 1)
+    params : dict, optional
+        Dictionary of optional parameters (default None)
+
+    Returns
+    -------
+    learner : :class:`.Learner`
+        Instance of class :class:`.Learner`
     """
     _SAVE_ATTRIBUTES_V1 = ['_spikes_file', '_window_size', '_params']
     _SAVE_VERSION = 1
@@ -32,27 +46,6 @@ class Learner(Restoreable, object):
     _INTERNAL_OBJECTS = zip([HopfieldNet], ['_network'], ['network'])
 
     def __init__(self, spikes=None, network=None, network_file=None, window_size=1, params=None):
-        """
-        Missing documentation
-        
-        Parameters
-        ----------
-        spikes : Type, optional
-            Description (default None)
-        network : Type, optional
-            Description (default None)
-        network_file : Type, optional
-            Description (default None)
-        window_size : int, optional
-            Description (default 1)
-        params : Type, optional
-            Description (default None)
-        
-        Returns
-        -------
-        Value : Type
-            Description
-        """
         object.__init__(self)
         Restoreable.__init__(self)
 
@@ -76,163 +69,160 @@ class Learner(Restoreable, object):
     @property
     def network(self):
         """
-        Missing documentation
+        Getter for hopfield network of this learner.
         
         Returns
         -------
-        Value : Type
-            Description
+        network : :class:`.HopfieldNet`
+            Network of this learner
         """
         return self._network
 
     @network.setter
     def network(self, value):
         """
-        Missing documentation
+        Setter for setting the network of this learner.
         
         Parameters
         ----------
-        value : Type
-            Description
+        value : :class:`.HopfieldNet`
+            HopfieldNet network to set
         
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         self._network = value
 
     @property
     def params(self):
         """
-        Missing documentation
+        Getter for parameters of learner.
         
         Returns
         -------
-        Value : Type
-            Description
+        parameters : dict
+            Parameters of learner
         """
         return self._params
 
     @params.setter
     def params(self, value):
         """
-        Missing documentation
+        Setter for parameters of learner.
         
         Parameters
         ----------
-        value : Type
-            Description
+        value : dict
+            New dictionary to assign
         
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         self._params = value
 
     @property
     def window_size(self):
         """
-        Missing documentation
+        Getter for window size.
         
         Returns
         -------
-        Value : Type
-            Description
+        value : int
+            Value of window size
         """
         return self._window_size
 
     @window_size.setter
     def window_size(self, value):
         """
-        Missing documentation
+        Setter for window size.
         
         Parameters
         ----------
-        value : Type
-            Description
+        value : int
+            Value of window size to set
         
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         self._window_size = value
 
     @property
     def spikes(self):
         """
-        Missing documentation
+        Setter for spikes.
         
         Returns
         -------
-        Value : Type
-            Description
+        value : :class:`.Spikes`
+            Instance of :class:`.Spikes` class
         """
         return self._spikes
 
     @spikes.setter
     def spikes(self, value):
         """
-        Missing documentation
+        Setter for spikes.
         
         Parameters
         ----------
-        value : Type
-            Description
+        value : :class:`.Spikes`
+            Instance of :class:`.Spikes` class
+            to assign
         
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         self._spikes = value
 
     @property
     def spikes_file(self):
         """
-        Missing documentation
+        Getter for spikes file.
         
         Returns
         -------
-        Value : Type
-            Description
+        file : str
+            File name of spikes file
         """
         return self._spikes_file
 
     @spikes_file.setter
     def spikes_file(self, value):
         """
-        Missing documentation
+        Setter for spikes file.
         
         Parameters
         ----------
-        value : Type
-            Description
+        value : str
+            Value of spikes file to set
         
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         self._spikes_file = value
 
     def learn_from_binary(self, X, remove_zeros=False):
         """
-        trains on M x N matrix X of M N-length binary vects
+        Trains on M x N matrix X of M N-length binary vects
 
         Parameters
         ----------
-        X : Type
-            Description
+        X : numpy array
+            (M, N)-dim array of binary input patterns of length N,
+            where N is the number of nodes in the network
         remove_zeros : bool, optional
-            Description (default False)
+            Flag whether to remove vectors from X in which
+            all entries are 0 (default True)
         
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         self.network = HopfieldNetMPF(len(X[0]))
         if remove_zeros:
@@ -246,23 +236,23 @@ class Learner(Restoreable, object):
 
     def learn_from_spikes(self, spikes=None, window_size=1, trials=None, remove_zeros=True):
         """
-        trains network over spikes
+        Trains network over spikes contained in instance of :class:`.Spikes` class.
         
         Parameters
         ----------
-        spikes : Type, optional
-            Description (default None)
+        spikes : :class:`.Spikes`, optional
+            Instance of Spikes class (default None)
         window_size : int, optional
-            Description (default 1)
+            Window size to use (default 1)
         trials : Type, optional
             Description (default None)
         remove_zeros : bool, optional
-            Description (default True)
+            Flag whether to remove windows in which
+            all entries are 0 (default True)
         
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         spikes = spikes or self.spikes
         trials = trials or range(spikes.T)
@@ -273,23 +263,24 @@ class Learner(Restoreable, object):
 
     def learn_from_spikes_rot(self, spikes=None, window_size=1, trials=None, remove_zeros=True):
         """
-        Missing documentation
+        Trains network over spikes contained in instance of :class:`.Spikes` class,
+        removes windows that are identical modulo a rotation along the first axis.
         
         Parameters
         ----------
-        spikes : Type, optional
-            Description (default None)
+        spikes : :class:`.Spikes`, optional
+            Instance of Spikes class (default None)
         window_size : int, optional
-            Description (default 1)
+            Window size to use (default 1)
         trials : Type, optional
             Description (default None)
         remove_zeros : bool, optional
-            Description (default True)
+            Flag whether to remove windows in which
+            all entries are 0 (default True)
         
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         spikes = spikes or self.spikes
         trials = trials or range(spikes.T)
@@ -302,17 +293,17 @@ class Learner(Restoreable, object):
 
     def save(self, folder_name='learner'):
         """
-        saves as npz's: network, params, spikes file_name
-        
+        Saves Learner to file. Also saves the contained instance of
+        :class:`.HopfieldNet`.
+
         Parameters
         ----------
         folder_name : str, optional
-            Description (default 'learner')
-        
+            Folder name name to save Learner to (default 'learner')
+
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         super(Learner, self)._save(
             'learner.npz', self._SAVE_ATTRIBUTES_V1, self._SAVE_VERSION,
@@ -321,19 +312,26 @@ class Learner(Restoreable, object):
     @classmethod
     def load(cls, folder_name='learner', load_extra=False):
         """
-        Missing documentation
-        
+        Loads Learner from file.
+
+        .. note:
+
+            This is a class method, i.e. loading should be done like
+            this:
+
+            learner = Learner.load('folder_name')
+
         Parameters
         ----------
         folder_name : str, optional
-            Description (default 'learner')
+            Folder name name to load Learner from (default 'learner')
         load_extra : bool, optional
-            Description (default False)
-        
+            Flag whether to load extra file contents, if any (default False)
+
         Returns
         -------
-        Value : Type
-            Description
+        learner : :class:`.Learner`
+            Instance of :class:`.Learner` if loaded, `None` upon error
         """
         return super(Learner, cls)._load('learner.npz', has_internal=True,
                                          folder_name=folder_name,
@@ -341,21 +339,6 @@ class Learner(Restoreable, object):
                                          load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
-        """
-        Missing documentation
-        
-        Parameters
-        ----------
-        contents : Type
-            Description
-        load_extra : bool, optional
-            Description (default False)
-        
-        Returns
-        -------
-        Value : Type
-            Description
-        """
         hdlog.debug('Loading Learner, format version 1')
         return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
 

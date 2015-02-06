@@ -18,13 +18,21 @@ from util import hdlog, Restoreable
 
 
 class Counter(Restoreable, object):
-    """ Catalogues binary vectors and their prevalence
+    """
+    Catalogues binary vectors and their prevalence.
 
     Parameters
-        counts:  dictionary of (key_for_pattern, value) = (string, object)
-        patterns:  list of binary vectors in order of discovery
-        lookup_patterns:  dictionary of (key_for_pattern, patterns index)
-        sequence:  list over trials T of (lists of indices where fp found in spikes dataset)
+    ----------
+    counter : :class:`.Counter`, optional
+        Counter object to merge with (default None)
+    save_sequence : bool, optional
+        Flag whether to save the sequence of pattern
+        labels, labels given by order of appearance (default True)
+
+    Returns
+    -------
+    counter : :class:`.Counter`.
+        Instance of class :class:`.Counter`
     """
 
     _SAVE_ATTRIBUTES_V1 = ['_counts', '_patterns', '_lookup_patterns',
@@ -35,47 +43,31 @@ class Counter(Restoreable, object):
     @staticmethod
     def key_for_pattern(pattern):
         """
-        Missing documentation
-        
+        Computes key (as string) of binary pattern `pattern`.
+        Reverse loopup for method :meth:`pattern_for_key`.
+
         Returns
         -------
-        Value : Type
-            Description
+        key : str
+            String representation of binary pattern
         """
-        """ Transforms a numpy binary array into a string """
-        # TODO: document
         return ''.join(str(k) for k in pattern.astype(np.int).ravel())
 
     @staticmethod
     def pattern_for_key(key):
         """
-        Missing documentation
-        
+        Computes binary pattern (as numpy matrix) from string
+        representation `key`.
+        Reverse loopup for method :meth:`key_for_pattern`.
+
         Returns
         -------
-        Value : Type
-            Description
+        pattern : numpy array
+            binary pattern (as numpy matrix)
         """
-        """ Transforms string into a numpy binary array """
-        # TODO: document
         return np.array([int(k) for k in list(key)])
 
     def __init__(self, counter=None, save_sequence=True):
-        """
-        Missing documentation
-        
-        Parameters
-        ----------
-        counter : Type, optional
-            Description (default None)
-        save_sequence : bool, optional
-            Description (default True)
-        
-        Returns
-        -------
-        Value : Type
-            Description
-        """
         object.__init__(self)
         Restoreable.__init__(self)
 
@@ -344,17 +336,18 @@ class Counter(Restoreable, object):
 
     def to_prob_vect(self, parent=None):
         """
-        if parent (= counter object) present then return prob vector in that space
+        Compute probability vector of patterns as empirical probabilities.
+        If parent (= counter object) present then return probabilty vector in that space.
         
         Parameters
         ----------
-        parent : Type, optional
-            Description (default None)
+        parent : :class:`.Counter`, optional
+            Parent Counter object (default None)
         
         Returns
         -------
-        Value : Type
-            Description
+        probabilities : numpy array
+            Probability vector of patterns
         """
         if parent is not None:
             values = np.zeros(len(parent.counts))
@@ -369,46 +362,47 @@ class Counter(Restoreable, object):
 
     def entropy(self):
         """
-        Missing documentation
+        Computes entropy over probability distribution of sequence of
+        pattern labels.
         
         Returns
         -------
-        Value : Type
-            Description
+        entropy : float
+            Entropy of probability distribution
         """
         probs = self.to_prob_vect()
         return -(probs * np.log2(probs)).sum()
 
     def pattern_to_binary_matrix(self, m):
         """
-        Missing documentation
+        Returns representation of pattern as binary vector.
         
         Parameters
         ----------
-        m : Type
-            Description
+        m : str
+            Key of pattern
         
         Returns
         -------
-        Value : Type
-            Description
+        pattern : numpy array
+            Representation of pattern as binary vector
         """
         key = self._patterns[m]
         return Counter.pattern_for_key(key)
 
     def top_binary_matrices(self, m):
         """
-        finds top m likely memories
+        Returns top m likely patterns.
         
         Parameters
         ----------
-        m : Type
-            Description
+        m : int
+            Number of top likely patterns to return
         
         Returns
         -------
-        Value : Type
-            Description
+        patterns : numpy array
+            m top likely patterns
         """
         top_binary = []
         idx = np.array(self._counts.values()).argsort()[-m:]
@@ -418,17 +412,17 @@ class Counter(Restoreable, object):
 
     def mem_triggered_stim_avgs(self, stimulus):
         """
-        returns the average stimulus appearing when a given binary pattern appears
+        Returns the average stimulus appearing when a given binary pattern appears.
         
         Parameters
         ----------
-        stimulus : Type
-            Description
+        stimulus : :class:`.Stimulus`
+            Instance of :class:`.Stimulus` class to query
         
         Returns
         -------
-        Value : Type
-            Description
+        averages : numpy array
+            Stimulus average calculated
         """
         stim_avgs = []
         stm_arr = stimulus.stimulus_arr
@@ -449,19 +443,18 @@ class Counter(Restoreable, object):
 
     def save(self, file_name='counter', extra=None):
         """
-        save as numpy array .npz file
-        
+        Saves contents to file.
+
         Parameters
         ----------
         file_name : str, optional
-            Description (default 'counter')
-        extra : Type, optional
-            Description (default None)
-        
+            File name to save to (default 'counter')
+        extra : dict, optional
+            Extra information to save to file (default None)
+
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         return super(Counter, self)._save(file_name=file_name,
                                          attributes=self._SAVE_ATTRIBUTES_V1, version=self._SAVE_VERSION,
@@ -470,19 +463,26 @@ class Counter(Restoreable, object):
     @classmethod
     def load(cls, file_name='counter', load_extra=False):
         """
-        Missing documentation
-        
+        Loads contents from file.
+
+        .. note:
+
+            This is a class method, i.e. loading should be done like
+            this:
+
+            counter = Counter.load('file_name')
+
         Parameters
         ----------
         file_name : str, optional
-            Description (default 'counter')
+            File name to load from (default 'counter')
         load_extra : bool, optional
-            Description (default False)
-        
+            Flag whether to load extra file contents, if any (default False)
+
         Returns
         -------
-        Value : Type
-            Description
+        counter : :class:`.Counter`
+            Instance of :class:`.Counter` if loaded, `None` upon error
         """
         return super(Counter, cls)._load(file_name=file_name, load_extra=load_extra)
 
@@ -539,57 +539,48 @@ class PatternsRaw(Counter):
 
     def save(self, file_name='patterns_raw', extra=None):
         """
-        save as numpy array .npz file
+        Saves contents to file.
 
         Parameters
         ----------
         file_name : str, optional
-            Description (default 'patterns_raw')
-        extra : Type, optional
-            Description (default None)
-        
+            File name to save to (default 'patterns_raw')
+        extra : dict, optional
+            Extra information to save to file (default None)
+
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         return super(PatternsRaw, self).save(file_name=file_name, extra=extra)
 
     @classmethod
     def load(cls, file_name='patterns_raw', load_extra=False):
         """
-        Missing documentation
-        
+        Loads contents from file.
+
+        .. note:
+
+            This is a class method, i.e. loading should be done like
+            this:
+
+            patterns = PatternsRaw.load('file_name')
+
         Parameters
         ----------
         file_name : str, optional
-            Description (default 'patterns_raw')
+            File name to load from (default 'patterns_raw')
         load_extra : bool, optional
-            Description (default False)
-        
+            Flag whether to load extra file contents, if any (default False)
+
         Returns
         -------
-        Value : Type
-            Description
+        patterns : :class:`.PatternsRaw`
+            Instance of :class:`.PatternsRaw` if loaded, `None` upon error
         """
         return super(PatternsRaw, cls).load(file_name=file_name, load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
-        """
-        Missing documentation
-        
-        Parameters
-        ----------
-        contents : Type
-            Description
-        load_extra : bool, optional
-            Description (default False)
-        
-        Returns
-        -------
-        Value : Type
-            Description
-        """
         hdlog.debug('Loading PatternsRaw patterns, format version 1')
         return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
 
@@ -600,13 +591,30 @@ class PatternsRaw(Counter):
 
 
 class PatternsHopfield(Counter):
-    """ record / counts of fixed-points of Hopfield network 
-    
-        fixed_points / memories are stored in dictionary self.counts
+    """
+    record / counts of fixed-points of Hopfield network
+
+    fixed_points / memories are stored in dictionary self.counts
 
     Parameters
         learner: hopfield network and learning params
         mtas: dict taking bin vects v to sums of orignal binary vectors converging to v
+
+    Parameters
+    ----------
+    learner : Type, optional
+        Description (default None)
+    patterns_hopfield : Type, optional
+        Description (default None)
+    save_sequence : bool, optional
+        Description (default True)
+    save_raw : bool, optional
+        Description (default True)
+
+    Returns
+    -------
+    Value : Type
+        Description
     """
     _SAVE_ATTRIBUTES_V1 = ['_counts', '_patterns', '_lookup_patterns',
                         '_sequence', '_skipped_patterns', '_seen_sequence',
@@ -615,25 +623,6 @@ class PatternsHopfield(Counter):
     _SAVE_TYPE = 'PatternsHopfield'
 
     def __init__(self, learner=None, patterns_hopfield=None, save_sequence=True, save_raw=True):
-        """
-        Missing documentation
-        
-        Parameters
-        ----------
-        learner : Type, optional
-            Description (default None)
-        patterns_hopfield : Type, optional
-            Description (default None)
-        save_sequence : bool, optional
-            Description (default True)
-        save_raw : bool, optional
-            Description (default True)
-        
-        Returns
-        -------
-        Value : Type
-            Description
-        """
         super(PatternsHopfield, self).__init__(save_sequence=save_sequence)
 
         self._learner = learner or None
@@ -941,38 +930,44 @@ class PatternsHopfield(Counter):
 
     def save(self, file_name='patterns_hopfield', extra=None):
         """
-        Missing documentation
-        
+        Saves contents to file.
+
         Parameters
         ----------
         file_name : str, optional
-            Description (default 'patterns_hopfield')
-        extra : Type, optional
-            Description (default None)
-        
+            File name to save to (default 'patterns_hopfield')
+        extra : dict, optional
+            Extra information to save to file (default None)
+
         Returns
         -------
-        Value : Type
-            Description
+        Nothing
         """
         super(PatternsHopfield, self).save(file_name=file_name, extra=extra)
 
     @classmethod
     def load(cls, file_name='patterns_hopfield', load_extra=False):
         """
-        Missing documentation
-        
+        Loads contents from file.
+
+        .. note:
+
+            This is a class method, i.e. loading should be done like
+            this:
+
+            patterns = PatternsHopfield.load('file_name')
+
         Parameters
         ----------
         file_name : str, optional
-            Description (default 'patterns_hopfield')
+            File name to load from (default 'patterns_hopfield')
         load_extra : bool, optional
-            Description (default False)
-        
+            Flag whether to load extra file contents, if any (default False)
+
         Returns
         -------
-        Value : Type
-            Description
+        patterns : :class:`.PatternsHopfield`
+            Instance of :class:`.PatternsHopfield` if loaded, `None` upon error
         """
         return super(PatternsHopfield, cls)._load(file_name=file_name, load_extra=load_extra)
 
