@@ -12,10 +12,10 @@ from hdnet.spikes import Spikes
 from hdnet.spikes_model import SpikeModel, BernoulliHomogeneous, DichotomizedGaussian
 
 # Let's first make up some simuilated spikes: 2 trials
-spikes_arr = (np.random.random((2, 10, 200)) < .05).astype(int)
-spikes_arr[0, [1, 5], ::5] = 1  # insert correlations
-spikes_arr[1, [2, 3, 6], ::11] = 1  # insert correlations
-spikes = Spikes(spikes=spikes_arr)
+spikes = (np.random.random((2, 10, 200)) < .05).astype(int)
+spikes[0, [1, 5], ::5] = 1  # insert correlations
+spikes[1, [2, 3, 6], ::11] = 1  # insert correlations
+spikes = Spikes(spikes=spikes)
 
 # let's look at them: quick save as PNG or make PSTH pyplot
 plt.matshow(spikes.rasterize(), cmap='gray')

@@ -5,9 +5,7 @@
 
 import os
 import numpy as np
-from data import SpkReader
-
-from hdnet.spikes import Spikes
+from hdnet.data import SpkReader
 
 from test_tmppath import TestTmpPath
 

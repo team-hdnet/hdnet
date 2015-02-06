@@ -84,7 +84,7 @@ def save_matrix_whole_canvas(matrix, fname, **kwargs):
     plt.close
 
 
-def raster_plot_psth(spikes_arr,
+def raster_plot_psth(spikes,
                      trial=0,
                      start_idx=0,
                      stop_idx=None,
@@ -104,7 +104,7 @@ def raster_plot_psth(spikes_arr,
     
     Parameters
     ----------
-    spikes_arr : Type
+    spikes : Type
         Description
     trial : int, optional
         Description (default 0)
@@ -149,12 +149,12 @@ def raster_plot_psth(spikes_arr,
         fig_size = (8, 4)
 
     if stop_idx is None:
-        stop_idx = spikes_arr.shape[2]
+        stop_idx = spikes.shape[2]
 
     x = []
     y = []
-    for cell_idx in xrange(spikes_arr.shape[1]):
-        spikes = np.where(spikes_arr[trial][cell_idx][start_idx:stop_idx] == 1)[0]
+    for cell_idx in xrange(spikes.shape[1]):
+        spikes = np.where(spikes[trial][cell_idx][start_idx:stop_idx] == 1)[0]
         x.extend(spikes * bin_size)
         y.extend([cell_idx] * spikes.shape[0])
 
@@ -228,7 +228,7 @@ def raster_plot_psth(spikes_arr,
 
         nx, binsx, patchesx = ax_hist_x.hist(
             x, bins=hist_bins,
-            weights=[hist_bin_size * spikes_arr.shape[1]] * len(x),
+            weights=[hist_bin_size * spikes.shape[1]] * len(x),
             facecolor=color_hist, ec='none')
 
     else:
@@ -245,7 +245,7 @@ def raster_plot_psth(spikes_arr,
         ax_hist_y.set_ylim(ax_scatter.get_ylim())
         ny, binsy, patchesy = ax_hist_y.hist(
             y, bins=hist_bins,
-            weights=[hist_bin_size * spikes_arr.shape[1]] * len(y),
+            weights=[hist_bin_size * spikes.shape[1]] * len(y),
             orientation='horizontal', facecolor=color_hist, ec='none')
 
         if label_x_hist_y:

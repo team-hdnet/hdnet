@@ -477,13 +477,13 @@ class SpkReader(Reader):
         for spike_times in spike_times_lists:
             milisec = 1. * (spike_times[-1]) / (10 ** 3)
             max_millisec = max(max_millisec, milisec)
-        spikes_arr = np.zeros((len(spike_times_lists), np.int(max_millisec) / bin_size + 1))
+        spikes = np.zeros((len(spike_times_lists), np.int(max_millisec) / bin_size + 1))
         for c, spike_times in enumerate(spike_times_lists):
             for spike_time in spike_times:
                 a = int(spike_time / (1000. * bin_size))
-                if a < spikes_arr.shape[1]:
-                    spikes_arr[c, a] = 1
-        return spikes_arr
+                if a < spikes.shape[1]:
+                    spikes[c, a] = 1
+        return spikes
 
 
 class Binner(object):

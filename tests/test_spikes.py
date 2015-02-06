@@ -7,6 +7,7 @@ import os
 import numpy as np
 
 from hdnet.spikes import Spikes
+from hdnet.util import hdlog
 
 from test_tmppath import TestTmpPath
 
@@ -43,11 +44,11 @@ class TestSpikes(TestTmpPath):
 
     def test_saving(self):
         spikes = Spikes(spikes=np.array([[1, 1, 1, 0, 1, 0], [1, 1, 1, 1, 1, 1], [0, 0, 0, 1, 0, 0]]))
-        print spikes.spikes
+        hdlog.info(spikes.spikes)
 
         spikes.save(os.path.join(self.TMP_PATH, 'spikes'))
         spikes2 = Spikes.load(os.path.join(self.TMP_PATH, 'spikes'))
-        print spikes2.spikes
+        hdlog.info(spikes2.spikes)
         self.assertTrue((spikes.spikes == spikes2.spikes).all())
 
 

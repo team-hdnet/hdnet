@@ -466,12 +466,12 @@ class BernoulliInhomogeneous(SpikeModel):
         for c, t in enumerate(trials):
             num_neurons = self._original_spikes.N
             num_samples = self._original_spikes.M
-            spikes_arr = self._original_spikes.spikes
+            spikes = self._original_spikes.spikes
 
             ps = []
             for i in xrange(num_neurons):
                 ps.append(
-                    [spikes_arr[0, i, 0:averaging_window_size].mean()] + [spikes_arr[0, i, (j - 1) * averaging_window_size:j * averaging_window_size].mean() for j
+                    [spikes[0, i, 0:averaging_window_size].mean()] + [spikes[0, i, (j - 1) * averaging_window_size:j * averaging_window_size].mean() for j
                                                             in xrange(1, num_samples / averaging_window_size)])
             ps = np.array(ps)
 
@@ -498,7 +498,7 @@ class Shuffled(SpikeModel):
 
     def sample_from_model(self, trials=None, trial_independence=True, reshape=False):
         """
-        returns new Spikes object: permutes spikes_arr in time
+        returns new Spikes object: permutes spikes in time
         trial_independence: diff permutation for each trial
         
         Parameters

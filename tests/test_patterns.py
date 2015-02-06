@@ -164,8 +164,8 @@ class TestPatternsHopfield(TestTmpPath):
         # self.assertTrue(np.mean(patterns.pattern_to_binary_matrix(1) == [[0, 0], [0, 1], [1, 0]]))
         # self.assertTrue(np.mean(patterns.pattern_to_mta_matrix(1) == [[0, 0], [0, 1], [1, .5]]))
         
-        print spikes._spikes
-        print patterns.pattern_to_trial_raster(3)
+        hdlog.info(spikes._spikes)
+        hdlog.info(patterns.pattern_to_trial_raster(3))
         # print patterns.pattern_to_mta_matrix(1)
         # print patterns.pattern_to_binary_matrix(1)
         # print patterns.pattern_to_mta_matrix(0)

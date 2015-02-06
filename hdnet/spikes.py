@@ -243,13 +243,13 @@ class Spikes(Restoreable, object):
         """
         stop = stop or self._M
         trials = trials or range(self._T)
-        sub_spikes_arr = self._spikes[trials, :, start:stop]
+        sub_spikes = self._spikes[trials, :, start:stop]
 
         if save_png_name is not None:
-            save_matrix_whole_canvas(sub_spikes_arr.reshape((len(trials) * self._N, stop - start)),
+            save_matrix_whole_canvas(sub_spikes.reshape((len(trials) * self._N, stop - start)),
                                      save_png_name + '.png', cmap='gray')
         else:
-            return sub_spikes_arr.copy().reshape((len(trials) * self._N, stop - start))
+            return sub_spikes.copy().reshape((len(trials) * self._N, stop - start))
 
     def covariance(self, trials=None, start=0, stop=None, save_png_name=None):
         """
@@ -275,11 +275,11 @@ class Spikes(Restoreable, object):
         """
         stop = stop or self._M
         trials = trials or range(self._T)
-        sub_spikes_arr = self._spikes[trials, :, start:stop]
+        sub_spikes = self._spikes[trials, :, start:stop]
 
         new_arr = np.zeros((len(trials), self._N, self._N))
         for t, trial in enumerate(trials):
-            new_arr[t] = np.cov(sub_spikes_arr[trial])
+            new_arr[t] = np.cov(sub_spikes[trial])
         new_arr /= new_arr.max()
 
         if save_png_name is not None:

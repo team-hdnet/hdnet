@@ -19,11 +19,11 @@ We first import the necessary modules into our Python session (we recommend usin
 Next, we create two trials of 200 time bins of spikes from 10 neurons and store them in a :class:`.Spikes` container::
 
     # Let's first make up some simuilated spikes: 2 trials
-    spikes_arr = (np.random.random((2, 10, 200)) < .05).astype(int)
-    spikes_arr[0, [1, 5], ::5] = 1  # insert correlations
-    spikes_arr[1, [2, 3, 6], ::11] = 1  # insert correlations
+    spikes = (np.random.random((2, 10, 200)) < .05).astype(int)
+    spikes[0, [1, 5], ::5] = 1  # insert correlations
+    spikes[1, [2, 3, 6], ::11] = 1  # insert correlations
     
-    spikes = Spikes(spikes_arr=spikes_arr)
+    spikes = Spikes(spikes=spikes)
 
 We can now plot a raster of the trials and covariances::
 
@@ -46,7 +46,7 @@ Next, we would like to model this noisy binary data. First, we try to model each
     plt.figure()
     plt.matshow(BH_sample_spikes.rasterize(), cmap='gray')
     plt.title('BernoulliHomogeneous sample')
-    print "%1.4f means" % BH_sample_spikes.spikes_arr.mean()
+    print "%1.4f means" % BH_sample_spikes.spikes.mean()
         
     plt.figure()
     plt.matshow(BH_sample_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
@@ -88,7 +88,7 @@ Finally, we try and model the data with a Hopfield network trained using MPF :ci
     spikes_model.fit()  # note: this fits a single network to all trials
     spikes_model.chomp()
     
-    converged_spikes = Spikes(spikes_arr=spikes_model.hopfield_spikes_arr)
+    converged_spikes = Spikes(spikes=spikes_model.hopfield_spikes)
     
     plt.figure()
     plt.title('Converge dynamics on Raw data')

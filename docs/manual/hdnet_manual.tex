@@ -139,10 +139,10 @@ from hdnet.spikes_model import SpikeModel, BernoulliHomogeneous, \
 We create two trials of $200$ time bins of spikes from $10$ neurons.
 
 \begin{python}
-spikes_arr = (np.random.random((2, 10, 200)) < .05).astype(int)
-spikes_arr[0, [1, 5], ::5] = 1 # insert correlations
-spikes_arr[1, [2, 3, 6], ::11] = 1  # insert correlations
-spikes = Spikes(spikes_arr=spikes_arr)
+spikes = (np.random.random((2, 10, 200)) < .05).astype(int)
+spikes[0, [1, 5], ::5] = 1 # insert correlations
+spikes[1, [2, 3, 6], ::11] = 1  # insert correlations
+spikes = Spikes(spikes=spikes)
 \end{python}
 
 We can now plot a raster of the trials and covariances:
@@ -210,7 +210,7 @@ spikes_model = SpikeModel(spikes=spikes)
 spikes_model.fit()  # note: this fits a single network to all trials
 spikes_model.chomp()
 
-converged_spikes = Spikes(spikes_arr=spikes_model.hopfield_spikes_arr)
+converged_spikes = Spikes(spikes=spikes_model.hopfield_spikes)
 
 plt.figure()
 plt.title('Converge dynamics on Raw data')

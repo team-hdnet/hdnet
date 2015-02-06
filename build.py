@@ -10,10 +10,9 @@ from pybuilder.core import init, task, description, depends, use_plugin
 # set pythonpath (for unittests)
 import sys
 import os
-from pybuilder.pluginhelper.external_command import ExternalCommandBuilder
-
 sys.path.insert(0, os.path.dirname(__file__))
 
+# plugins
 use_plugin("python.core")
 use_plugin("python.pylint")
 #use_plugin("python.flake8")
@@ -26,8 +25,9 @@ use_plugin("source_distribution")
 use_plugin("copy_resources")
 use_plugin("filter_resources")
 
+# global config
 name = "hdnet"
-default_task = "publish"
+default_task = "release"
 
 @init
 def initialize(project):
@@ -43,7 +43,7 @@ def initialize(project):
     #project.depends_on_requirements("requirements.txt")
 
     # core python
-    project.set_property('dir_source_main_python', 'src')
+    project.set_property('dir_source_main_python', 'hdnet')
     project.set_property('dir_source_main_scripts', 'internal/scripts')
     #project.set_property('dir_dist', '$dir_target/dist/$name-$version')
 
@@ -52,7 +52,7 @@ def initialize(project):
 
     # flake8
     #project.set_property('flake8_ignore', "F403,W404,W801")
-    #project.set_property('flake8_include_test_sources', True)
+    project.set_property('flake8_include_test_sources', True)
     #project.set_property('flake8_exclude_patterns', '.svn,CVS,.bzr,.hg,.git,__pycache__')
 
     # unit tests
@@ -74,14 +74,6 @@ def initialize(project):
     # {variable} replaced by project.variable
     project.set_property('filter_resources_glob', ['doc/_build/html/*.html', 'README.md'])
 
-
-    #project.set_property('', )
-    #project.set_property('', )
-    #project.set_property('', )
-    #project.set_property('', )
-
-
-# sphinx_generate_documentation
 
 @task
 @description('Release new version of hdnet')
