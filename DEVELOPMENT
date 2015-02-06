@@ -1,0 +1,33 @@
+Development documentation
+=========================
+
+* Recommended IDE: PyCharm
+
+  https://www.jetbrains.com/pycharm/
+
+* Documentation System: Sphinx
+
+  http://sphinx-doc.org/
+
+  To install: pip install sphinx sphinxcontrib-napoleon sphinxcontrib-bibtex sphinx_rtd_theme
+
+  Documentation:
+  http://nipy.sourceforge.net/nipy/devel/devel/guidelines/sphinx_helpers.html
+  https://pythonhosted.org/an_example_pypi_project/sphinx.html
+  http://raxcloud.blogspot.de/2013/02/documenting-python-code-using-sphinx.html
+
+* Release sytem: PyBuilder
+
+  http://pybuilder.github.io/
+
+* Needed modules
+
+  pythonbuilder
+  coverage
+  numpy
+  matplotlib
+  prettyplotlib
+  scipy
+  bitstring
+  statsmodels
+

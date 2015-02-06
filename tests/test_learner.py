@@ -16,6 +16,8 @@ class TestLearner(TestTmpPath):
 
     def setUp(self):
         super(TestLearner, self).setUp()
+        import logging
+        logging.disable(level=logging.WARNING)
 
     def tearDown(self):
         super(TestLearner, self).tearDown()

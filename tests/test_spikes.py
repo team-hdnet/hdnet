@@ -15,6 +15,8 @@ class TestSpikes(TestTmpPath):
 
     def setUp(self):
         super(TestSpikes, self).setUp()
+        import logging
+        logging.disable(level=logging.WARNING)
 
     def tearDown(self):
         super(TestSpikes, self).tearDown()

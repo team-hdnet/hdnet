@@ -9,6 +9,7 @@ import numpy as np
 from hdnet.spikes import Spikes
 from hdnet.learner import Learner
 from hdnet.patterns import Counter, PatternsHopfield, PatternsRaw
+from hdnet.util import hdlog
 
 from test_tmppath import TestTmpPath
 
@@ -17,6 +18,8 @@ class TestPatternsHopfield(TestTmpPath):
 
     def setUp(self):
         super(TestPatternsHopfield, self).setUp()
+        import logging
+        logging.disable(level=logging.WARNING)
 
     def tearDown(self):
         super(TestPatternsHopfield, self).tearDown()
@@ -24,10 +27,11 @@ class TestPatternsHopfield(TestTmpPath):
     def test_counter(self):
         file_contents = np.load(os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))
         spikes = Spikes(file_contents[file_contents.keys()[0]])
-        print spikes._spikes
+        hdlog.info(spikes._spikes)
+
         counter = Counter()
         counter.chomp_spikes(spikes)
-        print counter._counts
+        hdlog.info(counter._counts)
         self.assertEqual(len(counter), 3)
 
         counter = Counter()
@@ -81,10 +85,10 @@ class TestPatternsHopfield(TestTmpPath):
     def test_patterns_raw(self):
         file_contents = np.load(os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))
         spikes = Spikes(file_contents[file_contents.keys()[0]])
-        print spikes._spikes
+        hdlog.info(spikes._spikes)
         patterns = PatternsRaw()
         patterns.chomp_spikes(spikes)
-        print patterns._counts
+        hdlog.info(patterns._counts)
         self.assertEqual(len(patterns), 3)
 
         patterns = PatternsRaw()

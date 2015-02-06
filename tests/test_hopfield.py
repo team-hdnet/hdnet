@@ -8,9 +8,12 @@ from time import time as now
 import numpy as np
 
 from hdnet.hopfield import HopfieldNet, HopfieldNetMPF
-
+from hdnet.util import hdlog
 
 class TestHopfield(unittest.TestCase):
+    def setUp(self):
+        import logging
+        logging.disable(level=logging.WARNING)
 
     def test_basic(self):
         MPF = HopfieldNetMPF(N=3)
@@ -67,7 +70,7 @@ class TestHopfield(unittest.TestCase):
         recall = (data == OPR.hopfield_binary_dynamics(data)).all(1).mean()
         # recall = (data == OPR.hopfield_binary_dynamics(data, model='OPR')).all(1).mean()
         # recall = OPR.exact_recalled(data, model='OPR')
-        print "OPR Performance (%d/%d): %1.2f in %1.2f s" % (M, N, 100 * recall, now() - t)
+        hdlog.info("OPR Performance (%d/%d): %1.2f in %1.2f s" % (M, N, 100 * recall, now() - t))
         self.assertTrue(recall > .8)
 
         M = 50
@@ -77,13 +80,13 @@ class TestHopfield(unittest.TestCase):
         recall = (data == OPR.hopfield_binary_dynamics(data)).all(1).mean()
         # recall = (data == OPR.hopfield_binary_dynamics(data, model='OPR')).all(1).mean()
         # recall = OPR.exact_recalled(data)
-        print "OPR Performance (%d/%d): %1.2f in %1.2f s" % (M, N, 100 * recall, now() - t)
+        hdlog.info("OPR Performance (%d/%d): %1.2f in %1.2f s" % (M, N, 100 * recall, now() - t))
         self.assertTrue(recall < .5)
 
         MPF = HopfieldNetMPF(N)
         MPF.learn_all(data)
         recall = MPF.exact_recalled(data)
-        print "MPF Performance (%d/%d): %1.2f in %1.2f s" % (M, N, 100 * recall, now() - t)
+        hdlog.info("MPF Performance (%d/%d): %1.2f in %1.2f s" % (M, N, 100 * recall, now() - t))
         self.assertEqual(recall, 1)
 
         # store 90 memories in 64-bit neurons
@@ -94,13 +97,13 @@ class TestHopfield(unittest.TestCase):
         data = (np.random.random((M, N)) < .5).astype('int')
         MPF.learn_all(data)
         recall = MPF.exact_recalled(data)
-        print "MPF Performance (%d/%d): %1.2f in %1.2f s" % (M, N, 100 * recall, now() - t)
+        hdlog.info("MPF Performance (%d/%d): %1.2f in %1.2f s" % (M, N, 100 * recall, now() - t))
         self.assertEqual(recall, 1)
         OPR = HopfieldNet(N)
         OPR.learn_all(data)
         recall = (data == OPR.hopfield_binary_dynamics(data)).all(1).mean()
         # recall = OPR.exact_recalled(data)
-        print "OPR Performance (%d/%d): %1.2f in %1.2f s" % (M, N, 100 * recall, now() - t)
+        hdlog.info("OPR Performance (%d/%d): %1.2f in %1.2f s" % (M, N, 100 * recall, now() - t))
         self.assertTrue(recall < .01)
 
 # end of source

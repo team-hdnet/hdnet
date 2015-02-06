@@ -55,6 +55,8 @@ class Stimulus(Restoreable, object):
         object.__init__(self)
         Restoreable.__init__(self)
 
+        # TODO reuse io functionality from data module!
+
         self.file_name = npz_file or ''
         if npz_file is None and stimulus_arr is None and h5_file is None:
             self._M = 0
@@ -64,11 +66,12 @@ class Stimulus(Restoreable, object):
             self._stimulus_arr = stimulus_arr
 
         if npz_file is not None:
-            if os.path.isfile(npz_file):
-                hdlog.error('Loading %s' % npz_file)
-                self.file_name = npz_file
-                tmp = np.load(npz_file)
-                self._stimulus_arr = tmp[tmp.keys()[0]]
+            if not os.path.isfile(npz_file):
+                hdlog.info("File '%s' does not exist!" % npz_file)
+                return
+            self.file_name = npz_file
+            tmp = np.load(npz_file)
+            self._stimulus_arr = tmp[tmp.keys()[0]]
 
         if h5_file is not None:
             import h5py

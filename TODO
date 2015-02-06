@@ -2,7 +2,7 @@ TODO
 ====
 
 - Spikes: create method calculate_mean_activities, ISIs, variances, etc.
-
+- Stimulus should reuse io functionality from data module (__init__)
 
 
 - Null models module

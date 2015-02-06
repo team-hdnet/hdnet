@@ -17,6 +17,8 @@ class TestSpikeModel(TestTmpPath):
 
     def setUp(self):
         super(TestSpikeModel, self).setUp()
+        import logging
+        logging.disable(level=logging.WARNING)
 
     def tearDown(self):
         super(TestSpikeModel, self).tearDown()
