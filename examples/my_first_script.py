@@ -78,7 +78,7 @@ for c, memory in enumerate(bin_memories):
     arr[:, c + len(bin_memories)] = spikes_model.hopfield_patterns.mtas[memory] / spikes_model.hopfield_patterns.counts[memory]
 
 print "Probabilities of each memory:"
-print zip(bin_memories, spikes_model.hopfield_patterns.to_prob_vect())
+print zip(bin_memories, spikes_model.hopfield_patterns.label_probabilities())
 
 # Saving / Loading
 spikes_model.save('my_spikes_model')

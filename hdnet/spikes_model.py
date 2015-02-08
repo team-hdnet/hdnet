@@ -218,14 +218,14 @@ class SpikeModel(Restoreable, object):
         hdlog.debug("Chomping samples from model")
         self._raw_patterns = PatternsRaw(save_sequence=True)
         self._raw_patterns.chomp_spikes(spikes=self._sample_spikes)
-        hdlog.info("Raw: %d-bit, %d patterns (H = %1.4f)" % (
-            self._sample_spikes.N, len(self._raw_patterns), self._raw_patterns.entropy()))
+        hdlog.info("Raw: %d-bit, %d patterns" % (
+            self._sample_spikes.N, len(self._raw_patterns)))
 
         hdlog.debug("Chomping dynamics (from network learned on the samples) applied to samples")
         self._hopfield_patterns = PatternsHopfield(learner=self._learner, save_sequence=True)
         self._hopfield_patterns.chomp_spikes(spikes=self._sample_spikes)
-        hdlog.info("Hopfield: %d-bit, %d patterns (H = %1.4f)" % (
-            self._sample_spikes.N, len(self._hopfield_patterns), self._hopfield_patterns.entropy()))
+        hdlog.info("Hopfield: %d-bit, %d patterns" % (
+            self._sample_spikes.N, len(self._hopfield_patterns)))
 
         # print "Before dynamics:"
         # print self.sample_spikes.spikes
@@ -264,7 +264,7 @@ class SpikeModel(Restoreable, object):
             window_sizes = [1]
         trials = trials or range(self._original_spikes.T)
         counts = np.zeros((2, len(trials), len(window_sizes)))
-        entropies = np.zeros((2, len(trials), len(window_sizes)))
+        #entropies = np.zeros((2, len(trials), len(window_sizes)))
 
         couplings = {}
 
@@ -288,16 +288,16 @@ class SpikeModel(Restoreable, object):
                     couplings[ws].append(self._learner.network.J.copy())
 
                 self.chomp()
-                entropies[0, c, ws] = self._raw_patterns.entropy()
+                #entropies[0, c, ws] = self._raw_patterns.entropy()
                 counts[0, c, ws] = len(self._raw_patterns)
-                entropies[1, c, ws] = self._hopfield_patterns.entropy()
+                #entropies[1, c, ws] = self._hopfield_patterns.entropy()
                 counts[1, c, ws] = len(self._hopfield_patterns)
 
         hdlog.info("Total learn time: %1.3f mins" % (tot_learn_time / 60.))
         self._learn_time = tot_learn_time
         if save_couplings:
-            return counts, entropies, couplings
-        return counts, entropies
+            return counts, couplings
+        return counts
 
     def sample_from_model(self, trials=None, reshape=False):
         """

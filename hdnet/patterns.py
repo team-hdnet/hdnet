@@ -67,6 +67,39 @@ class Counter(Restoreable, object):
         """
         return np.array([int(k) for k in list(key)])
 
+    @staticmethod
+    def pattern_similarity(a, b):
+        """
+        Computes a similarity measure for two binary patterns based on their
+        Jaccard-Needham distance, defined as
+
+        .. math::
+
+            d_J(A,B) = 1 - J(A,B) = \\frac{|A \\cup B| - |A \\cap B|}{|A \\cup B|}.
+
+        The similarity measure takes values on the closed interval [0, 1],
+        where a value of 0 is attained for disjoint, i.e. maximally disslimilar
+        patterns a and b and a value of 1 for the case of a=b.
+
+        Parameters
+        ----------
+        a : list or array, int or bool
+            Input pattern
+        b : list or array, int or bool
+            Input pattern
+
+        Returns
+        -------
+        dist : double
+            Jaccard distance between `a` and `b`.
+        """
+        # Note: code taken from scipy. Duplicated as only numpy references wanted for base functionality
+        a = np.atleast_1d(a).astype(bool)
+        b = np.atleast_1d(b).astype(bool)
+        dist = (np.double(np.bitwise_and((a != b), np.bitwise_or(a != 0, b != 0)).sum())
+                / np.double(np.bitwise_or(a != 0, b != 0).sum()))
+        return dist
+
     def __init__(self, counter=None, save_sequence=True):
         object.__init__(self)
         Restoreable.__init__(self)
@@ -334,44 +367,6 @@ class Counter(Restoreable, object):
             new_pattern = True
         return bin_x, new_pattern, numrot
 
-    def to_prob_vect(self, parent=None):
-        """
-        Compute probability vector of patterns as empirical probabilities.
-        If parent (= counter object) present then return probabilty vector in that space.
-        
-        Parameters
-        ----------
-        parent : :class:`.Counter`, optional
-            Parent Counter object (default None)
-        
-        Returns
-        -------
-        probabilities : numpy array
-            Probability vector of patterns
-        """
-        if parent is not None:
-            values = np.zeros(len(parent.counts))
-            for i in xrange(len(self._counts)):
-                if self._counts.keys()[i] in parent.counts:
-                    values[parent.lookup_patterns[self._counts.keys()[i]]] = self._counts.values()[i]
-        else:
-            values = np.array(self._counts.values())
-
-        probs = 1. * values / values.sum()
-        return probs
-
-    def entropy(self):
-        """
-        Computes entropy over probability distribution of sequence of
-        pattern labels.
-        
-        Returns
-        -------
-        entropy : float
-            Entropy of probability distribution
-        """
-        probs = self.to_prob_vect()
-        return -(probs * np.log2(probs)).sum()
 
     def pattern_to_binary_matrix(self, m):
         """

@@ -313,8 +313,10 @@ class Spikes(Restoreable, object):
 
     def to_windowed(self, window_size=1, trials=None, reshape=False):
         """
-        returns new Spikes object of 3d numpy arr of windowed spike trains:
-        X:   T (num trials) x (window_size * N) x  (M - window_size + 1)
+        Computes windowed version of spike trains, using a sliding window.
+
+        Returns new Spikes object of 3d numpy arr of windowed spike trains:
+        T (num trials) x (window_size * N) x  (M - window_size + 1)
         binary vector out of a spike time series
         reshape: returns T(M - window_size + 1) x (ws * N) numpy binary vector
         

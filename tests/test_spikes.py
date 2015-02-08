@@ -40,7 +40,6 @@ class TestSpikes(TestTmpPath):
         spikes = Spikes(file_contents[file_contents.keys()[0]])
         spikes.restrict_to_most_active_neurons(top_neurons=2)
         self.assertEqual(spikes._N, 2)
-        self.assertEqual(len(spikes.idx), 2)
 
     def test_saving(self):
         spikes = Spikes(spikes=np.array([[1, 1, 1, 0, 1, 0], [1, 1, 1, 1, 1, 1], [0, 0, 0, 1, 0, 0]]))
