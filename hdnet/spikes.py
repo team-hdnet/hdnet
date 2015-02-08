@@ -35,8 +35,8 @@ class Spikes(Restoreable, object):
     ----------
     spikes : numpy array
         Raw binned spikes
-    bin_size : int, optional
-        Number of subsequent bins to merge (default 1)
+    bin_size : float, optional
+        Bin size in seconds (default None)
     preprocess : bool, optional
         If True makes data binary (Heaviside), if False
         leaves data untouched (default True)
@@ -46,11 +46,11 @@ class Spikes(Restoreable, object):
     spikes : instance of :class:`.Spikes` class
 
     """
-    _SAVE_ATTRIBUTES_V1 = ['_spikes', '_T', '_N', '_M']
+    _SAVE_ATTRIBUTES_V1 = ['_spikes', '_T', '_N', '_M', '_restricted', '_bin_size']
     _SAVE_VERSION = 1
     _SAVE_TYPE = 'Spikes'
 
-    def __init__(self, spikes=None, bin_size=1, preprocess=True):
+    def __init__(self, spikes=None, bin_size=None, preprocess=True):
         object.__init__(self)
         Restoreable.__init__(self)
         self._spikes = np.atleast_2d(spikes)
@@ -62,6 +62,9 @@ class Spikes(Restoreable, object):
         self._T = self._spikes.shape[0]
         self._N = self._spikes.shape[1]
         self._M = self._spikes.shape[2]
+
+        self._bin_size = bin_size
+        self._restricted = None
 
         if preprocess:
             self._preprocess()
@@ -81,6 +84,35 @@ class Spikes(Restoreable, object):
         spikes : 3d numpy array
         """
         return self._spikes
+
+    @property
+    def bin_size(self):
+        """
+        Returns the bin size in seconds of the data set.
+
+        Returns
+        -------
+        bin_size : float
+        """
+        return self._bin_size
+
+    @bin_size.setter
+    def bin_size(self, value):
+        """
+        Sets the bin size (in seconds, so that e.g. 0.001 corresponds
+        to 1ms bins), used to calculate firing rates and in other
+        time-based operations.
+
+        Parameters
+        ----------
+        bin_size : float
+            bin size in milliseconds
+
+        Returns
+        -------
+        Nothing
+        """
+        self._bin_size = value
 
     @property
     def num_neurons(self):
@@ -152,11 +184,64 @@ class Spikes(Restoreable, object):
         """
         return self._T
 
+    @property
+    def restricted_neurons_indices(self):
+        """
+        Returns a list of the current neuron indices in the
+        original data set after restriction. This will return
+        `None` unless the data set has been restricted with
+        :meth:`restrict_to` or :meth:`restrict_to_most_active_neurons`.
+
+        Returns
+        -------
+        indices : list of int
+        """
+        return self._restricted
+
+    def restrict_to_indices(self, indices, copy=False):
+        """
+        Restricts the spike data to the neurons with the given `indices`
+        in the data set.
+        To get the indices of the neurons in the original data set, call
+        the method :meth:`restricted_neurons_indices`.
+        Note: in the default setting this function does not make a copy but
+        drops the unselected neurons from the data set.
+
+        Parameters
+        ----------
+        indices : 1d list or numpy array
+            list of (0-based) indices of neurons to select
+        copy : bool, optional
+            if True returns a new Spikes class with selected neurons, if False
+            the changes are made in place, dropping all but the selected
+            neurons (default False)
+
+        Returns
+        -------
+        spikes : Spikes
+            an instance of :class:`.Spikes` class
+        """
+        restricted = self._spikes[:, indices[-self._N:], :]
+        if copy:
+            spikes = Spikes(spikes=restricted)
+            spikes._restricted = indices
+            return spikes
+        else:
+            self._N = len(indices)
+            self._spikes = restricted
+            self._restricted = indices
+            return self
+
     def restrict_to_most_active_neurons(self, top_neurons=None, copy=False):
         """
-        Restricts the selection to the :attr:`top_neurons` most active
-        (does not make a copy) if top_neurons is None: sorts the spike_arr
-        
+        Restricts the spike data to the number of `top_neurons` most active
+        neurons in the data set.
+        The neurons are sorted by activity in increasing order.
+        To get the indices of the most active neurons in the original data
+        set, call the method :meth:`restricted_neurons_indices`.
+        Note: in the default setting this function does not make a copy but
+        drops the less active neurons from the data set.
+
         Parameters
         ----------
         top_neurons : int, optional
@@ -170,17 +255,61 @@ class Spikes(Restoreable, object):
         spikes : Spikes
             an instance of :class:`.Spikes` class
         """
-        self._N = top_neurons or self._N
-        activity = self._spikes[:, :, :].mean(axis=0).mean(axis=1)
-        idx = activity.argsort()
-        self.idx = idx[-self._N:]
-        self.mean_activities = activity[self.idx]
-        restricted = self._spikes[:, idx[-self._N:], :]
-        if copy:
-            return Spikes(spikes=restricted)
+        activity = self.mean_activity()
+        idx = activity.argsort()[::-1]
+        if top_neurons is None:
+            top_neurons = self.N
+        return self.restrict_to_indices(idx[:top_neurons], copy=copy)
+
+    def mean_activity(self):
+        """
+        Computes the mean activities of all cells (measured in the mean
+        number of spikes per bin) in the data set. Multiply with `1./bin_size`
+        (`bin_size` in seconds) to obtain firing rates in Hz.
+        You can obtain a sorted list of neuron indices by activities by calling
+        `mean_activity.argsort()` on the returned numpy array.
+
+        Returns
+        -------
+        mean_activity : 1d numpy array
+            Mean activities of all cells (measured in mean number of spikes per bin)
+        """
+        return self._spikes[:, :, :].mean(axis=0).mean(axis=1)
+
+    def mean_activity_hz(self):
+        """
+        Computes the mean activities of all cells in Hz.
+        Only works if `bin_size` has been set during creation or via :meth:`bin_size`.
+        You can obtain a sorted list of neuron indices by activities by calling
+        `mean_activity.argsort()` on the returned numpy array.
+
+        Returns
+        -------
+        mean_activity : 1d numpy array
+            Mean activities of all cells in Hz
+        """
+        return self._spikes[:, :, :].mean(axis=0).mean(axis=1) / \
+               ((self.M / 1000.) * (1. / self.bin_size))
+
+    def trials_average(self, trials=None):
+        """
+        Computes the average activity over all trials in the data set.
+
+        Parameters
+        ----------
+        trials : 1d list or numpy array
+            list of (0-based) indices of trials to include, if `None`
+            all trials are used (default None)
+
+        Returns
+        -------
+        trials_average : 2d numpy array
+            mean activity over trials
+        """
+        if trials is None:
+            return self._spikes[:, :, :].mean(axis=0)
         else:
-            self._spikes = restricted
-            return self
+            return self._spikes[trials, :, :].mean(axis=0)
 
     def to_windowed(self, window_size=1, trials=None, reshape=False):
         """

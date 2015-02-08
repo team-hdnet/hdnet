@@ -31,3 +31,7 @@ Development documentation
   bitstring
   statsmodels
 
+* Install in develop mode:
+
+  python setup.py develop
+
