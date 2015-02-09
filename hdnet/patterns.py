@@ -68,18 +68,18 @@ class Counter(Restoreable, object):
         return np.array([int(k) for k in list(key)])
 
     @staticmethod
-    def pattern_similarity(a, b):
+    def pattern_distance_jaccard(a, b):
         """
-        Computes a similarity measure for two binary patterns based on their
+        Computes a distance measure for two binary patterns based on their
         Jaccard-Needham distance, defined as
 
         .. math::
 
-            d_J(A,B) = 1 - J(A,B) = \\frac{|A \\cup B| - |A \\cap B|}{|A \\cup B|}.
+            d_J(a,b) = 1 - J(a,b) = \\frac{|a \\cup b| - |a \\cap b|}{|a \\cup b|}.
 
         The similarity measure takes values on the closed interval [0, 1],
-        where a value of 0 is attained for disjoint, i.e. maximally disslimilar
-        patterns a and b and a value of 1 for the case of a=b.
+        where a value of 1 is attained for disjoint, i.e. maximally dissimilar
+        patterns a and b and a value of 0 for the case of :math:`a=b`.
 
         Parameters
         ----------
@@ -99,6 +99,39 @@ class Counter(Restoreable, object):
         dist = (np.double(np.bitwise_and((a != b), np.bitwise_or(a != 0, b != 0)).sum())
                 / np.double(np.bitwise_or(a != 0, b != 0).sum()))
         return dist
+
+    @staticmethod
+    def pattern_distance_hamming(a, b):
+        """
+        Computes a distance measure for two binary patterns based on their
+        normed Hamming distance, defined as
+
+        .. math::
+
+            d_H(a,b)=\\frac{1}{n}|\\left\\{j \\in \\{1,\\dots,n\\}\\mid a_j \\neq b_j \\right\\}|,
+
+        if both :math:`a` and :math:`b` have length :math:`n`.
+
+        The similarity measure takes values on the closed interval [0, 1],
+        where a value of 0 is attained for disjoint, i.e. maximally dissimilar
+        patterns a and b and a value of 1 for the case of :math:`a=b`.
+
+        Parameters
+        ----------
+        a : list or array, int or bool
+            Input pattern
+        b : list or array, int or bool
+            Input pattern
+
+        Returns
+        -------
+        dist : double
+            Normed Hamming distance between `a` and `b`.
+        """
+        # Note: code taken from scipy. Duplicated as only numpy references wanted for base functionality
+        a = np.atleast_1d(a)
+        b = np.atleast_1d(b)
+        return (a != b).mean()
 
     def __init__(self, counter=None, save_sequence=True):
         object.__init__(self)
