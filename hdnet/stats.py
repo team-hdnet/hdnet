@@ -314,7 +314,7 @@ class SequenceAnalyzer(object):
             self._markov_probabilities = m_prob
         return m_prob
 
-    def compute_label_markov_entropies(self, markov_probabilities=None, eps=1e-12):
+    def compute_label_markov_entropies(self, markov_probabilities=None, eps=1e-9):
         """
         Computes the entropy of each label using its Markov transition
         probabilities in the space of all labels.
@@ -326,7 +326,7 @@ class SequenceAnalyzer(object):
             :meth:`label_markov_probabilities` is used (default None)
         eps : int, optional
             Threshold value below which a float is assumed to be 0
-            (default 1e-12)
+            (default 1e-9)
 
         Returns
         -------

@@ -290,7 +290,7 @@ class HopfieldNet(Restoreable, object):
         else:
             return X
 
-    def learn_all(self, X):
+    def learn_all(self, X, disp=False):
         """
         Learning M patterns in Hopfield network using outer product learning
         rule (OPR) [Hopfield, 82]
@@ -302,8 +302,9 @@ class HopfieldNet(Restoreable, object):
         X : numpy array
             (M, N)-dim array of binary input patterns of length N to be stored,
             where N is the number of nodes in the network
+        disp : bool, optional
+            Display training log messages (default False)
 
-        
         Returns
         -------
         Nothing
@@ -584,7 +585,7 @@ class HopfieldNetMPF(HopfieldNet):
 
     """
 
-    def learn_all(self, X):
+    def learn_all(self, X, disp=False):
         """
         Learn from M memory samples with Minimum Probability Flow (MPF)
 
@@ -593,12 +594,14 @@ class HopfieldNetMPF(HopfieldNet):
         X : numpy array
             (M, N)-dim array of binary input patterns of length N,
             where N is the number of nodes in the network
-        
+        disp : bool, optional
+            Display scipy L-BFGS-B output (default False)
+
         Returns
         -------
         Nothing
         """
-        self.store_patterns_using_mpf(np.asarray(X))
+        self.store_patterns_using_mpf(np.asarray(X), disp=disp)
 
     def objective_function(self, X, J=None):
         """
@@ -806,7 +809,7 @@ class HopfieldNetMPF(HopfieldNet):
         """
         pass
 
-    def store_patterns_using_mpf(self, X, **kwargs):
+    def store_patterns_using_mpf(self, X, disp=False, **kwargs):
         """
         Stores patterns in X using Minimum Probability Flow (MPF) learning
         rule.
@@ -816,6 +819,8 @@ class HopfieldNetMPF(HopfieldNet):
         X : numpy array
             (M, N)-dim array of binary input patterns of length N,
             where N is the number of nodes in the network
+        disp : bool, optional
+            Display scipy L-BFGS-B output (default False)
 
         Returns
         -------
@@ -826,7 +831,8 @@ class HopfieldNetMPF(HopfieldNet):
         # TODO: status printing?
         import scipy.optimize
         A, Amin, status = scipy.optimize.fmin_l_bfgs_b(
-            self.objective_gradient_minfunc, self._J.ravel(), args=[X], **kwargs)
+            self.objective_gradient_minfunc, self._J.ravel(), args=[X],
+            iprint=-1 if not disp else 0, **kwargs)
         # A,Amin,status = scipy.optimize.fmin_l_bfgs_b(
         # self.objective_gradient_minfunc, np.zeros(self.N * self.N,), args=[X])
 

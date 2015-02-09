@@ -207,7 +207,7 @@ class Learner(Restoreable, object):
         """
         self._spikes_file = value
 
-    def learn_from_binary(self, X, remove_zeros=False):
+    def learn_from_binary(self, X, remove_zeros=False, disp=False):
         """
         Trains on M x N matrix X of M N-length binary vects
 
@@ -219,7 +219,9 @@ class Learner(Restoreable, object):
         remove_zeros : bool, optional
             Flag whether to remove vectors from X in which
             all entries are 0 (default True)
-        
+        disp : bool, optional
+            Display scipy L-BFGS-B output (default False)
+
         Returns
         -------
         Nothing
@@ -232,9 +234,9 @@ class Learner(Restoreable, object):
         else:
             X_ = X
             hdlog.info("Learning %d %d-bit binary patterns, sparsity %.04f..." % (X_.shape[0], X_.shape[1], X_.mean()))
-        self.network.learn_all(X_)
+        self.network.learn_all(X_, disp=disp)
 
-    def learn_from_spikes(self, spikes=None, window_size=1, trials=None, remove_zeros=True):
+    def learn_from_spikes(self, spikes=None, window_size=1, trials=None, remove_zeros=True, disp=False):
         """
         Trains network over spikes contained in instance of :class:`.Spikes` class.
         
@@ -249,6 +251,8 @@ class Learner(Restoreable, object):
         remove_zeros : bool, optional
             Flag whether to remove windows in which
             all entries are 0 (default True)
+        disp : bool, optional
+            Display scipy L-BFGS-B output (default False)
         
         Returns
         -------
@@ -259,9 +263,9 @@ class Learner(Restoreable, object):
         self.window_size = window_size
         self.network = HopfieldNetMPF(spikes.N * self.window_size)
         X = spikes.to_windowed(window_size=self.window_size, trials=trials, reshape=True)
-        self.learn_from_binary(X, remove_zeros=remove_zeros)
+        self.learn_from_binary(X, remove_zeros=remove_zeros, disp=disp)
 
-    def learn_from_spikes_rot(self, spikes=None, window_size=1, trials=None, remove_zeros=True):
+    def learn_from_spikes_rot(self, spikes=None, window_size=1, trials=None, remove_zeros=True, disp=False):
         """
         Trains network over spikes contained in instance of :class:`.Spikes` class,
         removes windows that are identical modulo a rotation along the first axis.
@@ -277,7 +281,9 @@ class Learner(Restoreable, object):
         remove_zeros : bool, optional
             Flag whether to remove windows in which
             all entries are 0 (default True)
-        
+        disp : bool, optional
+            Display scipy L-BFGS-B output (default False)
+
         Returns
         -------
         Nothing
@@ -289,7 +295,7 @@ class Learner(Restoreable, object):
         c = Counter(save_sequence=True)
         c.chomp_spikes(spikes, window_size=self.window_size, rotate=(spikes.N, self.window_size))
         X = np.array([Counter.pattern_for_key(c.patterns[m]) for m in c.sequence])
-        self.learn_from_binary(X, remove_zeros=remove_zeros)
+        self.learn_from_binary(X, remove_zeros=remove_zeros, disp=disp)
 
     def save(self, folder_name='learner'):
         """
