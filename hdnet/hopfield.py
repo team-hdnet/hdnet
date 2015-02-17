@@ -179,12 +179,13 @@ class HopfieldNet(Restoreable, object):
     @property
     def learn_iterations(self):
         """
-        Missing documentation
-        
+        Returns number of iterations needed in training
+        phase until convergence of network parameters.
+
         Returns
         -------
-        Value : Type
-            Description
+        iterations : int
+            Number of iterations until convergence
         """
         return self._learn_iterations
 
@@ -203,12 +204,13 @@ class HopfieldNet(Restoreable, object):
     @property
     def update(self):
         """
-        Missing documentation
+        Returns update flag as string, indicating Hopfield
+        update type. Can be 'synchronous; or 'asynchronous'.
         
         Returns
         -------
-        Value : Type
-            Description
+        update : str
+            Update flag
         """
         return self._update
 
@@ -237,11 +239,14 @@ class HopfieldNet(Restoreable, object):
         Usage: network(X) returns the Hopfield dynamics update to patterns
         stored in rows of M x N matrix X.
 
-        if converge = False then 1 update run through the neurons is performed
-        else: Hopfield dynamics run on X until convergence OR max_iter iterations reached
-        (NOTE: set max_iter = Inf to always force convergence).
+        If `converge` is False then 1 update run through the neurons is performed,
+        otherwise Hopfield dynamics are run on X until convergence or `max_iter`
+        iterations of updates are reached.
 
-        clamped_nodes is dictionary of those nodes not to update during the dynamics.
+        .. note:
+            Set max_iter = Inf to always force convergence
+
+        `clamped_nodes` is dictionary of those nodes not to update during the dynamics.
         
         Parameters
         ----------
@@ -381,11 +386,11 @@ class HopfieldNet(Restoreable, object):
 
     def bits_recalled(self, X, converge=True):
         """
-        NEEDS TO BE SPED UP: CURRENTLY TOO SLOW
-        
+        Returns fraction of correctly recalled bits on input data `X`.
+
         Parameters
         ----------
-        X : numpy array
+        X : 2d numpy array, int
             (M, N)-dim array of binary input patterns of length N,
             where N is the number of nodes in the network
         converge : bool, optional
@@ -394,18 +399,19 @@ class HopfieldNet(Restoreable, object):
 
         Returns
         -------
-        Value : Type
-            Description
+        recalled : float
+            Fraction of correctly recalled bits
         """
-        return (X == self(X, converge=converge)).mean()
+        return float((X == self(X, converge=converge)).mean())
 
     def exact_recalled(self, X, converge=True):
         """
-        Documentation Missing
+        Returns fraction of raw patterns stored as memories in
+        unmodified form.
         
         Parameters
         ----------
-        X : numpy array
+        X : 2d numpy array, int
             (M, N)-dim array of binary input patterns of length N,
             where N is the number of nodes in the network
         converge : bool, optional
@@ -414,15 +420,15 @@ class HopfieldNet(Restoreable, object):
         
         Returns
         -------
-        Value : Type
-            Description
+        fraction : float
+            Fraction of exactly stored memories
         """
         return (X == self(X, converge=converge)).all(1).mean()
 
     def num_hopfield_iter(self, X, max_iter=10 ** 5):
         """
-        Returns array consisting of number of Hopfield iterations to
-        converge elements in X.
+        Returns array consisting of the number of Hopfield iterations
+        needed to converge elements in `X` to their memories.
         
         Parameters
         ----------
@@ -435,7 +441,7 @@ class HopfieldNet(Restoreable, object):
         Returns
         -------
         count : numpy array
-            Number of iterations performed for each element in X
+            Number of iterations performed for each element in `X`
         """
         count_arr = []
         for x in X:
@@ -453,18 +459,19 @@ class HopfieldNet(Restoreable, object):
 
     def J_norm(self):
         """
-        Vector of row 2-norms of J
+        Returns vector of row 2-norms of coupling matrix J
+        of Hopfield network.
         
         Returns
         -------
-        Value : Type
-            Description
+        norm : 1d numpy array, float
+            Vector of 2-norms of coupling matrix
         """
         return np.sqrt((self._J ** 2).sum(1))
 
     def compute_kappa(self, X):
         """
-        Computes minimum marginal of dynamics update
+        Computes minimum marginal of dynamics update.
         
         Parameters
         ----------
@@ -557,6 +564,7 @@ class HopfieldNet(Restoreable, object):
         return super(HopfieldNet, cls)._load(file_name=file_name, load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
+        # internal function to load v1 file format
         hdlog.debug('loading HopfieldNet, format version 1')
         return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
 
@@ -565,23 +573,6 @@ class HopfieldNetMPF(HopfieldNet):
     r"""
     Hopfield network, with training using Minimum Probability Flow (MPF)
     (Sohl-Dickstein, Battaglino, Deweese, 2009) for training / learning of binary patterns
-
-    Parameters:
-    N: int
-    length of {0,1} binary vectors
-    J: float array
-    Hopfield connectivity matrix of network
-    theta: array of thresholds for the nodes
-
-    Conventions:
-    Note: J_{ij} for i not j = weight W_{ij} between neuron i and j, J_{ii} = 0
-    where (Hopfield) dynamics on input x are Out_i(x) = H(\sum_{j not i} J_{ij}x_j - theta_i).
-    Here, H = Heaviside function:  H(r) = 1 r > 0, H(r) = 0 if r <= 0.
-
-    Note energy function is:
-    .. math:
-
-        Energy(x) = \frac{1}{2} x^T[J-\text{diag}(J)]x + \theta*x
 
     """
 

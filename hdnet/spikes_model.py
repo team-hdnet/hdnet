@@ -359,21 +359,7 @@ class SpikeModel(Restoreable, object):
                                             load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
-        """
-        Missing documentation
-        
-        Parameters
-        ----------
-        contents : Type
-            Description
-        load_extra : bool, optional
-            Description (default False)
-        
-        Returns
-        -------
-        Value : Type
-            Description
-        """
+        # internal function to load v1 file format
         hdlog.debug('Loading SpikeModel, format version 1')
         return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
 
