@@ -29,9 +29,25 @@ class SpikeModel(Restoreable, object):
     Generic model of spikes (and stimulus).
 
     Parameters
+    ----------
+    spikes : Type, optional
+        Description (default None)
+    stimulus : Type, optional
+        Description (default None)
+    window_size : int, optional
+        Description (default 1)
+    learner : Type, optional
+        Description (default None)
+
+    Parameters
     spikes: spikes to model
     stimulus: corresp stimulus if existent
     window_size: length of time window in binary bins
+
+    Returns
+    -------
+    Value : Type
+        Description
     """
     _SAVE_ATTRIBUTES_V1 = ['_window_size', '_learn_time']
     _SAVE_VERSION = 1
@@ -43,25 +59,6 @@ class SpikeModel(Restoreable, object):
                               'patterns_raw', 'patterns_hopfield', 'stimulus', 'learner'])
 
     def __init__(self, spikes=None, stimulus=None, window_size=1, learner=None):
-        """
-        Missing documentation
-        
-        Parameters
-        ----------
-        spikes : Type, optional
-            Description (default None)
-        stimulus : Type, optional
-            Description (default None)
-        window_size : int, optional
-            Description (default 1)
-        learner : Type, optional
-            Description (default None)
-        
-        Returns
-        -------
-        Value : Type
-            Description
-        """
         object.__init__(self)
         Restoreable.__init__(self)
 
@@ -366,14 +363,6 @@ class SpikeModel(Restoreable, object):
     # representation
 
     def __repr__(self):
-        """
-        Missing documentation
-        
-        Returns
-        -------
-        Value : Type
-            Description
-        """
         return '<SpikeModel: {s}, window size {ws}>'.\
             format(s=repr(self.original_spikes), ws=self.window_size)
 
@@ -385,7 +374,7 @@ class BernoulliHomogeneous(SpikeModel):
 
     def sample_from_model(self, trials=None, reshape=False):
         """
-        returns Spikes object of 3d numpy arr of windowed iid Bernouli spike trains:
+        Returns Spikes object of 3d numpy arr of windowed iid Bernouli spike trains:
         (with probabilities = spike rates of each neuron in self at trial t)
         X:   T (num trials) x (window_size * N) x  (M - window_size + 1)
         binary vector out of a spike time series
@@ -515,16 +504,22 @@ class Shuffled(SpikeModel):
 class Ising(SpikeModel):
     """
     Class modeling the Ising / Hopfield model of spikes
-    WARNING:  NOT QUITE WORKING !!!
+
+    .. warning:
+
+        MIGHT NOT BE WORKING PROPERLY!
+
     """
 
     def sample_from_model(self, J=None, theta=None, trials=None, reshape=False):
         """
-        WARNING: NOT FUNCTIONING PROPERLY
-
-        returns new spikes object with iid Ising spike trains:
+        Returns new spikes object with iid Ising spike trains:
         (with Ising model determined by learning with MPF)
         
+        .. warning:
+
+            MIGHT NOT BE WORKING PROPERLY!
+
         Parameters
         ----------
         J : Type, optional

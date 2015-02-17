@@ -352,7 +352,7 @@ class Spikes(Restoreable, object):
 
     def rasterize(self, trials=None, start=0, stop=None, save_png_name=None):
         """
-        return *new* (copied) numpy array of size (TN x M)
+        Returns *new* (copied) numpy array of size (TN x M)
         trials: e.g. [1, 5, 6], None is all
         save_png_name: if not None then only saves
         

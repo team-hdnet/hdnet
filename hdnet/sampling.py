@@ -16,7 +16,7 @@ import numpy as np
 
 def sample_from_prob_vector(p, num_samples=1):
     """
-    given numpy probability vector p on N states produce num_samples samples
+    Given numpy probability vector p on N states produce num_samples samples
     returns: a (num_samples) integer vector with state labeled 0, ..., N-1
     
     Parameters
@@ -50,7 +50,7 @@ def sample_from_prob_vector(p, num_samples=1):
 
 def sample_from_bernoulli(p, M=1):
     """
-    returns N x M numpy array with M Bernoulli(p) N-bit samples
+    Returns N x M numpy array with M Bernoulli(p) N-bit samples
     
     Parameters
     ----------
@@ -99,7 +99,7 @@ def energy(J, theta, x):
 
 def integer_to_binary(state, N):
     """
-    given state 0, ..., 2\*\*N - 1, returns corresponding binary vector x
+    Given state 0, ..., 2\*\*N - 1, returns corresponding binary vector x
     
     Parameters
     ----------
@@ -118,11 +118,13 @@ def integer_to_binary(state, N):
 
 def sample_from_ising(J, theta, num_samples=2):
     """
-    WARNING:  MIGHT NOT BE WORKING PROPERLY !!!
+    Given an Ising model `J`, `theta` on N neurons produces `num_samples` samples
+    Returns: a (N x num_samples) binary matrix with each column a binary vector (Ising sample)
 
-    given Ising model (J, theta) on N neurons produce num_samples samples
-    returns: a (N x num_samples) binary matrix with each column a binary vector (Ising sample)
-    
+    .. warning:
+
+        MIGHT NOT BE WORKING PROPERLY!
+
     Parameters
     ----------
     J : Type

@@ -14,7 +14,6 @@
 
 import sys
 import os
-import sphinx_rtd_theme
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -41,8 +40,6 @@ extensions = [
 ]
 
 mathjax_path = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'
-
-autosummary_generate = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -114,8 +111,32 @@ pygments_style = 'sphinx'
 # a list of builtin themes.
 
 # Activate the theme.
-html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
+# on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+
+if not on_rtd:  # only import and set the theme if we're building docs locally
+    # rtd theme
+    import sphinx_rtd_theme
+    html_theme = 'sphinx_rtd_theme'
+    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+    
+    #import alabaster
+    #html_theme_path = [alabaster.get_path()]
+    #extensions += ['alabaster']
+    #html_theme = 'alabaster'
+    #html_sidebars = {
+    #    '**': [
+    #        'about.html', 'navigation.html', 'searchbox.html', 'donate.html',
+    #    ]
+    #}
+    #html_theme_options = {
+    #    #'logo': 'logo.png',
+    #    'github_user': 'qualiaphile',
+    #    'github_repo': 'hdnet',
+    #}
+
+# otherwise, readthedocs.org uses their theme by default, so no need to specify it
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
