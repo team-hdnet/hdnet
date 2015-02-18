@@ -115,26 +115,24 @@ pygments_style = 'sphinx'
 # on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
-if not on_rtd:  # only import and set the theme if we're building docs locally
+# only import and set the theme if we're building docs locally
+if not on_rtd:
     # rtd theme
-    import sphinx_rtd_theme
-    html_theme = 'sphinx_rtd_theme'
-    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-    
-    #import alabaster
-    #html_theme_path = [alabaster.get_path()]
-    #extensions += ['alabaster']
-    #html_theme = 'alabaster'
-    #html_sidebars = {
-    #    '**': [
-    #        'about.html', 'navigation.html', 'searchbox.html', 'donate.html',
-    #    ]
-    #}
-    #html_theme_options = {
-    #    #'logo': 'logo.png',
-    #    'github_user': 'qualiaphile',
-    #    'github_repo': 'hdnet',
-    #}
+    #import sphinx_rtd_theme
+    #html_theme = 'sphinx_rtd_theme'
+    #html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
+    # use basicstrap theme
+    extensions += ['sphinxjp.themes.basicstrap']
+    html_theme = 'basicstrap'
+    html_theme_options = {
+        'header_inverse': False,
+        'relbar_inverse': False,
+        'inner_theme': False,
+        'content_fixed': True,
+        'content_width': '100ch',        
+        #'inner_theme_name': 'bootswatch-yeti',
+    }
 
 # otherwise, readthedocs.org uses their theme by default, so no need to specify it
 
@@ -200,7 +198,7 @@ html_static_path = ['_static']
 #html_show_sourcelink = True
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
-#html_show_sphinx = True
+html_show_sphinx = False
 
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
 #html_show_copyright = True
@@ -215,7 +213,6 @@ html_static_path = ['_static']
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'hdnetdoc'
-
 
 # -- Options for LaTeX output ---------------------------------------------
 

@@ -919,11 +919,15 @@ class PatternsHopfield(Counter):
         key = self._patterns[label]
         return np.array(self._mtas_raw[key])
 
-    def pattern_to_mta_std(self, m):
+    def pattern_to_mtv(self, m):
         """
-        Returns the element-wise standard deviation of each
-        position in a pattern across all raw patterns encountered
-        that converged to a given stored memory pattern with label `label`.
+        Returns the element-wise variance of each position in a pattern
+        across all raw patterns encountered that converged to a given
+        stored memory pattern with label `label`. This is called the
+        *Memory Triggered Variance* (MTV). It is a meansure for how
+        diverse the underlying patterns are converging to the same
+        memory and can be seen as a proxy for the basin size of
+        that memory (i.e. fixed point) under the given Hopfield dynamics.
 
         Parameters
         ----------
@@ -932,11 +936,11 @@ class PatternsHopfield(Counter):
 
         Returns
         -------
-        sta : 1d numpy array
-            Element-wise standard deviation
+        mtv : 1d numpy array
+            Element-wise variance
         """
         raw_patterns = self.pattern_to_raw_patterns(m)
-        return raw_patterns.std(axis=0)
+        return raw_patterns.var(axis=0)
 
     def top_mta_matrices(self, count):
         """
