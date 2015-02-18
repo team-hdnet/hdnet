@@ -10,6 +10,7 @@
     Record / counts of fixed-points of Hopfield network.
 
 """
+from collections import OrderedDict
 
 import os
 import numpy as np
@@ -156,10 +157,26 @@ class Counter(Restoreable, object):
         
         Returns
         -------
+        counts : dict
+            Dictionary of counts of all patterns,
+            indexed by pattern key
+        """
+        return self._counts
+
+    @property
+    def counts_by_label(self):
+        """
+        Returns the counts of each pattern encountered in the
+        raw data.
+
+        Returns
+        -------
         counts : 1d numpy array, int
             Counts of all patterns, indexed by label
         """
-        return self._counts
+        return [self._counts[p]
+                for p in self.patterns]
+
 
     @property
     def patterns(self):

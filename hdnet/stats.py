@@ -386,9 +386,9 @@ class SequenceAnalyzer(object):
             for i in xrange(len(labels)):
                 if labels[i] in parent.counts:
                     values[parent.lookup_patterns[labels[i]]] = \
-                        self.counter.counts[labels[i]]
+                        self.counter.counts_by_label[labels[i]]
         else:
-            values = np.array([self.counter.counts[l] for l in labels])
+            values = np.array([self.counter.counts_by_label[l] for l in labels])
 
         probs = 1. * values / values.sum()
         if parent is None and sequence is self.sequence:
