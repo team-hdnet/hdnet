@@ -37,7 +37,7 @@ class SequenceAnalyzer(object):
 
     def __init__(self, counter):
         self._counter = counter
-        self._sequence = counter.sequence.copy()
+        self._sequence = np.array(counter.sequence).copy()
         self._markov_probabilities = None
         self._markov_entropies = None
         self._label_probabilities = None

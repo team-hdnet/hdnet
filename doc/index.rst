@@ -16,6 +16,7 @@ Contents:
    citing.rst
    background.rst
    example_basic.rst
+   example_sequence.rst
    hdnet.rst
    bibliography.rst
 

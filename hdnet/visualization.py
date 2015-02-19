@@ -551,8 +551,9 @@ def combine_windows(windows):
     return combined
 
 
-def plot_graph(g, nodeval=None, cmap1='Blues_r', cmap2='bone_r',
-               node_vmin=None, node_vmax=None, edge_vmin=None, edge_vmax=None):
+def plot_graph(g, nodeval=None, cmap_nodes='cool', cmap_edges='autumn',
+               node_vmin=None, node_vmax=None, edge_vmin=None, edge_vmax=None,
+               draw_edge_weights=True, edge_weight_format='%.3f'):
     """
     Missing documentation
     
@@ -592,7 +593,7 @@ def plot_graph(g, nodeval=None, cmap1='Blues_r', cmap2='bone_r',
     nx.draw_networkx_nodes(g, pos, nodelist=g.nodes(),
                            node_color='0.8' if nodeval is None else nodeval,
                            node_size=500, alpha=1, with_labels=True,
-                           cmap=plt.get_cmap(cmap1), **kwargs)
+                           cmap=plt.get_cmap(cmap_nodes), **kwargs)
 
     kwargs = {}
     if edge_vmin is not None:
@@ -600,11 +601,16 @@ def plot_graph(g, nodeval=None, cmap1='Blues_r', cmap2='bone_r',
     if edge_vmax is not None:
         kwargs['edge_vmax'] = edge_vmax
     labels = {i: str(i) for i in g.nodes()}
+    edge_weights = [g.get_edge_data(*e)['weight'] for e in g.edges()]
     nx.draw_networkx_edges(g, pos, edgelist=g.edges(), edge_color='0.4', arrows=True)
     nx.draw_networkx_edges(g, pos, edgelist=g.edges(),
-                           edge_color=[g.get_edge_data(*e)['weight'] for e in g.edges()],
-                           edge_cmap=plt.get_cmap(cmap2), arrows=False, **kwargs)
+                           edge_color=edge_weights,
+                           edge_cmap=plt.get_cmap(cmap_edges), arrows=False, **kwargs)
     nx.draw_networkx_labels(g, pos, labels, font_size=10, font_color='k')
+    if draw_edge_weights:
+        nx.draw_networkx_edge_labels(g, pos,
+                                     {e: edge_weight_format % g.get_edge_data(*e)['weight'] for e in g.edges()},
+                                     font_size=10, font_color='k')
     plt.axis('off')
     return fig
 

@@ -73,11 +73,12 @@ if FILTER_LABEL_SEQUENCE:
 label_probabilities = sa.compute_label_probabilities()
 markov_probabilities = sa.compute_label_markov_probabilities()
 label_entropy = sa.compute_label_markov_entropies()
+n_labels = len(label_probabilities)
 
 # plot label probabilities, markov transition probabilities and node entropy
 fig, ax = plt.subplots()
 ax.hist(label_probabilities, weights=[1. / n_labels] * n_labels,
-         range=(label_probabilities.min(), 0.005),
+         range=(label_probabilities.min(), label_probabilities.max()),
          bins=100, color='k')
 ax.set_xlabel('probability')
 ax.set_ylabel('fraction')
@@ -85,11 +86,10 @@ ax.set_yscale('log', nonposy='clip')
 ax.set_xscale('log', nonposx='clip')
 plt.tight_layout()
 plt.savefig('label_probabilities.png')
-plt.savefig('label_probabilities.pdf')
 plt.close()
 
-fig = plt.figure(figsize=(8,6))
-ax = fig.add_subplot(1,1,1)
+fig = plt.figure(figsize=(8, 6))
+ax = fig.add_subplot(1, 1, 1)
 cmap = mpl.cm.autumn
 cmap.set_bad('k')
 mp_masked = np.ma.masked_where(markov_probabilities < 0.001 , markov_probabilities)
@@ -102,7 +102,6 @@ ax.xaxis.set_ticks([0, 500])
 ax.yaxis.set_ticks([0, 500])
 plt.colorbar(im)
 plt.savefig('label_probabilities_markov.png')
-plt.savefig('label_probabilities_markov.pdf')
 plt.tight_layout()
 plt.close()
 
@@ -114,7 +113,6 @@ plt.ylabel('fraction')
 plt.yscale('log', nonposy='clip')
 plt.tight_layout()
 plt.savefig('label_entropy.png')
-plt.savefig('label_entropy.pdf')
 plt.close()
 
 # construct markov graph
@@ -129,7 +127,6 @@ sa.reduce_graph_brute(np.argsort(label_probabilities)[::-1][:threshold])
 
 # plot markov graph
 plot_graph(markov_graph)
-plt.locator_params(nbins=3)
 plt.savefig('markov_graph_filtered.png')
 
 # plot memory triggered averages for all nodes of markov graph
@@ -142,7 +139,6 @@ for i, node in enumerate(markov_graph.nodes()):
     ax.get_yaxis().set_visible(False)
 
 plt.savefig('mtas.png')
-plt.savefig('mtas.pdf')
 plt.close()
 
 print "filtering markov graph"
@@ -182,7 +178,6 @@ ax.set_ylabel('fraction')
 plt.locator_params(nbins=3)
 plt.tight_layout()
 plt.savefig('cycle_lengths.png')
-plt.savefig('cycle_lengths.pdf')
 plt.close()
 
 fig, ax = plt.subplots() 

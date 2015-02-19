@@ -10,6 +10,8 @@ Starting off
 
 We first import the necessary modules into our Python session (we recommend using ipython in pylab mode, i.e. running ``ipython --pylab`` and to run text copied to the clipboard from this tutorial using the magic command ``%paste``)::
 
+.. code-block:: python
+    
     import numpy as np
     import matplotlib.pyplot as plt
     from hdnet.stimulus import Stimulus
@@ -18,6 +20,8 @@ We first import the necessary modules into our Python session (we recommend usin
 
 Next, we create two trials of 200 time bins of spikes from 10 neurons and store them in a :class:`.Spikes` container::
 
+.. code-block:: python
+    
     # Let's first make up some simuilated spikes: 2 trials
     spikes = (np.random.random((2, 10, 200)) < .05).astype(int)
     spikes[0, [1, 5], ::5] = 1  # insert correlations
@@ -27,6 +31,8 @@ Next, we create two trials of 200 time bins of spikes from 10 neurons and store 
 
 We can now plot a raster of the trials and covariances::
 
+.. code-block:: python
+    
     # let's look at the raw spikes and their covariance
     plt.figure()
     plt.matshow(spikes.rasterize(), cmap='gray')
@@ -39,6 +45,8 @@ We can now plot a raster of the trials and covariances::
 
 Next, we would like to model this noisy binary data. First, we try to model each trial with a separate i.i.d. Bernoulli random binary vector having the same neuron means as in each trial::
 
+.. code-block:: python
+    
     # let's examine the structure in spikes using a spike modeler
     spikes_model = BernoulliHomogeneous(spikes=spikes)
     BH_sample_spikes = spikes_model.sample_from_model()
@@ -66,6 +74,8 @@ Next, we would like to model this noisy binary data. First, we try to model each
    
 As we can see in Figures 1 and 2, the samples from Bernoulli have the correct firing rates in each trial, but not the coordinated aspect (as can be seen in the covariance matrices for each trial, which are basically diagonal matrices). A better model that keeps track of the correlations is the Dichotomized Gaussian :cite:`Bethge2008`::
 
+.. code-block:: python
+    
     # let's model them as DichotomizedGaussian:
     # from the paper: Generating spike-trains with specified correlations, Macke et al.
     spikes_model = DichotomizedGaussian(spikes=spikes)
@@ -83,6 +93,8 @@ As we can see in Figures 1 and 2, the samples from Bernoulli have the correct fi
 
 Finally, we try and model the data with a Hopfield network trained using MPF :cite:`HS-DK201` over all the trials::
 
+.. code-block:: python
+    
     # the basic modeler trains a Hopfield network using MPF on the raw spikes
     spikes_model = SpikeModel(spikes=spikes)
     spikes_model.fit()  # note: this fits a single network to all trials
@@ -106,6 +118,8 @@ Going further
 
 One thing we would like to do is examine the structure of the memories::
 
+.. code-block:: python
+    
     # plot memory label (its chronological appearance) as a function of time
     plt.figure()
     plt.scatter(range(len(spikes_model.memories.sequence)), 1 + np.array(spikes_model.memories.sequence))
@@ -140,11 +154,13 @@ memories and their corresponding *Memory Triggered Averages* MTAs that are obtai
 
 The code below generates Fig. 2, which displaysa matrix whose first 3 columns are  the memories in the network and whose next 3 columns are the average of raw data patterns converging to the corresponding memory in the first 3 columns::
 
+.. code-block:: python
+    
     # memories are ordered by their first appearance
     bin_memories = spikes_model.memories.patterns
     arr = np.zeros((spikes_model.original_spikes.N, 2 * len(bin_memories)))
     for c, memory in enumerate(bin_memories):
-        arr[:, c] = spikes_model.memories.fp_to_binary_matrix(c)
+		arr[:, c] = spikes_model.memories.fp_to_binary_matrix(c)
     
     for c, memory in enumerate(bin_memories):
         arr[:, c + len(bin_memories)] = spikes_model.memories.mtas[memory] /
@@ -165,6 +181,8 @@ Saving and loading
 
 One can save :class:`.Spikes`, :class:`.Learner`s and :class:`.SpikesModel`s::
 
+.. code-block:: python
+	
     spikes_model.save('my_spikes_model')
     loaded_spikes_model = SpikesModel.load('my_spikes_model')
 
@@ -192,15 +210,17 @@ First, let's create a fake stimulus consisting of random normal 90 x 100 dimensi
 
 In code this looks like this::
 
+.. code-block:: python
+    
     from hdnet.stimulus import Stimulus
     
     calvin = np.load('data/calvin.npy')  # 90 by 100 numpy array
     hobbes = np.load('data/hobbes.npy')
     
-    stimulus_arr = 20 * np.random.randn(2, 200, *calvin.shape)
-    stimulus_arr[0, ::5] = calvin + 50 * np.random.randn(200 / 5, *calvin.shape)
-    stimulus_arr[1, ::11] = hobbes + 50 * np.random.randn(200 / 11 + 1, /
-                            *hobbes.shape)
+    stimulus_arr = 20 \* np.random.randn(2, 200, \*calvin.shape)
+    stimulus_arr[0, ::5] = calvin + 50 \* np.random.randn(200 / 5, \*calvin.shape)
+    stimulus_arr[1, ::11] = hobbes + 50 \* np.random.randn(200 / 11 + 1, /
+                            \*hobbes.shape)
     
     plt.matshow(stimulus_arr[0, 0], cmap='gray')
     plt.title('Calvin Sample Stimulus')
@@ -209,14 +229,18 @@ In code this looks like this::
 
 Now, let's try and see what were the average stimuli for each fixed-point / memory.  We call such features *Memory Triggered Stimulus Averages* (MTSA)::
 
+.. code-block:: python
+    
     stimulus = Stimulus(stimulus_arr=stimulus_arr)
     avgs = spikes_model.memories.mem_triggered_stim_avgs(stimulus)
     
     for stm_avg in avgs:
-            plt.figure()
+        plt.figure()
         plt.matshow(stm_avg, cmap='gray')
         plt.title('Memory Triggered Stimulus Average')
+    
     plt.show()
+
 
 The MTSAs look as following.
 
@@ -248,25 +272,33 @@ Let's examine the spontaneous spiking data from anesthetized cat visual cortex a
 
 First we read the data using the `.spk` format reader integrated in `hdnet`:
 
-	from hdnet.data import SpkReader
-	fn = 'data/Blanche/crcns_pvc3_cat_recordings/drifting_bar/spike_data'
-	spikes = SpkReader.read_spk_folder(fn)
+.. code-block:: python
+    
+    from hdnet.data import SpkReader
+    fn = 'data/Blanche/crcns_pvc3_cat_recordings/drifting_bar/spike_data'
+    spikes = SpkReader.read_spk_folder(fn)
 
 Now we fit a Hopfield network on the spike data:
 
-	spikes_model = SpikeModel(spikes=spikes)
-	spikes_model.fit()  # note: this fits a single network to all trials
-	
+.. code-block:: python
+    
+    spikes_model = SpikeModel(spikes=spikes)
+    spikes_model.fit()  # note: this fits a single network to all trials
+    
 After fitting the model we converge the windows of raw data to their Hopfield memories:
-	
-	spikes_model.chomp()
-	converged_spikes = Spikes(spikes=spikes_model.hopfield_spikes)
-	
+    
+.. code-block:: python
+    
+    spikes_model.chomp()
+    converged_spikes = Spikes(spikes=spikes_model.hopfield_spikes)
+    
 We can now plot them and their covariance:
 
-	plt.matshow(converged_spikes.rasterize(), cmap='gray')
-	plt.title('Converge dynamics on Raw data')
-	plt.matshow(converged_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
-	plt.title('Covariance of converged memories')
+.. code-block:: python
+    
+    plt.matshow(converged_spikes.rasterize(), cmap='gray')
+    plt.title('Converge dynamics on Raw data')
+    plt.matshow(converged_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
+    plt.title('Covariance of converged memories')
 
 TBC
