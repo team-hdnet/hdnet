@@ -105,7 +105,9 @@ for stm_avg in avgs:
     plt.title('Memory Triggered Stimulus Average')
 
 # Real Data
-spikes = Spikes(spk_folder='data/Blanche/crcns_pvc3_cat_recordings/drifting_bar/spike_data')
+from hdnet.data import SpkReader
+fn = 'data/Blanche/crcns_pvc3_cat_recordings/drifting_bar/spike_data'
+spikes = SpkReader.read_spk_folder(fn)
 spikes_model = SpikeModel(spikes=spikes)
 spikes_model.fit()  # note: this fits a single network to all trials
 spikes_model.chomp()

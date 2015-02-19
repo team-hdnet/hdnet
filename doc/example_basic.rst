@@ -246,6 +246,27 @@ Now, we try these methods out on some real data.  First, we download polytrode d
 
 Let's examine the spontaneous spiking data from anesthetized cat visual cortex area 18 (around 5 minutes of spike-sorted polytrode data from 50 neurons).
 
+First we read the data using the `.spk` format reader integrated in `hdnet`:
+
+	from hdnet.data import SpkReader
+	fn = 'data/Blanche/crcns_pvc3_cat_recordings/drifting_bar/spike_data'
+	spikes = SpkReader.read_spk_folder(fn)
+
+Now we fit a Hopfield network on the spike data:
+
+	spikes_model = SpikeModel(spikes=spikes)
+	spikes_model.fit()  # note: this fits a single network to all trials
+	
+After fitting the model we converge the windows of raw data to their Hopfield memories:
+	
+	spikes_model.chomp()
+	converged_spikes = Spikes(spikes=spikes_model.hopfield_spikes)
+	
+We can now plot them and their covariance:
+
+	plt.matshow(converged_spikes.rasterize(), cmap='gray')
+	plt.title('Converge dynamics on Raw data')
+	plt.matshow(converged_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
+	plt.title('Covariance of converged memories')
+
 TBC
-
-
