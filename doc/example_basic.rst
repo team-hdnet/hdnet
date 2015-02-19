@@ -8,7 +8,7 @@ For demonstration purposes we will start work with a synthetic data set in this 
 Starting off
 ------------
 
-We first import the necessary modules into our Python session (we recommend using ipython in pylab mode, i.e. running ``ipython --pylab`` and to run text copied to the clipboard from this tutorial using the magic command ``%paste``)::
+We first import the necessary modules into our Python session (we recommend using ipython in pylab mode, i.e. running ``ipython --pylab`` and to run text copied to the clipboard from this tutorial using the magic command ``%paste``):
 
 .. code-block:: python
     
@@ -18,7 +18,7 @@ We first import the necessary modules into our Python session (we recommend usin
     from hdnet.spikes import Spikes
     from hdnet.spikes_model import SpikeModel, BernoulliHomogeneous, DichotomizedGaussian
 
-Next, we create two trials of 200 time bins of spikes from 10 neurons and store them in a :class:`.Spikes` container::
+Next, we create two trials of 200 time bins of spikes from 10 neurons and store them in a :class:`.Spikes` container:
 
 .. code-block:: python
     
@@ -29,7 +29,7 @@ Next, we create two trials of 200 time bins of spikes from 10 neurons and store 
     
     spikes = Spikes(spikes=spikes)
 
-We can now plot a raster of the trials and covariances::
+We can now plot a raster of the trials and covariances:
 
 .. code-block:: python
     
@@ -43,7 +43,7 @@ We can now plot a raster of the trials and covariances::
     plt.title('Raw spikes covariance')
     plt.show()
 
-Next, we would like to model this noisy binary data. First, we try to model each trial with a separate i.i.d. Bernoulli random binary vector having the same neuron means as in each trial::
+Next, we would like to model this noisy binary data. First, we try to model each trial with a separate i.i.d. Bernoulli random binary vector having the same neuron means as in each trial:
 
 .. code-block:: python
     
@@ -72,7 +72,7 @@ Next, we would like to model this noisy binary data. First, we try to model each
     
     Figure 2. Covariances of two trials with 10 neurons. 
    
-As we can see in Figures 1 and 2, the samples from Bernoulli have the correct firing rates in each trial, but not the coordinated aspect (as can be seen in the covariance matrices for each trial, which are basically diagonal matrices). A better model that keeps track of the correlations is the Dichotomized Gaussian :cite:`Bethge2008`::
+As we can see in Figures 1 and 2, the samples from Bernoulli have the correct firing rates in each trial, but not the coordinated aspect (as can be seen in the covariance matrices for each trial, which are basically diagonal matrices). A better model that keeps track of the correlations is the Dichotomized Gaussian :cite:`Bethge2008`:
 
 .. code-block:: python
     
@@ -91,7 +91,7 @@ As we can see in Figures 1 and 2, the samples from Bernoulli have the correct fi
     
     plt.show()
 
-Finally, we try and model the data with a Hopfield network trained using MPF :cite:`HS-DK201` over all the trials::
+Finally, we try and model the data with a Hopfield network trained using MPF :cite:`HS-DK201` over all the trials:
 
 .. code-block:: python
     
@@ -116,7 +116,7 @@ Finally, we try and model the data with a Hopfield network trained using MPF :ci
 Going further
 -------------
 
-One thing we would like to do is examine the structure of the memories::
+One thing we would like to do is examine the structure of the memories:
 
 .. code-block:: python
     
@@ -152,7 +152,7 @@ Notice in Figures 4 and 4 that the converged dynamics of the trained Hopfield ne
 Now that we know there are basically two assemblies, one showing up lots in the first trial and the other in the second, let's look at the
 memories and their corresponding *Memory Triggered Averages* MTAs that are obtained for each memory by averaging all raw patterns that converge to the given memory under the Hopfield dynamics.
 
-The code below generates Fig. 2, which displaysa matrix whose first 3 columns are  the memories in the network and whose next 3 columns are the average of raw data patterns converging to the corresponding memory in the first 3 columns::
+The code below generates Fig. 2, which displaysa matrix whose first 3 columns are  the memories in the network and whose next 3 columns are the average of raw data patterns converging to the corresponding memory in the first 3 columns:
 
 .. code-block:: python
     
@@ -160,7 +160,7 @@ The code below generates Fig. 2, which displaysa matrix whose first 3 columns ar
     bin_memories = spikes_model.memories.patterns
     arr = np.zeros((spikes_model.original_spikes.N, 2 * len(bin_memories)))
     for c, memory in enumerate(bin_memories):
-		arr[:, c] = spikes_model.memories.fp_to_binary_matrix(c)
+        arr[:, c] = spikes_model.memories.fp_to_binary_matrix(c)
     
     for c, memory in enumerate(bin_memories):
         arr[:, c + len(bin_memories)] = spikes_model.memories.mtas[memory] /
@@ -179,10 +179,10 @@ Notice that the number of occurrences of the cell assembly with neuron 1 and 5 c
 Saving and loading
 ------------------
 
-One can save :class:`.Spikes`, :class:`.Learner`s and :class:`.SpikesModel`s::
+One can save :class:`.Spikes`, :class:`.Learner`s and :class:`.SpikesModel`s:
 
 .. code-block:: python
-	
+    
     spikes_model.save('my_spikes_model')
     loaded_spikes_model = SpikesModel.load('my_spikes_model')
 
@@ -208,7 +208,7 @@ First, let's create a fake stimulus consisting of random normal 90 x 100 dimensi
 
     Figure 6. Noisy stimulus: Hobbes.
 
-In code this looks like this::
+In code this looks like this:
 
 .. code-block:: python
     
@@ -227,7 +227,7 @@ In code this looks like this::
     plt.matshow(stimulus_arr[1, 0], cmap='gray')
     plt.title('Hobbes Sample Stimulus')
 
-Now, let's try and see what were the average stimuli for each fixed-point / memory.  We call such features *Memory Triggered Stimulus Averages* (MTSA)::
+Now, let's try and see what were the average stimuli for each fixed-point / memory.  We call such features *Memory Triggered Stimulus Averages* (MTSA):
 
 .. code-block:: python
     

@@ -79,8 +79,8 @@ Let us now plot some of the quantities that we calcualted:
     # plot label probabilities, markov transition probabilities and node entropy
     fig, ax = plt.subplots()
     ax.hist(label_probabilities, weights=[1. / n_labels] * n_labels,
-		range=(label_probabilities.min(), label_probabilities.max()),
-		bins=50, color='k')
+        range=(label_probabilities.min(), label_probabilities.max()),
+        bins=50, color='k')
     
     ax.set_xlabel('probability')
     ax.set_ylabel('fraction')
@@ -97,7 +97,7 @@ Let us now plot some of the quantities that we calcualted:
     Figure 1. Histogram of label probabilities on a log-log scale.
 
 .. code-block:: python
-	
+    
     fig = plt.figure(figsize=(8,6))
     ax = fig.add_subplot(1,1,1)
     cmap = mpl.cm.autumn
@@ -122,7 +122,7 @@ Let us now plot some of the quantities that we calcualted:
     Figure 2. Matrix of Markov transition probabilities between labels.
 
 .. code-block:: python
-	
+    
     fig, ax = plt.subplots()
     plt.hist(label_entropy,
              weights=[1. / n_labels] * n_labels, bins=50, color='k')
@@ -242,7 +242,7 @@ the entropy, the more stably that cycle occurrs in the data:
 Let is plot some statistics about the extracted cycles:
 
 .. code-block:: python
-
+    
     # plot cycle statistics
     n_cycles = len(cycles)
     cycle_len = np.array(map(len, cycles))
@@ -262,7 +262,7 @@ Let is plot some statistics about the extracted cycles:
     Figure 6. Distribution of cycle lengths.
 
 .. code-block:: python
-	
+    
     fig, ax = plt.subplots() 
     plt.hist(scores, weights=[1. / n_cycles] * n_cycles, bins=50, color='k')
     plt.xlabel('cycle score')
@@ -279,7 +279,7 @@ Let is plot some statistics about the extracted cycles:
     Figure 7. Distribution of cycle scores.
 
 .. code-block:: python
-	
+    
     fig, ax = plt.subplots() 
     plt.scatter(cycle_len, scores, color='k')
     plt.xlabel('cycle length')
