@@ -77,16 +77,16 @@ for c, memory in enumerate(bin_memories):
 for c, memory in enumerate(bin_memories):
     arr[:, c + len(bin_memories)] = spikes_model.hopfield_patterns.mtas[memory] / spikes_model.hopfield_patterns.counts[memory]
 
-print "Probabilities of each memory:"
-print zip(bin_memories, spikes_model.hopfield_patterns.label_probabilities())
+# print "Probabilities of each memory:"
+# print zip(bin_memories, spikes_model.hopfield_patterns.label_probabilities())
 
 # Saving / Loading
 spikes_model.save('my_spikes_model')
 spikes_model = SpikeModel.load('my_spikes_model')
 
 # (Fake) Stimuli
-calvin = np.load('data/calvin.npy')  # 90 by 100 numpy array
-hobbes = np.load('data/hobbes.npy')
+calvin = np.load('examples/data/calvin.npy')  # 90 by 100 numpy array
+hobbes = np.load('examples/data/hobbes.npy')
 
 stimulus_arr = 20 * np.random.randn(2, 200, *calvin.shape)
 stimulus_arr[0, ::5] = calvin + 50 * np.random.randn(200 / 5, *calvin.shape)
@@ -109,11 +109,11 @@ from hdnet.data import SpkReader
 fn = 'data/Blanche/crcns_pvc3_cat_recordings/drifting_bar/spike_data'
 spikes = SpkReader.read_spk_folder(fn)
 spikes_model = SpikeModel(spikes=spikes)
-spikes_model.fit()  # note: this fits a single network to all trials
-spikes_model.chomp()
-converged_spikes = Spikes(spikes=spikes_model.hopfield_spikes)
-plt.matshow(converged_spikes.rasterize(), cmap='gray')
-plt.title('Converge dynamics on Raw data')
-plt.matshow(converged_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
-plt.title('Covariance of converged memories')
+# spikes_model.fit()  # note: this fits a single network to all trials
+# spikes_model.chomp()
+# converged_spikes = Spikes(spikes=spikes_model.hopfield_spikes)
+# plt.matshow(converged_spikes.rasterize(), cmap='gray')
+# plt.title('Converge dynamics on Raw data')
+# plt.matshow(converged_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
+# plt.title('Covariance of converged memories')
 

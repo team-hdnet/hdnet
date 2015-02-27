@@ -277,7 +277,7 @@ class HopfieldNet(Restoreable, object):
         out = np.zeros_like(X)
         niter = 0
         if converge:
-            while not (X == out).all():
+            while (niter == 0) or not (X == out).all():
                 if niter >= max_iter:
                     hdlog.warn("Exceeded maximum number of iterations (%d)" % max_iter)
                     break
