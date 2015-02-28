@@ -446,11 +446,11 @@ class HopfieldNet(Restoreable, object):
         count_arr = []
         for x in X:
             count = 1
-            out = self.hopfield_binary_dynamics(x)
+            out = self(x)
             while not (x == out).all():
                 count += 1
                 out = x
-                x = self.hopfield_binary_dynamics(x)
+                x = self(x)
                 if count > max_iter:
                     hdlog.warn("Exceeded maximum number of iterations (%d)" % max_iter)
                     break
