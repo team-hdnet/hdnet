@@ -4,6 +4,7 @@
 # Licensed under the GPLv3, see file LICENSE for details
 
 import os
+import numpy as np
 
 from hdnet.spikes import Spikes
 from hdnet.learner import Learner
@@ -15,12 +16,15 @@ class TestLearner(TestTmpPath):
 
     def setUp(self):
         super(TestLearner, self).setUp()
+        import logging
+        logging.disable(level=logging.WARNING)
 
     def tearDown(self):
         super(TestLearner, self).tearDown()
 
     def test_basic(self):
-        spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))
+        file_contents = np.load(os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))
+        spikes = Spikes(file_contents[file_contents.keys()[0]])
         learner = Learner(spikes)
         self.assertEqual(learner._spikes.N, 3)
 
@@ -38,14 +42,9 @@ class TestLearner(TestTmpPath):
         learner.save(os.path.join(self.TMP_PATH, 'learner'))
         learner2 = Learner.load(os.path.join(self.TMP_PATH, 'learner'))
         self.assertEqual(learner2.params['hi'], 'chris')
-        self.assertEqual(learner2.spikes_file, os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))
         self.assertEqual(learner2.window_size, 3)
         self.assertTrue(learner2.network.J.mean() != 0.)
         self.assertTrue(learner2.network.J.shape == (9, 9))
-
-        spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/spikes_trials.npz'))
-        learner = Learner(spikes)
-        learner.learn_from_spikes()
 
 
 # end of source

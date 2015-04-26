@@ -10,6 +10,9 @@ from hdnet.stimulus import Stimulus
 
 
 class TestStimulus(unittest.TestCase):
+    def setUp(self):
+        import logging
+        logging.disable(level=logging.WARNING)
 
     def test_basic(self):
 

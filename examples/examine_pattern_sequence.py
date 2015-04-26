@@ -19,7 +19,7 @@
 # (this can be thought of as a measure of how 'stably' a given sequence
 # occurs in the data), a graph is constructed with the labels as nodes.
 #   Edges are inserted between nodes, the labels of which have a
-# non-vanishing conditional probaility of occurrence in the pattern sequence.
+# non-vanishing conditional probability of occurrence in the pattern sequence.
 # The edge weight is set to this (Markov) probability.
 #   In most cases, one or more 'central' node can be identified in the Markov
 # graph that has/have a high in-degree (i.e. number of incoming edges),
@@ -30,13 +30,13 @@
 #   Such a node often corresponds to some resting state of the network, that
 # it repeatedly returns to. Its fixed point memory and memory triggered average
 # will likely show a silent (or low activity) state of the network.
-#   Loops (closed paths) starting and ending at such a central node can give
+#   cycles (closed paths) starting and ending at such a central node can give
 # insight on how the network is driven out of its resting state (often by some
 # stimulus) and enters a transient excited state before falling back to the
 # resting state.
-#   The code below enumerates such loops (if existent) and sorts them by their
+#   The code below enumerates such cycles (if existent) and sorts them by their
 # (scored) entropy, a proxy measure for how reliably the network dynamics visit
-# those loops (i.e. excited states) in the data considered.
+# those cycles (i.e. excited states) in the data considered.
 
 import numpy as np
 import matplotlib as mpl
@@ -45,21 +45,14 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 from hdnet.patterns import PatternsHopfield
-
-from hdnet.stats import compute_label_probabilities, \
-    compute_label_markov_probabilities, \
-    compute_label_entropy_markov, compute_markov_graph, \
-    reduce_graph_brute, calculate_loops_entropy_scores, \
-    remove_repeating_labels_from_sequence, \
-    reduce_graph_self_loops, reduce_graph_triangles, reduce_graph_stub
-
+from hdnet.stats import SequenceAnalyzer
 from hdnet.visualization import combine_windows, plot_graph
 
-
 # load coverged patterns here
-pattern_file = 'XXX'
+
 n = NUMBER_OF_NEURONS
 ws = WINDOW_SIZE
+pattern_file = 'SAVED_PATTERNS_FILE'
 
 # load pattern sequence
 patterns = PatternsHopfield.load(pattern_file)
@@ -67,80 +60,93 @@ sequence = patterns.sequence
 labels = set(sequence)
 n_labels = len(labels)
 
+# create sequence analyzer instance
+sa = SequenceAnalyzer(patterns)
+
 #optionally filter labels to remove occurrences of repeated labels
 FILTER_LABEL_SEQUENCE = False
 if FILTER_LABEL_SEQUENCE:
     # NB. this alters label probabilities and Markov transition probabilities
-    sequence = \
-        remove_repeating_labels_from_sequence(sequence, repetitions=2)
+    sa.filter_sequence_repeating_labels(repetitions=2)
 
 # compute probabilities of labels, markov transition probabilities and
-label_probabilities = compute_label_probabilities(sequence)
-markov_probabilities = compute_label_markov_probabilities(sequence)
-label_entropy = compute_label_entropy_markov(markov_probabilities)
+label_probabilities = sa.compute_label_probabilities()
+markov_probabilities = sa.compute_label_markov_probabilities()
+label_entropy = sa.compute_label_markov_entropies()
+n_labels = len(label_probabilities)
 
 # plot label probabilities, markov transition probabilities and node entropy
 fig, ax = plt.subplots()
 ax.hist(label_probabilities, weights=[1. / n_labels] * n_labels,
-         bins=50, color='k')
-ax.set_xlabel('label')
+         range=(label_probabilities.min(), label_probabilities.max()),
+         bins=100, color='k')
+ax.set_xlabel('probability')
 ax.set_ylabel('fraction')
-plt.yscale('log', nonposy='clip')
+ax.set_yscale('log', nonposy='clip')
+ax.set_xscale('log', nonposx='clip')
+plt.tight_layout()
 plt.savefig('label_probabilities.png')
 plt.close()
 
-fig, ax = plt.subplots()
-mapable = ax.matshow(markov_probabilities, cmap='Blues',
-            norm=mpl.colors.LogNorm(vmin=0.01, vmax=1))
+fig = plt.figure(figsize=(8, 6))
+ax = fig.add_subplot(1, 1, 1)
+cmap = mpl.cm.autumn
+cmap.set_bad('k')
+mp_masked = np.ma.masked_where(markov_probabilities < 0.001 , markov_probabilities)
+im = ax.matshow(mp_masked, cmap=cmap,
+            norm=mpl.colors.LogNorm(vmin=0.001, vmax=1))
+
 ax.set_xlabel('to pattern')
 ax.set_ylabel('from pattern')
-plt.colorbar(mapable, ax=ax)
+ax.xaxis.set_ticks([0, 500])
+ax.yaxis.set_ticks([0, 500])
+plt.colorbar(im)
 plt.savefig('label_probabilities_markov.png')
+plt.tight_layout()
 plt.close()
 
 fig, ax = plt.subplots()
-ax.hist(label_entropy,
+plt.hist(label_entropy,
          weights=[1. / n_labels] * n_labels, bins=50, color='k')
-ax.set_xlabel('entropy')
-ax.set_ylabel('fraction')
+plt.xlabel('entropy')
+plt.ylabel('fraction')
 plt.yscale('log', nonposy='clip')
 plt.tight_layout()
 plt.savefig('label_entropy.png')
 plt.close()
 
 # construct markov graph
-markov_graph = compute_markov_graph(markov_probabilities)
+markov_graph = sa.compute_markov_graph()
 print "Markov graph has %d nodes, %d edges" % (len(markov_graph.nodes()),
                                                len(markov_graph.edges()))
 
 # reduce markov graph to most likely occurring labels
 # adjust threshold if needed
-threshold = 50
-reduce_graph_brute(markov_graph,
-                   np.argsort(label_probabilities)[::-1][:threshold])
-reduce_graph_self_loops(markov_graph)
-reduce_graph_triangles(markov_graph)
-reduce_graph_stub(markov_graph)
-print "Filtered Markov graph has %d nodes, %d edges" % \
-      (len(markov_graph.nodes()), len(markov_graph.edges()))
+threshold = 20
+sa.reduce_graph_brute(np.argsort(label_probabilities)[::-1][:threshold])
 
 # plot markov graph
 plot_graph(markov_graph)
-plt.locator_params(nbins=3)
 plt.savefig('markov_graph_filtered.png')
 
 # plot memory triggered averages for all nodes of markov graph
+fig, ax = plt.subplots(threshold / 10, 10) 
 for i, node in enumerate(markov_graph.nodes()):
-    fig, ax = plt.subplots() 
+    ax = plt.subplot(threshold / 10, 10, i + 1)
     ax.matshow(patterns.pattern_to_mta_matrix(node).reshape(n, ws),
                 vmin=0, vmax=1, cmap='gray')
-    ax.set_title('node %d\nprobability %f\nentropy %f' % \
-              (node, label_probabilities[node], label_entropy[node]),
-              loc='left')
-    plt.axis('off')
-    plt.savefig('mta-%03d.png' % i)
-    plt.close()
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
 
+plt.savefig('mtas.png')
+plt.close()
+
+print "filtering markov graph"
+sa.reduce_graph_self_cycles()
+sa.reduce_graph_triangles()
+sa.reduce_graph_stub()
+print "Filtered Markov graph has %d nodes, %d edges" % \
+      (len(markov_graph.nodes()), len(markov_graph.edges()))
 
 # try to guess base node (resting state memory) as node with highest degree
 # (converging and diverging connections)
@@ -149,92 +155,75 @@ markov_degrees = markov_graph.degree()
 base_node = max(markov_degrees, key=markov_degrees.get)
 print "base node is %d" % base_node
 
-# calculate loops of entropies around base node
+# calculate cycles of entropies around base node
 # adjust weighting and weighting per element if needed
-print "calculating loops around base node.."
+print "calculating cycles around base node.."
 weighting = lambda x: 1. / len(x)
 weighting_element = lambda x, p: x / ((p + 1) * 2.) # prefer longer sequences
-loops, scores = calculate_loops_entropy_scores(markov_graph,
+cycles, scores = sa.calculate_cycles_entropy_scores(
                                                base_node,
-                                               label_entropy,
                                                min_len=3,
                                                max_len=20,
                                                weighting=weighting,
                                                weighting_element=weighting_element)
-print "%d loops" % (len(loops))
+print "%d cycles" % (len(cycles))
 
-# plot loop statistics
-n_loops = len(loops)
-loop_len = np.array(map(len, loops))
+# plot cycle statistics
+n_cycles = len(cycles)
+cycle_len = np.array(map(len, cycles))
 fig, ax = plt.subplots() 
-ax.hist(loop_len, weights=[1. / n_loops] * n_loops, bins=50, color='k')
-ax.set_xlabel('loop length')
+ax.hist(cycle_len, weights=[1. / n_cycles] * n_cycles, bins=50, color='k')
+ax.set_xlabel('cycle length')
 ax.set_ylabel('fraction')
 plt.locator_params(nbins=3)
 plt.tight_layout()
-plt.savefig('loop_lengths.png')
+plt.savefig('cycle_lengths.png')
 plt.close()
 
 fig, ax = plt.subplots() 
-ax.hist(scores, weights=[1. / n_loops] * n_loops, bins=50, color='k')
-ax.set_xlabel('loop score')
-ax.set_ylabel('fraction')
+plt.hist(scores, weights=[1. / n_cycles] * n_cycles, bins=50, color='k')
+plt.xlabel('cycle score')
+plt.ylabel('fraction')
 plt.locator_params(nbins=3)
 plt.tight_layout()
-plt.savefig('loop_scores.png')
+plt.savefig('cycle_scores.png')
 plt.close()
 
 fig, ax = plt.subplots() 
-ax.scatter(loop_len, scores, color='k')
-ax.set_xlabel('loop length')
-ax.set_ylabel('loop score')
+plt.scatter(cycle_len, scores, color='k')
+plt.xlabel('cycle length')
+plt.ylabel('cycle score')
 plt.locator_params(nbins=3)
 plt.tight_layout()
-plt.savefig('loop_lengths_vs_scores_scatter.png')
+plt.savefig('cycle_lengths_vs_scores_scatter.png')
 plt.close()
 
 fig, ax = plt.subplots() 
-mapable = ax.hist2d(loop_len, scores, bins=100)[3]
-ax.set_xlabel('loop length')
-ax.set_ylabel('loop score')
-plt.colorbar(mapable, ax=ax)
+plt.hist2d(cycle_len, scores, bins=100)
+plt.xlabel('cycle length')
+plt.ylabel('cycle score')
+plt.colorbar()
 plt.locator_params(nbins=3)
 plt.tight_layout()
-plt.savefig('loop_lengths_vs_scores_hist.png')
+plt.savefig('cycle_lengths_vs_scores_hist.png')
 plt.close()
 
-# filter out sub-loops (prefer longer ones)
-filtered_idxs = []
-loop_lens = np.array(map(len, loops))
-sort_idxs_lens = np.argsort(loop_lens)[::-1]
-for idx in sort_idxs_lens:
-    loop = loops[idx]
-    if any([set(loop) < set(loops[i]) for i in filtered_idxs]):
-        continue
-    filtered_idxs.append(idx)
-
-filtered_idxs = np.array(filtered_idxs)
-filtered_scores = scores[filtered_idxs]
-sort_lens_scores = np.argsort(filtered_scores)
-
-print "%d loops filtered" % len(filtered_idxs)
-
-# plot max_plot extracted loops
+# plot max_plot extracted cycles
 # adjust if needed
 max_plot = 100
-interesting = np.arange(min(len(filtered_idxs), max_plot))
+interesting = np.arange(min(n_cycles, max_plot))
+print "plotting averaged sequences of %d cycles.." % (len(interesting))
 
-print "plotting averaged sequences of %d loops.." % (len(interesting))
-
-for i, idx in enumerate(sort_lens_scores):
-    loop = loops[filtered_idxs[idx]]
-    mta_sequence = [patterns.pattern_to_mta_matrix(l).reshape(n, ws) for l in loop]
+for i, idx in enumerate(interesting):
+    cycle = cycles[idx]
+    mta_sequence = [patterns.pattern_to_mta_matrix(l).reshape(n, ws)
+                    for l in cycle]
     combined = combine_windows(np.array(mta_sequence))
     fig, ax = plt.subplots() 
-    ax.matshow(combined, cmap='gray')
-    ax.set_title('loop %d\nlength %d\nscore %f' % \
-              (idx, len(loop), scores[idx]), loc='left')
+    plt.matshow(combined, cmap='gray')
     plt.axis('off')
+    plt.title('cycle %d\nlength %d\nscore %f' % \
+              (idx, len(cycle), scores[idx]), loc='left')
     plt.savefig('likely-%04d.png' % i)
     plt.close()
 

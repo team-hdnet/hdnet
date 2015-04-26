@@ -39,6 +39,21 @@ except ImportError, e:
 
 
 def plot_matrix_whole_canvas(matrix, **kwargs):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    matrix : Type
+        Description
+    kwargs : Type
+        Description
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     plt.axis("off")
     ax = plt.axes([0, 0, 1, 1])
     ax.matshow(matrix, **kwargs)
@@ -46,12 +61,30 @@ def plot_matrix_whole_canvas(matrix, **kwargs):
 
 
 def save_matrix_whole_canvas(matrix, fname, **kwargs):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    matrix : Type
+        Description
+    fname : Type
+        Description
+    kwargs : Type
+        Description
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     plt.figure()
     plot_matrix_whole_canvas(matrix, **kwargs)
     plt.savefig(fname)
     plt.close
 
-def raster_plot_psth(spikes_arr,
+
+def raster_plot_psth(spikes,
                      trial=0,
                      start_idx=0,
                      stop_idx=None,
@@ -67,6 +100,47 @@ def raster_plot_psth(spikes_arr,
                      color_raster='#070d0d',
                      color_hist='#070d0d'):
     """
+    Missing documentation
+    
+    Parameters
+    ----------
+    spikes : Type
+        Description
+    trial : int, optional
+        Description (default 0)
+    start_idx : int, optional
+        Description (default 0)
+    stop_idx : Type, optional
+        Description (default None)
+    bin_size : int, optional
+        Description (default 0.002)
+    hist_bin_size : int, optional
+        Description (default 0.005)
+    label_x : str, optional
+        Description (default 'time [s]')
+    label_y_hist_x : str, optional
+        Description (default '[Hz]')
+    label_y_raster : str, optional
+        Description (default 'neuron')
+    label_x_hist_y : Type, optional
+        Description (default None)
+    fig_size : Type, optional
+        Description (default None)
+    hist_x : bool, optional
+        Description (default True)
+    hist_y : bool, optional
+        Description (default False)
+    color_raster : str, optional
+        Description (default '#070d0d')
+    color_hist : str, optional
+        Description (default '#070d0d')
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
+    """
      Displays as raster plot (optionally with PSTH below) of a group of neurons
     """
 
@@ -75,12 +149,12 @@ def raster_plot_psth(spikes_arr,
         fig_size = (8, 4)
 
     if stop_idx is None:
-        stop_idx = spikes_arr.shape[2]
+        stop_idx = spikes.shape[2]
 
     x = []
     y = []
-    for cell_idx in xrange(spikes_arr.shape[1]):
-        spikes = np.where(spikes_arr[trial][cell_idx][start_idx:stop_idx] == 1)[0]
+    for cell_idx in xrange(spikes.shape[1]):
+        spikes = np.where(spikes[trial][cell_idx][start_idx:stop_idx] == 1)[0]
         x.extend(spikes * bin_size)
         y.extend([cell_idx] * spikes.shape[0])
 
@@ -154,7 +228,7 @@ def raster_plot_psth(spikes_arr,
 
         nx, binsx, patchesx = ax_hist_x.hist(
             x, bins=hist_bins,
-            weights=[hist_bin_size * spikes_arr.shape[1]] * len(x),
+            weights=[hist_bin_size * spikes.shape[1]] * len(x),
             facecolor=color_hist, ec='none')
 
     else:
@@ -171,7 +245,7 @@ def raster_plot_psth(spikes_arr,
         ax_hist_y.set_ylim(ax_scatter.get_ylim())
         ny, binsy, patchesy = ax_hist_y.hist(
             y, bins=hist_bins,
-            weights=[hist_bin_size * spikes_arr.shape[1]] * len(y),
+            weights=[hist_bin_size * spikes.shape[1]] * len(y),
             orientation='horizontal', facecolor=color_hist, ec='none')
 
         if label_x_hist_y:
@@ -189,7 +263,34 @@ def pattern_rank_plot(
         color_pattern='r',
         mark_empirical=None,
         mark_converged=None,
+        label_empirical='raw',
+        label_patterns='Hopfield',
         plot_mtas=True):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    empirical : Type
+        Description
+    patterns : Type
+        Description
+    color_empirical : str, optional
+        Description (default 'g')
+    color_pattern : str, optional
+        Description (default 'r')
+    mark_empirical : Type, optional
+        Description (default None)
+    mark_converged : Type, optional
+        Description (default None)
+    plot_mtas : bool, optional
+        Description (default True)
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     
     hop_vals = np.array(patterns.counts.values())
     hop_idx = hop_vals.argsort()
@@ -212,17 +313,21 @@ def pattern_rank_plot(
     else:
         plot = plt
 
-    plot.plot(xrange(1, len(emp_sort) + 1), emp_sort[::-1], color=color_empirical, lw=3)
-    plot.plot(xrange(1, len(hop_sort) + 1), hop_sort[::-1], color=color_pattern, lw=3)
+    plot.plot(xrange(1, len(emp_sort) + 1), emp_sort[::-1], color=color_empirical, lw=3, label=label_empirical)
+    plot.plot(xrange(1, len(hop_sort) + 1), hop_sort[::-1], color=color_pattern, lw=3, label=label_patterns)
 
     if mark_empirical:
-        mark_empirical = np.array(mark_empirical)+1
-        plot.scatter(mark_empirical, [emp_sort[::-1][idx - 1] for idx in mark_empirical], marker='x', s=100, edgecolor=color_empirical,
+        mark_empirical = np.array(mark_empirical) + 1
+        plot.scatter(mark_empirical, [emp_sort[::-1][idx - 1] for idx in mark_empirical], marker='x', s=100,
+                     edgecolor=color_empirical,
                      facecolor=color_empirical, linewidth=3, alpha=1.0)
     if mark_converged:
-        mark_converged = np.array(mark_converged)+1
+        mark_converged = np.array(mark_converged) + 1
         plot.scatter(mark_converged, [hop_sort[::-1][idx - 1] for idx in mark_converged], marker='x',
                      s=100, edgecolor=color_pattern, facecolor=color_pattern, linewidth=3, alpha=1.0)
+
+        if label_empirical is not None and label_patterns is not None:
+            plot.legend(loc='upper right')
 
     plt.tight_layout(pad=0.1)
 
@@ -236,7 +341,7 @@ def pattern_rank_plot(
         nullfmt = mpl.ticker.NullFormatter()
 
         for i in xrange(len(mark_converged)):
-            #empirical
+            # empirical
             axs2[0, i].xaxis.set_major_formatter(nullfmt)
             axs2[0, i].yaxis.set_major_formatter(nullfmt)
             if HAS_PRETTYPLOTLIB:
@@ -287,6 +392,35 @@ def pattern_rank_plot(
 
 
 def plot_memories_distribution_matrix(patterns, trials, t_min=None, t_max=None, p_min=None, p_max=None, v_min=None, v_max=None, cmap='Paired'):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    patterns : Type
+        Description
+    trials : Type
+        Description
+    t_min : Type, optional
+        Description (default None)
+    t_max : Type, optional
+        Description (default None)
+    p_min : Type, optional
+        Description (default None)
+    p_max : Type, optional
+        Description (default None)
+    v_min : Type, optional
+        Description (default None)
+    v_max : Type, optional
+        Description (default None)
+    cmap : str, optional
+        Description (default 'Paired')
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     trial_len = len(patterns.sequence) / trials
 
     if p_min is None:
@@ -348,6 +482,29 @@ def plot_memories_distribution_matrix(patterns, trials, t_min=None, t_max=None, 
 
 
 def plot_all_matrices(matrices, file_names, cmap='gray', colorbar=True, vmin=None, vmax=None):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    matrices : Type
+        Description
+    file_names : Type
+        Description
+    cmap : str, optional
+        Description (default 'gray')
+    colorbar : bool, optional
+        Description (default True)
+    vmin : Type, optional
+        Description (default None)
+    vmax : Type, optional
+        Description (default None)
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     # plot all matrices to files specified
     kwargs = {
         'cmap': cmap
@@ -366,6 +523,14 @@ def plot_all_matrices(matrices, file_names, cmap='gray', colorbar=True, vmin=Non
 
 
 def combine_windows(windows):
+    """
+    Missing documentation
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     # combine list of windows, averaging overlapping regions
     windows = np.atleast_3d(windows)
     n = windows.shape[1]
@@ -386,9 +551,38 @@ def combine_windows(windows):
     return combined
 
 
-def plot_graph(g, nodeval=None, cmap1='Blues_r', cmap2='bone_r', 
-               node_vmin=None, node_vmax=None, edge_vmin=None, edge_vmax=None):
+def plot_graph(g, nodeval=None, cmap_nodes='cool', cmap_edges='autumn',
+               node_vmin=None, node_vmax=None, edge_vmin=None, edge_vmax=None,
+               draw_edge_weights=True, edge_weight_format='%.3f'):
+    """
+    Missing documentation
+    
+    Parameters
+    ----------
+    g : Type
+        Description
+    nodeval : Type, optional
+        Description (default None)
+    cmap1 : str, optional
+        Description (default 'Blues_r')
+    cmap2 : str, optional
+        Description (default 'bone_r')
+    node_vmin : Type, optional
+        Description (default None)
+    node_vmax : Type, optional
+        Description (default None)
+    edge_vmin : Type, optional
+        Description (default None)
+    edge_vmax : Type, optional
+        Description (default None)
+    
+    Returns
+    -------
+    Value : Type
+        Description
+    """
     import networkx as nx
+
     fig = plt.figure()
     pos = nx.spring_layout(g)
     kwargs = {}
@@ -399,7 +593,7 @@ def plot_graph(g, nodeval=None, cmap1='Blues_r', cmap2='bone_r',
     nx.draw_networkx_nodes(g, pos, nodelist=g.nodes(),
                            node_color='0.8' if nodeval is None else nodeval,
                            node_size=500, alpha=1, with_labels=True,
-                           cmap=plt.get_cmap(cmap1), **kwargs)
+                           cmap=plt.get_cmap(cmap_nodes), **kwargs)
 
     kwargs = {}
     if edge_vmin is not None:
@@ -407,11 +601,16 @@ def plot_graph(g, nodeval=None, cmap1='Blues_r', cmap2='bone_r',
     if edge_vmax is not None:
         kwargs['edge_vmax'] = edge_vmax
     labels = {i: str(i) for i in g.nodes()}
+    edge_weights = [g.get_edge_data(*e)['weight'] for e in g.edges()]
     nx.draw_networkx_edges(g, pos, edgelist=g.edges(), edge_color='0.4', arrows=True)
     nx.draw_networkx_edges(g, pos, edgelist=g.edges(),
-                           edge_color=[g.get_edge_data(*e)['weight'] for e in g.edges()],
-                           edge_cmap=plt.get_cmap(cmap2), arrows=False, **kwargs)
+                           edge_color=edge_weights,
+                           edge_cmap=plt.get_cmap(cmap_edges), arrows=False, **kwargs)
     nx.draw_networkx_labels(g, pos, labels, font_size=10, font_color='k')
+    if draw_edge_weights:
+        nx.draw_networkx_edge_labels(g, pos,
+                                     {e: edge_weight_format % g.get_edge_data(*e)['weight'] for e in g.edges()},
+                                     font_size=10, font_color='k')
     plt.axis('off')
     return fig
 

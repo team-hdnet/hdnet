@@ -17,6 +17,8 @@ class TestSpikeModel(TestTmpPath):
 
     def setUp(self):
         super(TestSpikeModel, self).setUp()
+        import logging
+        logging.disable(level=logging.WARNING)
 
     def tearDown(self):
         super(TestSpikeModel, self).tearDown()
@@ -28,7 +30,8 @@ class TestSpikeModel(TestTmpPath):
         # spikes_model.chomp()
         np.random.seed(42)
 
-        spikes = Spikes(npz_file=os.path.join(os.path.dirname(__file__), 'test_data/spikes_trials.npz'))
+        file_contents = np.load(os.path.join(os.path.dirname(__file__), 'test_data/spikes_trials.npz'))
+        spikes = Spikes(file_contents[file_contents.keys()[0]])
         spikes_model = SpikeModel(spikes=spikes)
         spikes_model.fit(remove_zeros=True)
         spikes_model.chomp()
@@ -60,7 +63,7 @@ class TestSpikeModel(TestTmpPath):
         
         # sanity check on large Bernoulli example
         spikes_arr = np.random.randn(4, 10000)
-        spikes = Spikes(spikes_arr=spikes_arr)
+        spikes = Spikes(spikes=spikes_arr)
         
         bernoulli_model = BernoulliHomogeneous(spikes=spikes)
         
@@ -81,7 +84,7 @@ class TestSpikeModel(TestTmpPath):
 
         #from hdnet.visualization import raster_plot_psth
         #import matplotlib.pyplot as plt
-        #raster_plot_psth(spikes.spikes_arr)
+        #raster_plot_psth(spikes.spikes)
 
     def test_dichotomized_gaussian(self):
         bin_means = np.array([7, 9])

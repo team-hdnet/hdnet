@@ -17,11 +17,19 @@ import numpy as np
 def heaviside(X, dtype=None):
     r"""
     Heaviside function: given M x N numpy array, return points-wise Heaviside:
-    :math:`H(r)=1 \text{ if } r > 0 \text{ else } H(r)=0`
 
-    Parameters:
-        X (array_like): input array
-    Returns:
+    .. math:: H(r)= 1 & \text{ if } r > 0, \text{ else } 0
+    
+    Parameters
+    ----------
+    X : array_like
+        Description
+    dtype : Type, optional
+        numpy data type of returned array if None, type is int (default None)
+    
+    Returns
+    -------
+    H : numpy array
         Array with entries of X heavisided
     """
     H = (np.sign(X).astype(int) + 1) // 2

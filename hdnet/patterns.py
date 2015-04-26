@@ -10,6 +10,7 @@
     Record / counts of fixed-points of Hopfield network.
 
 """
+from collections import OrderedDict
 
 import os
 import numpy as np
@@ -18,13 +19,21 @@ from util import hdlog, Restoreable
 
 
 class Counter(Restoreable, object):
-    """ Catalogues binary vectors and their prevalence
+    """
+    Catalogues binary vectors and their prevalence.
 
     Parameters
-        counts:  dictionary of (key_for_pattern, value) = (string, object)
-        patterns:  list of binary vectors in order of discovery
-        lookup_patterns:  dictionary of (key_for_pattern, patterns index)
-        sequence:  list over trials T of (lists of indices where fp found in spikes dataset)
+    ----------
+    counter : :class:`.Counter`, optional
+        Counter object to merge with (default None)
+    save_sequence : bool, optional
+        Flag whether to save the sequence of pattern
+        labels, labels given by order of appearance (default True)
+
+    Returns
+    -------
+    counter : :class:`.Counter`.
+        Instance of class :class:`.Counter`
     """
 
     _SAVE_ATTRIBUTES_V1 = ['_counts', '_patterns', '_lookup_patterns',
@@ -34,15 +43,96 @@ class Counter(Restoreable, object):
 
     @staticmethod
     def key_for_pattern(pattern):
-        """ Transforms a numpy binary array into a string """
-        # TODO: document
+        """
+        Computes key (as string) of binary pattern `pattern`.
+        Reverse loopup for method :meth:`pattern_for_key`.
+
+        Returns
+        -------
+        key : str
+            String representation of binary pattern
+        """
         return ''.join(str(k) for k in pattern.astype(np.int).ravel())
 
     @staticmethod
     def pattern_for_key(key):
-        """ Transforms string into a numpy binary array """
-        # TODO: document
+        """
+        Computes binary pattern (as numpy matrix) from string
+        representation `key`.
+        Reverse loopup for method :meth:`key_for_pattern`.
+
+        Returns
+        -------
+        pattern : numpy array
+            binary pattern (as numpy matrix)
+        """
         return np.array([int(k) for k in list(key)])
+
+    @staticmethod
+    def pattern_distance_jaccard(a, b):
+        """
+        Computes a distance measure for two binary patterns based on their
+        Jaccard-Needham distance, defined as
+
+        .. math::
+
+            d_J(a,b) = 1 - J(a,b) = \\frac{|a \\cup b| - |a \\cap b|}{|a \\cup b|}.
+
+        The similarity measure takes values on the closed interval [0, 1],
+        where a value of 1 is attained for disjoint, i.e. maximally dissimilar
+        patterns a and b and a value of 0 for the case of :math:`a=b`.
+
+        Parameters
+        ----------
+        a : list or array, int or bool
+            Input pattern
+        b : list or array, int or bool
+            Input pattern
+
+        Returns
+        -------
+        dist : double
+            Jaccard distance between `a` and `b`.
+        """
+        # Note: code taken from scipy. Duplicated as only numpy references wanted for base functionality
+        a = np.atleast_1d(a).astype(bool)
+        b = np.atleast_1d(b).astype(bool)
+        dist = (np.double(np.bitwise_and((a != b), np.bitwise_or(a != 0, b != 0)).sum())
+                / np.double(np.bitwise_or(a != 0, b != 0).sum()))
+        return dist
+
+    @staticmethod
+    def pattern_distance_hamming(a, b):
+        """
+        Computes a distance measure for two binary patterns based on their
+        normed Hamming distance, defined as
+
+        .. math::
+
+            d_H(a,b)=\\frac{1}{n}|\\left\\{j \\in \\{1,\\dots,n\\}\\mid a_j \\neq b_j \\right\\}|,
+
+        if both :math:`a` and :math:`b` have length :math:`n`.
+
+        The similarity measure takes values on the closed interval [0, 1],
+        where a value of 0 is attained for disjoint, i.e. maximally dissimilar
+        patterns a and b and a value of 1 for the case of :math:`a=b`.
+
+        Parameters
+        ----------
+        a : list or array, int or bool
+            Input pattern
+        b : list or array, int or bool
+            Input pattern
+
+        Returns
+        -------
+        dist : double
+            Normed Hamming distance between `a` and `b`.
+        """
+        # Note: code taken from scipy. Duplicated as only numpy references wanted for base functionality
+        a = np.atleast_1d(a)
+        b = np.atleast_1d(b)
+        return (a != b).mean()
 
     def __init__(self, counter=None, save_sequence=True):
         object.__init__(self)
@@ -61,52 +151,174 @@ class Counter(Restoreable, object):
 
     @property
     def counts(self):
-        # TODO: document
+        """
+        Returns the counts of each pattern encountered in the
+        raw data.
+        
+        Returns
+        -------
+        counts : dict
+            Dictionary of counts of all patterns,
+            indexed by pattern key
+        """
         return self._counts
 
     @property
+    def counts_by_label(self):
+        """
+        Returns the counts of each pattern encountered in the
+        raw data.
+
+        Returns
+        -------
+        counts : 1d numpy array, int
+            Counts of all patterns, indexed by label
+        """
+        return [self._counts[p]
+                for p in self.patterns]
+
+
+    @property
     def patterns(self):
-        # TODO: document
+        """
+        Returns the patterns encountered in the raw data
+        as 1d vectors.
+        
+        Returns
+        -------
+        patterns : 2d numpy array, int
+            Binary array of patterns encountered in the
+            raw data, as 1d vectors
+        """
         return self._patterns
 
     @property
     def lookup_patterns(self):
-        # TODO: document
+        """
+        Returns the lookup dictionary for the patterns,
+        mapping a string representation of a pattern
+        to a vector representation.
+        
+        Returns
+        -------
+        lookup : dict
+            Lookup dictionary
+        """
         return self._lookup_patterns
 
     @property
     def sequence(self):
-        # TODO: document
+        """
+        Returns the sequence of patterns labels as encountered
+        in the raw data. Pattern labels are allocated as integer
+        numbers starting from 0 over the input data. Whenever
+        a pattern was not encountered before, a new label is
+        allocated.
+
+        Returns
+        -------
+        sequence : 1d numpy array, int
+            Sequence of pattern labels over raw data
+        """
         return self._sequence
 
     @property
     def skipped_patterns(self):
-        # TODO: document
+        """
+        Returns a binary vector signalling when a pattern
+        was skipped due to rotation symmetry.
+        
+        Returns
+        -------
+        skipped : 1d numpy array
+            Skipped patterns indicator
+        """
         return self._skipped_patterns
 
     @property
     def seen_sequence(self):
-        # TODO: document
+        """
+        Returns the sequence of seen flags for the
+        patterns over the raw data. Each entry is
+        binary and has a value of 1 if the pattern
+        at this position occurred previously already.
+        
+        Returns
+        -------
+        seen : 1d numpy array
+            Sequence of seen flags
+        """
         return self._seen_sequence
 
-    def __add__(self, acc):
-        # TODO: document
-        return self.merge_counts(acc)
+    def __add__(self, other):
+        """
+        Merges counts of another  :class:`.Counter`
+        object into this instance. Calls
+        :meth:`.merge_counts`.
+        
+        Parameters
+        ----------
+        other : :class:`.Counter`
+            Other Counter object
+        
+        Returns
+        -------
+        counter : :class:`.Counter`
+            This instance
+        """
+        return self.merge_counts(other)
 
     def __len__(self):
-        # TODO: document
+        """
+        Returns number of distinct patterns
+        in this Counter.
+        
+        Returns
+        -------
+        length : int
+            Number of distinct patterns
+        """
         return len(self._counts.keys())
 
     def merge_counts(self, counter):
-        """ Combine counts with another Counter """
-        # TODO: document
+        """
+        Merges counts of another :class:`.Counter`
+        object into this instance.
+
+        Parameters
+        ----------
+        other : :class:`.Counter`
+            Other Counter object
+
+        Returns
+        -------
+        counter : :class:`.Counter`
+            This instance
+        """
         for key in counter.counts.keys():
             key_ = Counter.key_for_pattern(Counter.pattern_for_key(key))
             self.add_key(key_, counter.counts[key])
         return self
 
-    def add_key(self, key, value=1):
-        # TODO: document
+    def add_key(self, key, value=1, **kwargs):
+        """
+        Adds a new key (pattern) to the collection.
+
+        Parameters
+        ----------
+        key : str of '0', '1'
+            Key of pattern to add, obtained from :meth:`Counter.key_for_pattern`
+        value : int, optional
+            Number of occurrences to add (default 1)
+        raw : 2d numpy array, int, optional
+            Raw pattern that converged to given memory (default None)
+
+        Returns
+        -------
+        added : bool
+            Flag whether key was previously known
+
+        """
         if key in self._counts:
             self._counts[key] += value
             return True
@@ -116,13 +328,53 @@ class Counter(Restoreable, object):
         return False
 
     def chomp(self, X, add_new=True, rotate=None):
-        """ M x N numpy array X as input (N neurons, M vects) """
-        # TODO: document
+        """
+        Counts patterns occurring as row vectors of N x M input
+        matrix `X` and stores them. Calls :meth:`.chomp_vector`
+        on row vectors of `X`.
+
+        Parameters
+        ----------
+        X : M x N numpy array, int
+            Binary source data.
+        add_new : bool, optional
+            Flag whether to store new memories (default True)
+        rotate : tuple of length 2, int, optional
+            Dimensions of window if patterns are to be
+            collected modulo window rotations (default None)
+
+        Returns
+        -------
+        Nothing
+        """
         for x in X:
             self.chomp_vector(x, add_new=add_new, rotate=rotate)
 
     def chomp_spikes(self, spikes, add_new=True, window_size=1, trials=None, rotate=None):
-        # TODO: document
+        """
+        Counts and stores patterns occurring over :class:`.Spikes`
+        class using a sliding window of size `window_size`.
+
+        Parameters
+        ----------
+        spikes : :class:`.Spikes`
+            Instance of :class:`.Spikes` to operate on
+        window_size : int, optional
+            Window size to use (default 1)
+        trials : int, optional
+            Number of trials to use for reshape (default None)
+        reshape : bool, optional
+            Flag whether to reshape the spike vectors into
+            matrix form before returning (default True)
+        rotate : tuple of length 2, int, optional
+            Dimensions of window if patterns are to be
+            collected modulo window rotations (default None)
+
+        Returns
+        -------
+        counter : :class:`.Counter`
+            Returns pointer to itself
+        """
         if rotate and add_new:
             self._skipped_patterns = 0
         X = spikes.to_windowed(window_size=window_size, trials=trials, reshape=True)
@@ -130,8 +382,27 @@ class Counter(Restoreable, object):
         return self
 
     def chomp_vector(self, x, add_new=True, rotate=None):
-        """ stores bin vects (originally x) y and order of occurence """
-        # TODO: document
+        """
+        Counts occurrences of pattern in vector `x`, assigns it a
+        integer label and stores it.
+
+        Parameters
+        ----------
+        x : 1d numpy array, int
+            Binary source vector.
+        add_new : bool, optional
+            Flag whether to store new memories (default True)
+        rotate : tuple of length 2, int, optional
+            Dimensions of window if patterns are to be
+            collected modulo window rotations (default None)
+
+        Returns
+        -------
+        bin_x, new_pattern, numrot : str, bool, int
+            Key of pattern `x`, Flag whether pattern was seen
+            before, number of rotations performed to obtain
+            pattern identity (if `rotate` was given)
+        """
         bin_x = Counter.key_for_pattern(x)
 
         numrot = 0
@@ -166,33 +437,38 @@ class Counter(Restoreable, object):
             new_pattern = True
         return bin_x, new_pattern, numrot
 
-    def to_prob_vect(self, parent=None):
-        """ if parent (= counter object) present then return prob vector in that space """
-        # TODO: document
-        if parent is not None:
-            values = np.zeros(len(parent.counts))
-            for i in xrange(len(self._counts)):
-                if self._counts.keys()[i] in parent.counts:
-                    values[parent.lookup_patterns[self._counts.keys()[i]]] = self._counts.values()[i]
-        else:
-            values = np.array(self._counts.values())
-
-        probs = 1. * values / values.sum()
-        return probs
-
-    def entropy(self):
-        # TODO: document
-        probs = self.to_prob_vect()
-        return -(probs * np.log2(probs)).sum()
-
-    def pattern_to_binary_matrix(self, m):
-        # TODO: document
-        key = self._patterns[m]
+    def pattern_to_binary_matrix(self, key):
+        """
+        Returns representation of pattern with key
+        (as string of binary numbers) as binary vector.
+        
+        Parameters
+        ----------
+        key : str
+            Key of pattern
+        
+        Returns
+        -------
+        pattern : 1d numpy array
+            Representation of pattern as binary vector
+        """
+        key = self._patterns[key]
         return Counter.pattern_for_key(key)
 
     def top_binary_matrices(self, m):
-        """ finds top m likely memories """
-        # TODO: document
+        """
+        Returns top `m` likely patterns.
+        
+        Parameters
+        ----------
+        m : int
+            Number of top likely patterns to return
+        
+        Returns
+        -------
+        patterns : numpy array
+            `m` top likely patterns
+        """
         top_binary = []
         idx = np.array(self._counts.values()).argsort()[-m:]
         for i in idx:
@@ -200,8 +476,19 @@ class Counter(Restoreable, object):
         return top_binary
 
     def mem_triggered_stim_avgs(self, stimulus):
-        """ returns the average stimulus appearing when a given binary pattern appears """
-        # TODO: document
+        """
+        Returns the average stimulus appearing when a given binary pattern appears.
+        
+        Parameters
+        ----------
+        stimulus : :class:`.Stimulus`
+            Instance of :class:`.Stimulus` class to query
+        
+        Returns
+        -------
+        averages : numpy array
+            Stimulus average calculated
+        """
         stim_avgs = []
         stm_arr = stimulus.stimulus_arr
         arr = np.zeros((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:])
@@ -220,18 +507,52 @@ class Counter(Restoreable, object):
     # i/o
 
     def save(self, file_name='counter', extra=None):
-        """ save as numpy array .npz file """
-        # TODO: document
+        """
+        Saves contents to file.
+
+        Parameters
+        ----------
+        file_name : str, optional
+            File name to save to (default 'counter')
+        extra : dict, optional
+            Extra information to save to file (default None)
+
+        Returns
+        -------
+        Nothing
+        """
         return super(Counter, self)._save(file_name=file_name,
                                          attributes=self._SAVE_ATTRIBUTES_V1, version=self._SAVE_VERSION,
                                          extra=extra)
 
     @classmethod
     def load(cls, file_name='counter', load_extra=False):
-        # TODO: document
+        """
+        Loads contents from file.
+
+        .. note:
+
+            This is a class method, i.e. loading should be done like
+            this:
+
+            counter = Counter.load('file_name')
+
+        Parameters
+        ----------
+        file_name : str, optional
+            File name to load from (default 'counter')
+        load_extra : bool, optional
+            Flag whether to load extra file contents, if any (default False)
+
+        Returns
+        -------
+        counter : :class:`.Counter`
+            Instance of :class:`.Counter` if loaded, `None` upon error
+        """
         return super(Counter, cls)._load(file_name=file_name, load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
+        # internal function to load v1 file format
         hdlog.debug('Loading Counter patterns, format version 1')
         return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
 
@@ -259,7 +580,23 @@ class Counter(Restoreable, object):
 
 
 class PatternsRaw(Counter):
-    # TODO: document
+    """
+    Catalogues binary vectors and their prevalence in raw spiking data.
+    Subclass of :class:`.Counter`, extending its functionality.
+
+    Parameters
+    ----------
+    patterns_raw : :class:`.PatternsRaw`, optional
+        Patterns object to merge with (default None)
+    save_sequence : bool, optional
+        Flag whether to save the sequence of pattern
+        labels, labels given by order of appearance (default True)
+
+    Returns
+    -------
+    patterns : :class:`.PatternsRaw`.
+        Instance of class :class:`.PatternsRaw`
+    """
     _SAVE_TYPE = 'PatternsRaw'
 
     def __init__(self, patterns_raw=None, save_sequence=True):
@@ -268,16 +605,50 @@ class PatternsRaw(Counter):
     # i/o
 
     def save(self, file_name='patterns_raw', extra=None):
-        """ save as numpy array .npz file """
-        # TODO: document
+        """
+        Saves contents to file.
+
+        Parameters
+        ----------
+        file_name : str, optional
+            File name to save to (default 'patterns_raw')
+        extra : dict, optional
+            Extra information to save to file (default None)
+
+        Returns
+        -------
+        Nothing
+        """
         return super(PatternsRaw, self).save(file_name=file_name, extra=extra)
 
     @classmethod
     def load(cls, file_name='patterns_raw', load_extra=False):
-        # TODO: document
+        """
+        Loads contents from file.
+
+        .. note:
+
+            This is a class method, i.e. loading should be done like
+            this:
+
+            patterns = PatternsRaw.load('file_name')
+
+        Parameters
+        ----------
+        file_name : str, optional
+            File name to load from (default 'patterns_raw')
+        load_extra : bool, optional
+            Flag whether to load extra file contents, if any (default False)
+
+        Returns
+        -------
+        patterns : :class:`.PatternsRaw`
+            Instance of :class:`.PatternsRaw` if loaded, `None` upon error
+        """
         return super(PatternsRaw, cls).load(file_name=file_name, load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
+        # internal function to load v1 file format
         hdlog.debug('Loading PatternsRaw patterns, format version 1')
         return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
 
@@ -288,13 +659,31 @@ class PatternsRaw(Counter):
 
 
 class PatternsHopfield(Counter):
-    """ record / counts of fixed-points of Hopfield network 
-    
-        fixed_points / memories are stored in dictionary self.counts
+    """
+    Catalogues Hopfield fixed points of binary vectors
+    and their prevalence in raw spiking data, optionally
+    keeping references to the raw data.
+    Subclass of :class:`.Counter`, extending its functionality.
 
     Parameters
-        learner: hopfield network and learning params
-        mtas: dict taking bin vects v to sums of orignal binary vectors converging to v
+    ----------
+    learner : :class:`.Learner`, optional
+        Learner instance to use that holds the underlying
+        Hopfield Network (default None)
+    patterns_hopfield : :class:`.PatternsHopfield`, optional
+        Hopfield Patterns class to merge with (default None)
+    save_sequence : bool, optional
+        Flag whether to save the sequence of pattern
+        labels with labels given by natural numbers in order
+        of appearance (default True)
+    save_raw : bool, optional
+        Flag whether to save the raw patterns that converge
+        to each memory under the Hopfield dynamics (default True)
+
+    Returns
+    -------
+    patterns : :class:`.PatternsHopfield`.
+        Instance of class :class:`.PatternsHopfield`
     """
     _SAVE_ATTRIBUTES_V1 = ['_counts', '_patterns', '_lookup_patterns',
                         '_sequence', '_skipped_patterns', '_seen_sequence',
@@ -315,16 +704,60 @@ class PatternsHopfield(Counter):
 
     @property
     def mtas(self):
-        # TODO: document
+        """
+        Returns the memory triggered averages (MTAs) of all stored memories.
+
+        Returns a Python dictionary keys of which are strings of binary digits
+        representing the memory (the original memory can be obtained
+        from the key using :meth:`Counter.pattern_for_key`) and values
+        are 2d numpy arrays representing the memory triggered average.
+
+
+        Returns
+        -------
+        mtas : dict
+            Dictionary of MTAs of all stored memories
+        """
         return self._mtas
 
     @property
     def mtas_raw(self):
-        # TODO: document
+        """
+        Returns the set of all raw patterns encountered that converged
+        to each stored memory. For each memory, the average of those
+        patterns corresponds to its memory triggered average (MTA).
+
+        Returns a Python dictionary keys of which are strings of binary digits
+        representing the memory (the original memory can be obtained
+        from the key using :meth:`Counter.pattern_for_key`) and values
+        are lists of 2d numpy arrays representing raw patterns that converge
+        to the given memory.
+
+        Returns
+        -------
+        raw_patterns : dict
+            Dictionary of lists of raw patterns converging to a given memory
+        """
         return self._mtas_raw
 
     def add_key(self, key, value=1, raw=None):
-        # TODO: document
+        """
+        Adds a new key (pattern) to the collection.
+        
+        Parameters
+        ----------
+        key : str of '0', '1'
+            Key of memory to add, obtained from :meth:`Counter.key_for_pattern`
+        value : int, optional
+            Number of occurrences to add (default 1)
+        raw : 2d numpy array, int, optional
+            Raw pattern that converged to given memory (default None)
+        
+        Returns
+        -------
+        added : bool
+            Flag whether key was previously known
+        """
         known_key = super(PatternsHopfield, self).add_key(key, value)
 
         if known_key:
@@ -339,8 +772,20 @@ class PatternsHopfield(Counter):
         return known_key
 
     def merge_counts(self, patterns_hopfield):
-        """ combine your counts with another counter """
-        # TODO: document
+        """
+        Combines counts with another PatternsHopfield class.
+        
+        Parameters
+        ----------
+        patterns_hopfield : :class:`.PatternsHopfield`
+            Other :class:`.PatternsHopfield` class to merge
+            counts with
+        
+        Returns
+        -------
+        patterns : :class:`.PatternsHopfield`
+            Returns pointer to itself
+        """
         for key in patterns_hopfield.counts.keys():
             o_key = Counter.key_for_pattern(self._learner.network(Counter.pattern_for_key(key)))
             # TODO fix merging wrt mtas / raw
@@ -352,16 +797,56 @@ class PatternsHopfield(Counter):
         return self
 
     def chomp(self, X, add_new=True, rotate=None):
-        """ M x N numpy array X as input (N neurons, M vects) """
-        # TODO: document
+        """
+        Computes Hopfield fixed points of M rows in N x M input
+        matrix `X` using stored Hopfield network and stores
+        the memories. Calls :meth:`.chomp_vector` on row
+        vectors of `X`.
+        The number of columns N has to equal the number
+        of nodes in the underlying Hopfield network.
+
+        Parameters
+        ----------
+        X : M x N numpy array, int
+            Binary source data to converge.
+        add_new : bool, optional
+            Flag whether to store new memories (default True)
+        rotate : tuple of length 2, int, optional
+            Dimensions of window if patterns are to be
+            collected modulo window rotations (default None)
+        
+        Returns
+        -------
+        Nothing
+        """
         # TODO warn if no network
         Y = self._learner.network(X)
         for x, y in zip(X, Y):
             self.chomp_vector(x, y, add_new=add_new, rotate=rotate)
 
     def chomp_vector(self, x, y, add_new=True, rotate=None):
-        """ stores bin vects (originally x) y and order of occurence """
-        # TODO: document
+        """
+        Associates binary raw data `x` with its Hopfield memory `y`,
+        counting occurrences and storing raw data for the calculation
+        of memory triggered averages (the average of all raw patterns
+        in the data coverging to a given memory).
+
+        Parameters
+        ----------
+        x : 1d numpy array, int
+            Binary source data to converge.
+        y : 1d numpy array, int
+            Binary converged data.
+        add_new : bool, optional
+            Flag whether to store new memories (default True)
+        rotate : tuple of length 2, int, optional
+            Dimensions of window if patterns are to be
+            collected modulo window rotations (default None)
+
+        Returns
+        -------
+        Nothing
+        """
         bin_y, new_pattern, numrot = super(PatternsHopfield, self).chomp_vector(y, add_new=add_new, rotate=rotate)
 
         if rotate and numrot > 0:
@@ -376,10 +861,28 @@ class PatternsHopfield(Counter):
             self._mtas[bin_y] += x
             self._mtas_raw[bin_y].append(x)
 
-        return x, bin_y, new_pattern, numrot
+    def apply_dynamics(self, spikes, window_size=1, trials=None, reshape=True):
+        """
+        Computes Hopfield fixed points over data obtained from
+        `spikes` using a sliding window of size `window_size`.
 
-    def apply_dynamics(self, spikes, add_new=True, window_size=1, trials=None, reshape=True):
-        # TODO: document
+        Parameters
+        ----------
+        spikes : :class:`.Spikes`
+            Instance of :class:`.Spikes` to operate on
+        window_size : int, optional
+            Window size to use (default 1)
+        trials : int, optional
+            Number of trials to use for reshape (default None)
+        reshape : bool, optional
+            Flag whether to reshape the spike vectors into
+            matrix form before returning (default True)
+        
+        Returns
+        -------
+        spikes : :class:`.Spikes`
+            Instance of spikes class with converged spikes
+        """
         X = spikes.to_windowed(window_size=window_size, trials=trials, reshape=True)
         # TODO warn if no network
         Y = self._learner.network(X)
@@ -394,66 +897,196 @@ class PatternsHopfield(Counter):
             for n in xrange(N):
                 Y_[:, n, :] = Y[:, n].reshape((T, M))
             Y = Y_
-        return Spikes(spikes_arr=Y)
+        return Spikes(spikes=Y)
 
-    def pattern_to_mta_matrix(self, m):
-        # TODO: document
-        key = self._patterns[m]
+    def pattern_to_mta_matrix(self, label):
+        """
+        Returns the average of all raw patterns encountered that converged
+        to a given stored memory pattern with label `label`. This average
+        is called memory triggered average (MTA).
+        
+        Parameters
+        ----------
+        label : int
+            Label of pattern to look up
+        
+        Returns
+        -------
+        mta : 1d numpy array
+            MTA of memory with label `label`
+        """
+        key = self._patterns[label]
         return self._mtas[key] / self._counts[key]
 
-    def pattern_to_raw_patterns(self, m):
-        # TODO: document
-        key = self._patterns[m]
+    def pattern_to_raw_patterns(self, label):
+        """
+        Returns the list of all raw patterns encountered that converged
+        to a given stored memory pattern with label `label`.
+
+        Parameters
+        ----------
+        label : int
+            Label of pattern to look up
+
+        Returns
+        -------
+        raw : list of 1d numpy array
+            Raw patterns converging to memory with label `label`
+        """
+        key = self._patterns[label]
         return np.array(self._mtas_raw[key])
 
-    def pattern_to_mta_std(self, m):
-        # TODO: document
+    def pattern_to_mtv(self, m):
+        """
+        Returns the element-wise variance of each position in a pattern
+        across all raw patterns encountered that converged to a given
+        stored memory pattern with label `label`. This is called the
+        *Memory Triggered Variance* (MTV). It is a meansure for how
+        diverse the underlying patterns are converging to the same
+        memory and can be seen as a proxy for the basin size of
+        that memory (i.e. fixed point) under the given Hopfield dynamics.
+
+        Parameters
+        ----------
+        label : int
+            Label of pattern to look up
+
+        Returns
+        -------
+        mtv : 1d numpy array
+            Element-wise variance
+        """
         raw_patterns = self.pattern_to_raw_patterns(m)
-        return raw_patterns.std(axis=0)
+        return raw_patterns.var(axis=0)
 
     def top_mta_matrices(self, count):
-        """ finds (top count likely memory)-triggered averages """
-        # TODO: document
+        """
+        Returns a list of memory triggered averages (MTAs) of the
+        memories occurring the most in the encountered data.
+        
+        Parameters
+        ----------
+        count : int
+            Number of mostly occurring memories to consider
+        
+        Returns
+        -------
+        mtas : 2d numpy array
+            Array of MTAs belonging to top occurring memories
+        """
         top_mtas = []
         idx = np.array(self._counts.values()).argsort()[-count:]
         for i in idx:
             top_mtas.append(self.pattern_to_mta_matrix(self._lookup_patterns[self._counts.keys()[i]]))
         return np.array(top_mtas)
 
-    def pattern_to_trial_raster(self, m, start=0, stop=None, trials=None):
-        # TODO: document
+    def pattern_to_trial_raster(self, label, start=0, stop=None, trials=None):
+        """
+        Returns binary matrix signalling when the memory with the given
+        label `label` apprears in the data.
+        
+        Parameters
+        ----------
+        label : int
+            Label of pattern to look up
+        start : int, optional
+            First index in each trial (default 0)
+        stop : int, optional
+            Last index in each trial, if None
+             whole trial will be used (default None)
+        trials : int, optional
+            Number of trials, if None taken from
+            underlying :class:`.Learner` class (default None)
+        
+        Returns
+        -------
+        hits : 2d numpy array
+            Binary array with a value of 1 encoding the occurrence
+            of the pattern with the given label `label`
+        """
         stop = stop or self._learner.spikes.M
         trials = trials or range(self._learner.spikes.T)
-        key = self._patterns[m]
+        key = self._patterns[label]
         sequence = np.array(self._sequence).reshape(self._learner.spikes.T,
                                                    self._learner.spikes.M - self._learner.window_size + 1)[:, start:stop]
 
-        hits = (sequence == m).astype(int)
+        hits = (sequence == label).astype(int)
         return hits
 
-    def approx_basin_size(self, max_corrupt_bits=1):
-        """ average bits corruption memory can stand """
-        # TODO: document
+    def approximate_basin_size(self, max_corrupt_bits=1):
+        """
+        Average bits corruption a memory can stand.
+
+        .. note:
+
+            Not implemented yet
+        
+        Parameters
+        ----------
+        max_corrupt_bits : int, optional
+            Maximal number of corrupted bits to try (default 1)
+        
+        Returns
+        -------
+        basin_sizes : numpy array
+            Approximated basin sizes of each memory
+        """
         # TODO implement
         pass
 
     # i/o
 
     def save(self, file_name='patterns_hopfield', extra=None):
-        # TODO: document
+        """
+        Saves contents to file.
+
+        Parameters
+        ----------
+        file_name : str, optional
+            File name to save to (default 'patterns_hopfield')
+        extra : dict, optional
+            Extra information to save to file (default None)
+
+        Returns
+        -------
+        Nothing
+        """
         super(PatternsHopfield, self).save(file_name=file_name, extra=extra)
 
     @classmethod
     def load(cls, file_name='patterns_hopfield', load_extra=False):
-        # TODO: document
+        """
+        Loads contents from file.
+
+        .. note:
+
+            This is a class method, i.e. loading should be done like
+            this:
+
+            patterns = PatternsHopfield.load('file_name')
+
+        Parameters
+        ----------
+        file_name : str, optional
+            File name to load from (default 'patterns_hopfield')
+        load_extra : bool, optional
+            Flag whether to load extra file contents, if any (default False)
+
+        Returns
+        -------
+        patterns : :class:`.PatternsHopfield`
+            Instance of :class:`.PatternsHopfield` if loaded, `None` upon error
+        """
         return super(PatternsHopfield, cls)._load(file_name=file_name, load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
+        # internal function to load v1 file format
         hdlog.debug('Loading PatternsHopfield patterns, format version 1')
         return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
 
     @classmethod
     def load_legacy(cls, file_name='patterns_hopfield'):
+        # internal function to load legacy file format
         base, ext = os.path.splitext(file_name)
         if not ext:
             ext = ".npz"

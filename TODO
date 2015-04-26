@@ -1,6 +1,13 @@
 TODO
 ====
 
+- Spikes: add methods calculate_mean_activities, ISIs, variances, etc.
+- Spikes: add method to restrict to neurons above a certain firing
+  rate in Hz
+- Spikes: add method to estimate dynamic firing rates
+- Stimulus should reuse io functionality from data module (__init__)
+
+
 - Null models module
   * Fix Ising model (Swensen-Wang)
   * GLM [statsmodels]

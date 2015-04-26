@@ -33,8 +33,29 @@ class Stimulus(Restoreable, object):
     _SAVE_TYPE = 'Stimulus'
 
     def __init__(self, stimulus_arr=None, npz_file=None, h5_file=None, preprocess=True):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        stimulus_arr : Type, optional
+            Description (default None)
+        npz_file : Type, optional
+            Description (default None)
+        h5_file : Type, optional
+            Description (default None)
+        preprocess : bool, optional
+            Description (default True)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         object.__init__(self)
         Restoreable.__init__(self)
+
+        # TODO reuse io functionality from data module!
 
         self.file_name = npz_file or ''
         if npz_file is None and stimulus_arr is None and h5_file is None:
@@ -45,11 +66,12 @@ class Stimulus(Restoreable, object):
             self._stimulus_arr = stimulus_arr
 
         if npz_file is not None:
-            if os.path.isfile(npz_file):
-                hdlog.error('Loading %s' % npz_file)
-                self.file_name = npz_file
-                tmp = np.load(npz_file)
-                self._stimulus_arr = tmp[tmp.keys()[0]]
+            if not os.path.isfile(npz_file):
+                hdlog.info("File '%s' does not exist!" % npz_file)
+                return
+            self.file_name = npz_file
+            tmp = np.load(npz_file)
+            self._stimulus_arr = tmp[tmp.keys()[0]]
 
         if h5_file is not None:
             import h5py
@@ -64,22 +86,70 @@ class Stimulus(Restoreable, object):
 
     @property
     def stimulus_arr(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._stimulus_arr
 
     @property
     def M(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._M
 
     @property
     def X(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         return self._X
 
     def preprocess(self):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         pass
 
     def snapshot(self, start=0, stop=None, save_png_name=None):
-        """ Returns a matrix or saves a PNG of avg of data between start and stop times
-            save_png_name: if not None then only saves (PIL needs to be installed) """
+        """
+        Returns a matrix or saves a PNG of avg of data between start and stop times
+        save_png_name: if not None then only saves picture
+        
+        Parameters
+        ----------
+        start : int, optional
+            Description (default 0)
+        stop : Type, optional
+            Description (default None)
+        save_png_name : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         stop = stop or self._M
         sub_stim_arr = self._stimulus_arr[start:stop].mean(axis=0)
 
@@ -96,18 +166,52 @@ class Stimulus(Restoreable, object):
     # i/o
 
     def save(self, file_name='stimulus', extra=None):
-        """ save as numpy array .npz file """
-        # TODO: document
+        """
+        Saves contents to file.
+
+        Parameters
+        ----------
+        file_name : str, optional
+            File name to save to (default 'stimulus')
+        extra : dict, optional
+            Extra information to save to file (default None)
+
+        Returns
+        -------
+        Nothing
+        """
         return super(Stimulus, self)._save(file_name=file_name,
                                          attributes=self._SAVE_ATTRIBUTES_V1, version=self._SAVE_VERSION,
                                          extra=extra)
 
     @classmethod
     def load(cls, file_name='stimulus', load_extra=False):
-        # TODO: document
+        """
+        Loads contents from file.
+
+        .. note:
+
+            This is a class method, i.e. loading should be done like
+            this:
+
+            stimulus = Stimulus.load('file_name')
+
+        Parameters
+        ----------
+        file_name : str, optional
+            File name to load from (default 'stimulus')
+        load_extra : bool, optional
+            Flag whether to load extra file contents, if any (default False)
+
+        Returns
+        -------
+        spikes : :class:`.Stimulus`
+            Instance of :class:`.Stimulus` if loaded, `None` upon error
+        """
         return super(Stimulus, cls)._load(file_name=file_name, load_extra=load_extra)
 
     def _load_v1(self, contents, load_extra=False):
+        # internal function to load v1 file format
         hdlog.debug('Loading Stimulus, format version 1')
         return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
 

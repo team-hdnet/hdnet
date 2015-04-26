@@ -12,6 +12,10 @@ from hdnet.sampling import sample_from_prob_vector, sample_from_bernoulli, sampl
 
 class TestSampling(unittest.TestCase):
 
+    def setUp(self):
+        import logging
+        logging.disable(level=logging.WARNING)
+
     def test_basic(self):
         np.random.seed(42)
 

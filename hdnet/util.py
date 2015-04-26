@@ -36,6 +36,31 @@ class Restoreable(object):
 
     def _save(self, file_name, attributes, version, has_internal=False, folder_name=None,
               internal_objects=None, extra=None):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        file_name : Type
+            Description
+        attributes : Type
+            Description
+        version : Type
+            Description
+        has_internal : bool, optional
+            Description (default False)
+        folder_name : Type, optional
+            Description (default None)
+        internal_objects : Type, optional
+            Description (default None)
+        extra : Type, optional
+            Description (default None)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         base, ext = os.path.splitext(file_name)
         if not ext:
             ext = ".npz"
@@ -79,6 +104,27 @@ class Restoreable(object):
 
     @classmethod
     def _load(cls, file_name, has_internal=False, folder_name=None, internal_objects=None, load_extra=False):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        file_name : Type
+            Description
+        has_internal : bool, optional
+            Description (default False)
+        folder_name : Type, optional
+            Description (default None)
+        internal_objects : Type, optional
+            Description (default None)
+        load_extra : bool, optional
+            Description (default False)
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         base, ext = os.path.splitext(file_name)
         if not ext:
             ext = ".npz"
@@ -131,6 +177,23 @@ class Restoreable(object):
 
     @staticmethod
     def _load_attributes(instance, contents, attributes):
+        """
+        Missing documentation
+        
+        Parameters
+        ----------
+        instance : Type
+            Description
+        contents : Type
+            Description
+        attributes : Type
+            Description
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         for attr in attributes:
             if not attr in contents.keys() and not 'DICT_KEYS_' + attr in contents.keys():
                 hdlog.info("Attribute '%s' not in file" % attr)
@@ -145,6 +208,14 @@ class Restoreable(object):
 
     @staticmethod
     def _load_raw(file_name):
+        """
+        Missing documentation
+        
+        Returns
+        -------
+        Value : Type
+            Description
+        """
         base, ext = os.path.splitext(file_name)
         if not ext:
             ext = ".npz"

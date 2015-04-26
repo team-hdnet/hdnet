@@ -14,15 +14,11 @@
 
 import sys
 import os
-import sphinx_rtd_theme
-
-# update module search path
-sys.path.insert(0, os.path.abspath("../"))
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../'))
 
 # -- General configuration ------------------------------------------------
 
@@ -34,12 +30,16 @@ sys.path.insert(0, os.path.abspath("../"))
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx.ext.doctest',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
-    'sphinxcontrib.napoleon'
+    'sphinxcontrib.napoleon',
+    'sphinxcontrib.bibtex'
 ]
+
+mathjax_path = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -111,8 +111,30 @@ pygments_style = 'sphinx'
 # a list of builtin themes.
 
 # Activate the theme.
-html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
+# on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+
+# only import and set the theme if we're building docs locally
+if not on_rtd:
+    # rtd theme
+    #import sphinx_rtd_theme
+    #html_theme = 'sphinx_rtd_theme'
+    #html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
+    # use basicstrap theme
+    extensions += ['sphinxjp.themes.basicstrap']
+    html_theme = 'basicstrap'
+    html_theme_options = {
+        'header_inverse': False,
+        'relbar_inverse': False,
+        'inner_theme': False,
+        'content_fixed': True,
+        'content_width': '100ch',        
+        #'inner_theme_name': 'bootswatch-yeti',
+    }
+
+# otherwise, readthedocs.org uses their theme by default, so no need to specify it
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -176,7 +198,7 @@ html_static_path = ['_static']
 #html_show_sourcelink = True
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
-#html_show_sphinx = True
+html_show_sphinx = False
 
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
 #html_show_copyright = True
@@ -191,7 +213,6 @@ html_static_path = ['_static']
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'hdnetdoc'
-
 
 # -- Options for LaTeX output ---------------------------------------------
 
