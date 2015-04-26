@@ -124,6 +124,8 @@ showstringspaces=false            %
 \texttt{https://github.com/qualiaphile/hdnet.git} \\
 \end{center}
 
+HDNET is a suite of powerful high-dimensional binary data modeling tools, with a specific emphasis on datasets coming from neuroscience.
+
 For demonstration purposes we will start work with a synthetic data set  (later we will be working with spiking neural data). Spiking activity of 10 hypothetical cells is assumed to be given as iid. Poisson processes. Upon binning with a given bin width, this yields Bernoulli processes in discrete time. We create such Bernoulli data (as a proxy for real, binned spiking data) and then insert hypothetical correlations by means of a number of co-activations of different cell groups over time (also known as \textit{cell assemblies}).
 
 The following script is contained in the file ``my\_first\_script.py".  We first import the necessary modules into our Python session (we recommend using ipython in pylab mode, i.e. running \texttt{ipython --pylab} and to run text copied to the clipboard from this tutorial using the magic command \texttt{\%paste}).

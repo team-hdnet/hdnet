@@ -105,13 +105,13 @@ for stm_avg in avgs:
     plt.title('Memory Triggered Stimulus Average')
 
 # Real Data
-spikes = Spikes(spk_folder='data/Blanche/crcns_pvc3_cat_recordings/drifting_bar/spike_data')
-spikes_model = SpikeModel(spikes=spikes)
-spikes_model.fit()  # note: this fits a single network to all trials
-spikes_model.chomp()
-converged_spikes = Spikes(spikes_arr=spikes_model.hopfield_spikes)
-plt.matshow(converged_spikes.rasterize(), cmap='gray')
-plt.title('Converge dynamics on Raw data')
-plt.matshow(converged_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
-plt.title('Covariance of converged memories')
+# spikes = Spikes(spk_folder='data/Blanche/crcns_pvc3_cat_recordings/drifting_bar/spike_data')
+# spikes_model = SpikeModel(spikes=spikes)
+# spikes_model.fit()  # note: this fits a single network to all trials
+# spikes_model.chomp()
+# converged_spikes = Spikes(spikes_arr=spikes_model.hopfield_spikes)
+# plt.matshow(converged_spikes.rasterize(), cmap='gray')
+# plt.title('Converge dynamics on Raw data')
+# plt.matshow(converged_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
+# plt.title('Covariance of converged memories')
 
