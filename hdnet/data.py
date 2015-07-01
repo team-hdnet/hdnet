@@ -262,7 +262,7 @@ class MatlabReaderHDF5(Reader):
         self.open(file_name)
 
     def __getitem__(self, item):
-        return self.get_item_numpy(item)
+        return self.get_object_numpy(item)
 
     def open(self, file_name):
         """
@@ -516,8 +516,8 @@ class Binner(object):
 
         Parameters
         ----------
-        spike_times : array_like
-            2d array of spike times of cells
+        spike_times : 2d numpy array
+            2d array of spike times of cells, cells as rows
         bin_size : float
             bin size to be used for binning (1ms = 0.001)
         cells : array_like, optional
@@ -535,7 +535,9 @@ class Binner(object):
         t_min_dat = np.inf
         t_max_dat = -np.inf
 
-        spike_times = np.atleast_2d(spike_times)
+
+        spike_times = np.atleast_1d(spike_times)
+
 
         if cells is None:
             cells = np.array(range(len(spike_times)))

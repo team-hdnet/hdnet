@@ -193,6 +193,18 @@ class Counter(Restoreable, object):
         return self._patterns
 
     @property
+    def num_patterns(self):
+        """
+        Returns the number of patterns encountered in the raw data.
+
+        Returns
+        -------
+        N : int
+            number of distinct patterns in the raw data
+        """
+        return len(self._patterns)
+
+    @property
     def lookup_patterns(self):
         """
         Returns the lookup dictionary for the patterns,
@@ -439,8 +451,8 @@ class Counter(Restoreable, object):
 
     def pattern_to_binary_matrix(self, key):
         """
-        Returns representation of pattern with key
-        (as string of binary numbers) as binary vector.
+        Returns a binary matrix representation of a pattern with the given key
+        (as string of binary numbers).
         
         Parameters
         ----------
@@ -457,7 +469,7 @@ class Counter(Restoreable, object):
 
     def top_binary_matrices(self, m):
         """
-        Returns top `m` likely patterns.
+        Returns the top `m` likely patterns.
         
         Parameters
         ----------
@@ -474,6 +486,35 @@ class Counter(Restoreable, object):
         for i in idx:
             top_binary.append(self.pattern_to_binary_matrix(self._lookup_patterns[self._counts.keys()[i]]))
         return top_binary
+
+
+    def pattern_correlation_coefficients(self, labels = None, **kwargs):
+        """
+        Calculates the matrix of correlation coefficients between
+        memories.
+
+        Takes optional argument labels that allows to restrict the
+        selection of patterns to a subset of all memories. Entries
+        in labels have to be in the closed interval [0, self.num_patterns - 1].
+
+        Parameters
+        ----------
+        labels : array_like, int
+            Labels of patterns to consider
+        kwargs : dictionary
+            Additional arguments passed to np.corrcoef
+
+        Returns
+        -------
+        C : 2d numpy array
+            Matrix of normalized pairwise correlation coefficients
+        """
+
+        if labels is None:
+            labels = xrange(self.num_patterns)
+
+        pats = np.array([self.pattern_for_key(self._patterns[l]).ravel() for l in labels])
+        return np.corrcoef(pats, **kwargs)
 
     def mem_triggered_stim_avgs(self, stimulus):
         """
