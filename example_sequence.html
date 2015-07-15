@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+
+
+
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    
+    <title>Example: Analyzing pattern sequences &mdash; hdnet v0.1 documentation</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    
+
+<link rel="stylesheet" href="_static/css/basicstrap-base.css" type="text/css" />
+<link rel="stylesheet" id="current-theme" href="_static/css/bootstrap3/bootstrap.min.css" type="text/css" />
+<link rel="stylesheet" id="current-adjust-theme" type="text/css" />
+
+<link rel="stylesheet" href="_static/css/font-awesome.min.css">
+
+<style type="text/css">
+  body {
+    padding-top: 60px;
+    padding-bottom: 40px;
+  }
+</style>
+
+<link rel="stylesheet" href="_static/css/basicstrap.css" type="text/css" />
+<link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:    './',
+            VERSION:     'v0.1',
+            COLLAPSE_INDEX: false,
+            FILE_SUFFIX: '.html',
+            HAS_SOURCE:  true
+  };
+</script>
+    <script type="text/javascript" src="_static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/js/bootstrap3.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery.cookie.min.js"></script>
+<script type="text/javascript" src="_static/js/basicstrap.js"></script>
+<script type="text/javascript">
+</script>
+    <link rel="top" title="hdnet v0.1 documentation" href="index.html" />
+    <link rel="next" title="hdnet package" href="hdnet.html" />
+    <link rel="prev" title="Basic example" href="example_basic.html" /> 
+  </head>
+  <body role="document">
+    <div id="navbar-top" class="navbar navbar-fixed-top navbar-default" role="navigation" aria-label="top navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="index.html">hdnet v0.1 documentation</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+              <li class="dropdown visible-xs">
+                <a role="button" id="localToc" data-toggle="dropdown" data-target="#" href="#">Table Of Contents <b class="caret"></b></a>
+                <ul class="dropdown-menu localtoc sp-localtoc" role="menu" aria-labelledby="localToc">
+                <ul>
+<li><a class="reference internal" href="#">Example: Analyzing pattern sequences</a><ul>
+<li><a class="reference internal" href="#creating-a-synthetic-data-set">Creating a synthetic data set</a></li>
+<li><a class="reference internal" href="#fitting-a-hopfield-network">Fitting a Hopfield network</a></li>
+<li><a class="reference internal" href="#examining-the-pattern-sequence">Examining the pattern sequence</a></li>
+<li><a class="reference internal" href="#constructing-the-markov-graph">Constructing the Markov graph</a></li>
+<li><a class="reference internal" href="#indentifying-base-states">Indentifying base states</a></li>
+<li><a class="reference internal" href="#cycles-as-reliably-produced-network-reponses">Cycles as reliably produced network reponses</a></li>
+</ul>
+</li>
+</ul>
+
+                </ul>
+              </li>
+
+            
+              <li><a href="example_basic.html" title="Basic example" accesskey="P">previous </a></li>
+              <li><a href="hdnet.html" title="hdnet package" accesskey="N">next </a></li>
+              <li><a href="py-modindex.html" title="Python Module Index" >modules </a></li>
+              <li><a href="genindex.html" title="General Index" accesskey="I">index </a></li>
+            
+            <li class="visible-xs"><a href="_sources/example_sequence.txt" rel="nofollow">Show Source</a></li>
+
+            <li class="visible-xs">
+                <form class="search form-search form-inline navbar-form navbar-right sp-searchbox" action="search.html" method="get">
+                  <div class="input-append input-group">
+                    <input type="text" class="search-query form-control" name="q" placeholder="Search...">
+                    <span class="input-group-btn">
+                    <input type="submit" class="btn" value="Go" />
+                    </span>
+                  </div>
+                  <input type="hidden" name="check_keywords" value="yes" />
+                  <input type="hidden" name="area" value="default" />
+                </form>
+            </li>
+
+            
+
+          </ul>
+
+        </div>
+      </div>
+    </div>
+    
+
+    <!-- container -->
+    <div class="container">
+
+      <!-- row -->
+      <div class="row">
+         
+<div class="col-md-3 hidden-xs" id="sidebar-wrapper">
+  <div class="sidebar hidden-xs" role="navigation" aria-label="main navigation">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Example: Analyzing pattern sequences</a><ul>
+<li><a class="reference internal" href="#creating-a-synthetic-data-set">Creating a synthetic data set</a></li>
+<li><a class="reference internal" href="#fitting-a-hopfield-network">Fitting a Hopfield network</a></li>
+<li><a class="reference internal" href="#examining-the-pattern-sequence">Examining the pattern sequence</a></li>
+<li><a class="reference internal" href="#constructing-the-markov-graph">Constructing the Markov graph</a></li>
+<li><a class="reference internal" href="#indentifying-base-states">Indentifying base states</a></li>
+<li><a class="reference internal" href="#cycles-as-reliably-produced-network-reponses">Cycles as reliably produced network reponses</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="example_basic.html"
+                        title="previous chapter">Basic example</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="hdnet.html"
+                        title="next chapter">hdnet package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/example_sequence.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" role="search">
+  <h3>Quick search</h3>
+  <form class="search form-inline" action="search.html" method="get">
+      <div class="input-append input-group">
+        <input type="text" class="search-query form-control" name="q" placeholder="Search...">
+        <span class="input-group-btn">
+        <input type="submit" class="btn" value="Go" />
+        </span>
+      </div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+  </div>
+</div> 
+        
+
+        <div class="col-md-9" id="content-wrapper">
+          <div class="document" role="main">
+            <div class="documentwrapper">
+              <div class="bodywrapper">
+                <div class="body">
+                  
+  <div class="section" id="example-analyzing-pattern-sequences">
+<h1>Example: Analyzing pattern sequences<a class="headerlink" href="#example-analyzing-pattern-sequences" title="Permalink to this headline">¶</a></h1>
+<p>In this example we will demonstrate further possibilities of examining
+sequences of patterns obtained from converging Hopfield dynamics on
+some windowed raw multi-neuron spiking data. This allows us to discover
+salient underlying dynamical structure in such data.</p>
+<p>We again work with a synthetic data set, as in the basic example.</p>
+<div class="section" id="creating-a-synthetic-data-set">
+<h2>Creating a synthetic data set<a class="headerlink" href="#creating-a-synthetic-data-set" title="Permalink to this headline">¶</a></h2>
+<p>Let us first create our synthetic data:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">hdnet.spikes</span> <span class="kn">import</span> <span class="n">Spikes</span>
+<span class="kn">from</span> <span class="nn">hdnet.spikes_model</span> <span class="kn">import</span> <span class="n">SpikeModel</span><span class="p">,</span> <span class="n">BernoulliHomogeneous</span><span class="p">,</span> <span class="n">DichotomizedGaussian</span>
+
+<span class="c"># Let&#39;s first make up some simuilated spikes: 100 trials</span>
+<span class="n">spikes</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span> <span class="o">&lt;</span> <span class="o">.</span><span class="mo">05</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">spikes</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="mi">8</span> <span class="o">-</span> <span class="mi">1</span><span class="p">::</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c"># insert correlations</span>
+<span class="n">spikes</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="mi">9</span> <span class="o">-</span> <span class="mi">1</span><span class="p">::</span><span class="mi">20</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c"># insert correlations</span>
+<span class="n">spikes</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="mi">10</span> <span class="o">-</span> <span class="mi">1</span><span class="p">::</span><span class="mi">20</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c"># insert correlations</span>
+<span class="n">spikes</span> <span class="o">=</span> <span class="n">Spikes</span><span class="p">(</span><span class="n">spikes</span><span class="o">=</span><span class="n">spikes</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id1">
+<a class="reference internal image-reference" href="_images/raster_cellass.png"><img alt="_images/raster_cellass.png" src="_images/raster_cellass.png" style="width: 90%;" /></a>
+<p class="caption"><span class="caption-text">Figure 2. One trial of synthetic data.</span></p>
+</div>
+</div>
+<div class="section" id="fitting-a-hopfield-network">
+<h2>Fitting a Hopfield network<a class="headerlink" href="#fitting-a-hopfield-network" title="Permalink to this headline">¶</a></h2>
+<p>Again, we fit a Hopfield network to windowed spike trains (window length
+1) and collect the memories over the raw data:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># the basic modeler trains a Hopfield network using MPF on the raw spikes</span>
+<span class="n">spikes_model</span> <span class="o">=</span> <span class="n">SpikeModel</span><span class="p">(</span><span class="n">spikes</span><span class="o">=</span><span class="n">spikes</span><span class="p">)</span>
+<span class="n">spikes_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>  <span class="c"># note: this fits a single network to all trials</span>
+<span class="n">spikes_model</span><span class="o">.</span><span class="n">chomp</span><span class="p">()</span>
+<span class="n">converged_spikes</span> <span class="o">=</span> <span class="n">Spikes</span><span class="p">(</span><span class="n">spikes</span><span class="o">=</span><span class="n">spikes_model</span><span class="o">.</span><span class="n">hopfield_spikes</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="examining-the-pattern-sequence">
+<h2>Examining the pattern sequence<a class="headerlink" href="#examining-the-pattern-sequence" title="Permalink to this headline">¶</a></h2>
+<p>Let us now examine the memory sequence of the converged patterns. First
+we instantiate a SequenceAnalyzer object on the pattern instance:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">hdnet.stats</span> <span class="kn">import</span> <span class="n">SequenceAnalyzer</span>
+<span class="kn">from</span> <span class="nn">hdnet.visualization</span> <span class="kn">import</span> <span class="n">combine_windows</span><span class="p">,</span> <span class="n">plot_graph</span>
+
+<span class="n">patterns</span> <span class="o">=</span> <span class="n">spikes_model</span><span class="o">.</span><span class="n">hopfield_patterns</span>
+<span class="n">sa</span> <span class="o">=</span> <span class="n">SequenceAnalyzer</span><span class="p">(</span><span class="n">patterns</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can now compute label probabilities, their Markov transition probabilities
+and Markov entropies of the labels (defined as the entropy of the Markov
+transition probabilities for each label):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># compute probabilities of labels, markov transition probabilities and</span>
+<span class="n">label_probabilities</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">compute_label_probabilities</span><span class="p">()</span>
+<span class="n">markov_probabilities</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">compute_label_markov_probabilities</span><span class="p">()</span>
+<span class="n">label_entropy</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">compute_label_markov_entropies</span><span class="p">()</span>
+<span class="n">n_labels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">label_probabilities</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Let us now plot some of the quantities that we calcualted:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># plot label probabilities, markov transition probabilities and node entropy</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">label_probabilities</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">n_labels</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_labels</span><span class="p">,</span>
+    <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="n">label_probabilities</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">label_probabilities</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span>
+    <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;k&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;probability&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;fraction&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s">&#39;log&#39;</span><span class="p">,</span> <span class="n">nonposy</span><span class="o">=</span><span class="s">&#39;clip&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s">&#39;log&#39;</span><span class="p">,</span> <span class="n">nonposx</span><span class="o">=</span><span class="s">&#39;clip&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&#39;label_probabilities.png&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id2">
+<a class="reference internal image-reference" href="_images/label_probabilities.png"><img alt="_images/label_probabilities.png" src="_images/label_probabilities.png" style="width: 50%;" /></a>
+<p class="caption"><span class="caption-text">Figure 1. Histogram of label probabilities on a log-log scale.</span></p>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">cmap</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">autumn</span>
+<span class="n">cmap</span><span class="o">.</span><span class="n">set_bad</span><span class="p">(</span><span class="s">&#39;k&#39;</span><span class="p">)</span>
+<span class="n">mp_masked</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="n">markov_probabilities</span> <span class="o">&lt;</span> <span class="mf">0.001</span> <span class="p">,</span> <span class="n">markov_probabilities</span><span class="p">)</span>
+<span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">mp_masked</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+            <span class="n">norm</span><span class="o">=</span><span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LogNorm</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;to pattern&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;from pattern&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&#39;label_probabilities_markov.png&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id3">
+<a class="reference internal image-reference" href="_images/label_probabilities_markov.png"><img alt="_images/label_probabilities_markov.png" src="_images/label_probabilities_markov.png" style="width: 50%;" /></a>
+<p class="caption"><span class="caption-text">Figure 2. Matrix of Markov transition probabilities between labels.</span></p>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">label_entropy</span><span class="p">,</span>
+         <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">n_labels</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_labels</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;k&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;entropy&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;fraction&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s">&#39;log&#39;</span><span class="p">,</span> <span class="n">nonposy</span><span class="o">=</span><span class="s">&#39;clip&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&#39;label_entropy.png&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id4">
+<a class="reference internal image-reference" href="_images/label_entropy.png"><img alt="_images/label_entropy.png" src="_images/label_entropy.png" style="width: 50%;" /></a>
+<p class="caption"><span class="caption-text">Figure 3. Histogram of label entropies.</span></p>
+</div>
+</div>
+<div class="section" id="constructing-the-markov-graph">
+<h2>Constructing the Markov graph<a class="headerlink" href="#constructing-the-markov-graph" title="Permalink to this headline">¶</a></h2>
+<p>The matrix of Markov transition probabilities defines a graph, the so called
+<em>Markov graph</em>. Let us construct and plot it using a force based layout
+for the nodes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># construct markov graph</span>
+<span class="n">markov_graph</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">compute_markov_graph</span><span class="p">()</span>
+<span class="k">print</span> <span class="s">&quot;Markov graph has </span><span class="si">%d</span><span class="s"> nodes, </span><span class="si">%d</span><span class="s"> edges&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">markov_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">()),</span>
+                                           <span class="nb">len</span><span class="p">(</span><span class="n">markov_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">()))</span>
+
+<span class="c"># plot markov graph</span>
+<span class="n">plot_graph</span><span class="p">(</span><span class="n">markov_graph</span><span class="p">,</span> <span class="n">label_probabilities</span><span class="p">,</span> <span class="n">cmap1</span><span class="o">=</span><span class="s">&#39;cool&#39;</span><span class="p">,</span> <span class="n">cmap2</span><span class="o">=</span><span class="s">&#39;autumn&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&#39;markov_graph.png&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id5">
+<a class="reference internal image-reference" href="_images/label_entropy.png"><img alt="_images/label_entropy.png" src="_images/label_entropy.png" style="width: 50%;" /></a>
+<p class="caption"><span class="caption-text">Figure 4. Markov graph drawn with a force-based layout. The base state is 0.</span></p>
+</div>
+<p>Furthermore, we can plot the memory triggered averages for all the nodes
+of the graph (where each node corresponds to a Hopfield memory):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># plot memory triggered averages for all nodes of markov graph</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">markov_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">()):</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">patterns</span><span class="o">.</span><span class="n">pattern_to_mta_matrix</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;gray&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">get_yaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&#39;mtas.png&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id6">
+<a class="reference internal image-reference" href="_images/mtas.png"><img alt="_images/mtas.png" src="_images/mtas.png" style="width: 50%;" /></a>
+<p class="caption"><span class="caption-text">Figure 5. Memory triggered averages of the nodes 0, 1, 2 and 3 (from left to right)</span></p>
+</div>
+</div>
+<div class="section" id="indentifying-base-states">
+<h2>Indentifying base states<a class="headerlink" href="#indentifying-base-states" title="Permalink to this headline">¶</a></h2>
+<p>In many cases we will be able to identify one node in the graph that
+corresponds to the base state of the network; characteristic for a base
+state is that it has high degree (sum of in- and out-degrees) in the
+Markov graph:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># try to guess base node (resting state memory) as node with highest</span>
+<span class="c"># degree (converging and diverging connections)</span>
+<span class="c"># -- adjust post hoc if necessary!</span>
+<span class="n">markov_degrees</span> <span class="o">=</span> <span class="n">markov_graph</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span>
+<span class="n">base_node</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">markov_degrees</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">markov_degrees</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;base node is </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">base_node</span>
+</pre></div>
+</div>
+<p>As you will see, the base node is 0 in this case.</p>
+</div>
+<div class="section" id="cycles-as-reliably-produced-network-reponses">
+<h2>Cycles as reliably produced network reponses<a class="headerlink" href="#cycles-as-reliably-produced-network-reponses" title="Permalink to this headline">¶</a></h2>
+<p>Now we calculate simple cycles (i.e. closed simple paths starting and
+ending at the same node) in the Markov graph starting at the base node.
+Each cycle can be thought of as a cycle in the state space of the network,
+corresponding to an excitation cycle of the network and describing how
+it is brought out of the base state, passing through a series of transient
+excited states to finally fall back into the base state. This essentially
+corresponds extracting several 1-dimensional aspects of the network
+dynamics.</p>
+<p>As a measure for how reliably the network generates these cycles in the
+state space we use the Markov entropies of the nodes in the cycle:
+lower entropy of a memory means that the following state is more
+predictable, i.e. the path is more stably visited, whereas higher entropy
+means that the path is scattered when passing through a memory.
+We score all cycles by their entropy (where the entropy of a cycles is a
+weighted sum of the entropies of the nodes it consists of). The lower
+the entropy, the more stably that cycle occurrs in the data:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># calculate cycles of entropies around base node</span>
+<span class="c"># adjust weighting and weighting per element if needed</span>
+<span class="k">print</span> <span class="s">&quot;calculating cycles around base node..&quot;</span>
+<span class="n">cycles</span><span class="p">,</span> <span class="n">scores</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">calculate_cycles_entropy_scores</span><span class="p">(</span>
+                                               <span class="n">base_node</span><span class="p">,</span>
+                                               <span class="n">min_len</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                                               <span class="n">max_len</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;</span><span class="si">%d</span><span class="s"> cycles&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cycles</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Let is plot some statistics about the extracted cycles:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># plot cycle statistics</span>
+<span class="n">n_cycles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cycles</span><span class="p">)</span>
+<span class="n">cycle_len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">cycles</span><span class="p">))</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">cycle_len</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">n_cycles</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_cycles</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;k&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&#39;cycle length&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">&#39;fraction&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">nbins</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&#39;cycle_lengths.png&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id7">
+<a class="reference internal image-reference" href="_images/cycle_lengths.png"><img alt="_images/cycle_lengths.png" src="_images/cycle_lengths.png" style="width: 50%;" /></a>
+<p class="caption"><span class="caption-text">Figure 6. Distribution of cycle lengths.</span></p>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">n_cycles</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_cycles</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;k&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;cycle score&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;fraction&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">nbins</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&#39;cycle_scores.png&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id8">
+<a class="reference internal image-reference" href="_images/cycle_scores.png"><img alt="_images/cycle_scores.png" src="_images/cycle_scores.png" style="width: 50%;" /></a>
+<p class="caption"><span class="caption-text">Figure 7. Distribution of cycle scores.</span></p>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">cycle_len</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;k&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;cycle length&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;cycle score&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">nbins</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&#39;cycle_lengths_vs_scores_scatter.png&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id9">
+<a class="reference internal image-reference" href="_images/cycle_lengths_vs_scores_scatter.png"><img alt="_images/cycle_lengths_vs_scores_scatter.png" src="_images/cycle_lengths_vs_scores_scatter.png" style="width: 50%;" /></a>
+<p class="caption"><span class="caption-text">Figure 8. Scatter plot of cycle lengths vs cycle scores.</span></p>
+</div>
+<p>Let us now combine the memories of the cycles and plot the mean network
+response for each cycle:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cycle</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cycles</span><span class="p">):</span>
+    <span class="n">mta_sequence</span> <span class="o">=</span> <span class="p">[</span><span class="n">patterns</span><span class="o">.</span><span class="n">pattern_to_mta_matrix</span><span class="p">(</span><span class="n">l</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">cycle</span><span class="p">]</span>
+    <span class="n">combined</span> <span class="o">=</span> <span class="n">combine_windows</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mta_sequence</span><span class="p">))</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">combined</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;gray&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s">&#39;off&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;cycle </span><span class="si">%d</span><span class="se">\n</span><span class="s">length </span><span class="si">%d</span><span class="se">\n</span><span class="s">score </span><span class="si">%f</span><span class="s">&#39;</span> <span class="o">%</span> \
+              <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cycle</span><span class="p">),</span> <span class="n">scores</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="n">loc</span><span class="o">=</span><span class="s">&#39;left&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&#39;likely-</span><span class="si">%04d</span><span class="s">.png&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>As we can see, these responses exactly correspond to the sequence of
+cell assembly activations planted in the data. The method was thus
+able to extract these recurring sequences in noisy data.</p>
+</div>
+</div>
+
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        
+      </div><!-- /row -->
+
+      <!-- row -->
+      <div class="row footer-relbar">
+<div id="navbar-related" class=" related navbar navbar-default" role="navigation" aria-label="related navigation">
+  <div class="navbar-inner">
+    <ul class="nav navbar-nav ">
+        <li><a href="index.html">hdnet v0.1 documentation</a></li>
+    </ul>
+<ul class="nav navbar-nav pull-right hidden-xs hidden-sm">
+      
+        <li><a href="example_basic.html" title="Basic example" >previous</a></li>
+        <li><a href="hdnet.html" title="hdnet package" >next</a></li>
+        <li><a href="py-modindex.html" title="Python Module Index" >modules</a></li>
+        <li><a href="genindex.html" title="General Index" >index</a></li>
+        <li><a href="#">top</a></li> 
+      
+    </ul>
+  </div>
+</div>
+      </div><!-- /row -->
+
+      <!-- footer -->
+      <footer role="contentinfo">
+          &copy; Copyright 2015, Christopher Hillar, Felix Effenberger.
+      </footer>
+      <!-- /footer -->
+
+    </div>
+    <!-- /container -->
+
+  </body>
+</html>

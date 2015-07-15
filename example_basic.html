@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+
+
+
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    
+    <title>Basic example &mdash; hdnet v0.1 documentation</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    
+
+<link rel="stylesheet" href="_static/css/basicstrap-base.css" type="text/css" />
+<link rel="stylesheet" id="current-theme" href="_static/css/bootstrap3/bootstrap.min.css" type="text/css" />
+<link rel="stylesheet" id="current-adjust-theme" type="text/css" />
+
+<link rel="stylesheet" href="_static/css/font-awesome.min.css">
+
+<style type="text/css">
+  body {
+    padding-top: 60px;
+    padding-bottom: 40px;
+  }
+</style>
+
+<link rel="stylesheet" href="_static/css/basicstrap.css" type="text/css" />
+<link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:    './',
+            VERSION:     'v0.1',
+            COLLAPSE_INDEX: false,
+            FILE_SUFFIX: '.html',
+            HAS_SOURCE:  true
+  };
+</script>
+    <script type="text/javascript" src="_static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/js/bootstrap3.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery.cookie.min.js"></script>
+<script type="text/javascript" src="_static/js/basicstrap.js"></script>
+<script type="text/javascript">
+</script>
+    <link rel="top" title="hdnet v0.1 documentation" href="index.html" />
+    <link rel="next" title="Example: Analyzing pattern sequences" href="example_sequence.html" />
+    <link rel="prev" title="Mathematical background" href="background.html" /> 
+  </head>
+  <body role="document">
+    <div id="navbar-top" class="navbar navbar-fixed-top navbar-default" role="navigation" aria-label="top navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="index.html">hdnet v0.1 documentation</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+              <li class="dropdown visible-xs">
+                <a role="button" id="localToc" data-toggle="dropdown" data-target="#" href="#">Table Of Contents <b class="caret"></b></a>
+                <ul class="dropdown-menu localtoc sp-localtoc" role="menu" aria-labelledby="localToc">
+                <ul>
+<li><a class="reference internal" href="#">Basic example</a><ul>
+<li><a class="reference internal" href="#starting-off">Starting off</a></li>
+<li><a class="reference internal" href="#going-further">Going further</a></li>
+<li><a class="reference internal" href="#saving-and-loading">Saving and loading</a></li>
+<li><a class="reference internal" href="#stimuli">Stimuli</a></li>
+<li><a class="reference internal" href="#real-data">Real data</a></li>
+</ul>
+</li>
+</ul>
+
+                </ul>
+              </li>
+
+            
+              <li><a href="background.html" title="Mathematical background" accesskey="P">previous </a></li>
+              <li><a href="example_sequence.html" title="Example: Analyzing pattern sequences" accesskey="N">next </a></li>
+              <li><a href="py-modindex.html" title="Python Module Index" >modules </a></li>
+              <li><a href="genindex.html" title="General Index" accesskey="I">index </a></li>
+            
+            <li class="visible-xs"><a href="_sources/example_basic.txt" rel="nofollow">Show Source</a></li>
+
+            <li class="visible-xs">
+                <form class="search form-search form-inline navbar-form navbar-right sp-searchbox" action="search.html" method="get">
+                  <div class="input-append input-group">
+                    <input type="text" class="search-query form-control" name="q" placeholder="Search...">
+                    <span class="input-group-btn">
+                    <input type="submit" class="btn" value="Go" />
+                    </span>
+                  </div>
+                  <input type="hidden" name="check_keywords" value="yes" />
+                  <input type="hidden" name="area" value="default" />
+                </form>
+            </li>
+
+            
+
+          </ul>
+
+        </div>
+      </div>
+    </div>
+    
+
+    <!-- container -->
+    <div class="container">
+
+      <!-- row -->
+      <div class="row">
+         
+<div class="col-md-3 hidden-xs" id="sidebar-wrapper">
+  <div class="sidebar hidden-xs" role="navigation" aria-label="main navigation">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Basic example</a><ul>
+<li><a class="reference internal" href="#starting-off">Starting off</a></li>
+<li><a class="reference internal" href="#going-further">Going further</a></li>
+<li><a class="reference internal" href="#saving-and-loading">Saving and loading</a></li>
+<li><a class="reference internal" href="#stimuli">Stimuli</a></li>
+<li><a class="reference internal" href="#real-data">Real data</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="background.html"
+                        title="previous chapter">Mathematical background</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="example_sequence.html"
+                        title="next chapter">Example: Analyzing pattern sequences</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/example_basic.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" role="search">
+  <h3>Quick search</h3>
+  <form class="search form-inline" action="search.html" method="get">
+      <div class="input-append input-group">
+        <input type="text" class="search-query form-control" name="q" placeholder="Search...">
+        <span class="input-group-btn">
+        <input type="submit" class="btn" value="Go" />
+        </span>
+      </div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+  </div>
+</div> 
+        
+
+        <div class="col-md-9" id="content-wrapper">
+          <div class="document" role="main">
+            <div class="documentwrapper">
+              <div class="bodywrapper">
+                <div class="body">
+                  
+  <div class="section" id="basic-example">
+<h1>Basic example<a class="headerlink" href="#basic-example" title="Permalink to this headline">¶</a></h1>
+<p>Let us demonstrate the basic usage of <code class="docutils literal"><span class="pre">hdnet</span></code> using the following example. The source code for this example can be found in <a class="reference download internal" href="_downloads/my_first_script.py"><code class="xref download docutils literal"><span class="pre">this</span> <span class="pre">example</span> <span class="pre">script</span></code></a> in the <code class="docutils literal"><span class="pre">examples/</span></code> directory.</p>
+<p>For demonstration purposes we will start work with a synthetic data set in this tutorial (later we will be working with real spiking data). Spiking activity of 10 hypothetical cells is assumed to be given as independent, identically distributed (i.i.d.) Poisson processes. Upon binning with a given bin width, this yields Bernoulli processes in discrete time. We create such Bernoulli data (as a proxy for real, binned spiking data) and then insert hypothetical correlations by means of a number of co-activations of different cell groups over time (also known as <em>cell assemblies</em>).</p>
+<div class="section" id="starting-off">
+<h2>Starting off<a class="headerlink" href="#starting-off" title="Permalink to this headline">¶</a></h2>
+<p>We first import the necessary modules into our Python session (we recommend using ipython in pylab mode, i.e. running <code class="docutils literal"><span class="pre">ipython</span> <span class="pre">--pylab</span></code> and to run text copied to the clipboard from this tutorial using the magic command <code class="docutils literal"><span class="pre">%paste</span></code>):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">hdnet.stimulus</span> <span class="kn">import</span> <span class="n">Stimulus</span>
+<span class="kn">from</span> <span class="nn">hdnet.spikes</span> <span class="kn">import</span> <span class="n">Spikes</span>
+<span class="kn">from</span> <span class="nn">hdnet.spikes_model</span> <span class="kn">import</span> <span class="n">SpikeModel</span><span class="p">,</span> <span class="n">BernoulliHomogeneous</span><span class="p">,</span> <span class="n">DichotomizedGaussian</span>
+</pre></div>
+</div>
+<p>Next, we create two trials of 200 time bins of spikes from 10 neurons and store them in a <a class="reference internal" href="hdnet.html#hdnet.spikes.Spikes" title="hdnet.spikes.Spikes"><code class="xref py py-class docutils literal"><span class="pre">Spikes</span></code></a> container:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Let&#39;s first make up some simuilated spikes: 2 trials</span>
+<span class="n">spikes</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span> <span class="o">&lt;</span> <span class="o">.</span><span class="mo">05</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">spikes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">::</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c"># insert correlations</span>
+<span class="n">spikes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">::</span><span class="mi">11</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c"># insert correlations</span>
+
+<span class="n">spikes</span> <span class="o">=</span> <span class="n">Spikes</span><span class="p">(</span><span class="n">spikes</span><span class="o">=</span><span class="n">spikes</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can now plot a raster of the trials and covariances:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># let&#39;s look at the raw spikes and their covariance</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">spikes</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(),</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Raw spikes&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">spikes</span><span class="o">.</span><span class="n">covariance</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Raw spikes covariance&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Next, we would like to model this noisy binary data. First, we try to model each trial with a separate i.i.d. Bernoulli random binary vector having the same neuron means as in each trial:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># let&#39;s examine the structure in spikes using a spike modeler</span>
+<span class="n">spikes_model</span> <span class="o">=</span> <span class="n">BernoulliHomogeneous</span><span class="p">(</span><span class="n">spikes</span><span class="o">=</span><span class="n">spikes</span><span class="p">)</span>
+<span class="n">BH_sample_spikes</span> <span class="o">=</span> <span class="n">spikes_model</span><span class="o">.</span><span class="n">sample_from_model</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">BH_sample_spikes</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(),</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;BernoulliHomogeneous sample&#39;</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;</span><span class="si">%1.4f</span><span class="s"> means&quot;</span> <span class="o">%</span> <span class="n">BH_sample_spikes</span><span class="o">.</span><span class="n">spikes</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">BH_sample_spikes</span><span class="o">.</span><span class="n">covariance</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;BernoulliHomogeneous covariance&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure" id="id3">
+<img alt="_images/demo_fake_spikes.png" src="_images/demo_fake_spikes.png" />
+<p class="caption"><span class="caption-text">Figure 1. Spikes of two trials with 10 neurons.</span></p>
+</div>
+<div class="figure" id="id4">
+<img alt="_images/cov_demo.png" src="_images/cov_demo.png" />
+<p class="caption"><span class="caption-text">Figure 2. Covariances of two trials with 10 neurons.</span></p>
+</div>
+<p>As we can see in Figures 1 and 2, the samples from Bernoulli have the correct firing rates in each trial, but not the coordinated aspect (as can be seen in the covariance matrices for each trial, which are basically diagonal matrices). A better model that keeps track of the correlations is the Dichotomized Gaussian [Bethge2008]:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># let&#39;s model them as DichotomizedGaussian:</span>
+<span class="c"># from the paper: Generating spike-trains with specified correlations, Macke et al.</span>
+<span class="n">spikes_model</span> <span class="o">=</span> <span class="n">DichotomizedGaussian</span><span class="p">(</span><span class="n">spikes</span><span class="o">=</span><span class="n">spikes</span><span class="p">)</span>
+<span class="n">DG_sample_spikes</span> <span class="o">=</span> <span class="n">spikes_model</span><span class="o">.</span><span class="n">sample_from_model</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;DichotomizedGaussian sample&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">DG_sample_spikes</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(),</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;gray&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">DG_sample_spikes</span><span class="o">.</span><span class="n">covariance</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;DichotomizedGaussian covariance&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Finally, we try and model the data with a Hopfield network trained using MPF [HS-DK201] over all the trials:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># the basic modeler trains a Hopfield network using MPF on the raw spikes</span>
+<span class="n">spikes_model</span> <span class="o">=</span> <span class="n">SpikeModel</span><span class="p">(</span><span class="n">spikes</span><span class="o">=</span><span class="n">spikes</span><span class="p">)</span>
+<span class="n">spikes_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>  <span class="c"># note: this fits a single network to all trials</span>
+<span class="n">spikes_model</span><span class="o">.</span><span class="n">chomp</span><span class="p">()</span>
+
+<span class="n">converged_spikes</span> <span class="o">=</span> <span class="n">Spikes</span><span class="p">(</span><span class="n">spikes</span><span class="o">=</span><span class="n">spikes_model</span><span class="o">.</span><span class="n">hopfield_spikes</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Converge dynamics on Raw data&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">converged_spikes</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(),</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;gray&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Covariance of converged memories&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">converged_spikes</span><span class="o">.</span><span class="n">covariance</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;gray&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="going-further">
+<h2>Going further<a class="headerlink" href="#going-further" title="Permalink to this headline">¶</a></h2>
+<p>One thing we would like to do is examine the structure of the memories:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># plot memory label (its chronological appearance) as a function of time</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">spikes_model</span><span class="o">.</span><span class="n">memories</span><span class="o">.</span><span class="n">sequence</span><span class="p">)),</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">spikes_model</span><span class="o">.</span><span class="n">memories</span><span class="o">.</span><span class="n">sequence</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;time bin&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;Memory number (chronological order of appearance)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Converged memory label at each time bin&#39;</span><span class="p">)</span>
+
+<span class="c"># versus the raw data</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">spikes_model</span><span class="o">.</span><span class="n">empirical</span><span class="o">.</span><span class="n">sequence</span><span class="p">)),</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">spikes_model</span><span class="o">.</span><span class="n">empirical</span><span class="o">.</span><span class="n">sequence</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;Raw pattern number (chronological order of appearance)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;time bin&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Raw pattern label at each time bin&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Notice in Figures 4 and 4 that the converged dynamics of the trained Hopfield network on the original data does reveal the hidden assemblies for the most part.</p>
+<div class="figure" id="id5">
+<img alt="_images/chron_order_patterns.png" src="_images/chron_order_patterns.png" />
+<p class="caption"><span class="caption-text">Figure 3. Patterns (converged at left, raw on right) over time bins labeled on the vertical axis by their first appearance in the dataset.</span></p>
+</div>
+<div class="figure align-center" id="id6">
+<a class="reference internal image-reference" href="_images/memories_stas.png"><img alt="_images/memories_stas.png" src="_images/memories_stas.png" style="width: 30%;" /></a>
+<p class="caption"><span class="caption-text">Figure 4. Memories in network (left) and Memory Triggered Averages (at right)</span></p>
+</div>
+<p>Now that we know there are basically two assemblies, one showing up lots in the first trial and the other in the second, let&#8217;s look at the
+memories and their corresponding <em>Memory Triggered Averages</em> MTAs that are obtained for each memory by averaging all raw patterns that converge to the given memory under the Hopfield dynamics.</p>
+<p>The code below generates Fig. 2, which displaysa matrix whose first 3 columns are  the memories in the network and whose next 3 columns are the average of raw data patterns converging to the corresponding memory in the first 3 columns:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># memories are ordered by their first appearance</span>
+<span class="n">bin_memories</span> <span class="o">=</span> <span class="n">spikes_model</span><span class="o">.</span><span class="n">memories</span><span class="o">.</span><span class="n">patterns</span>
+<span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">spikes_model</span><span class="o">.</span><span class="n">original_spikes</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">bin_memories</span><span class="p">)))</span>
+<span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">memory</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bin_memories</span><span class="p">):</span>
+    <span class="n">arr</span><span class="p">[:,</span> <span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">spikes_model</span><span class="o">.</span><span class="n">memories</span><span class="o">.</span><span class="n">fp_to_binary_matrix</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">memory</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bin_memories</span><span class="p">):</span>
+    <span class="n">arr</span><span class="p">[:,</span> <span class="n">c</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">bin_memories</span><span class="p">)]</span> <span class="o">=</span> <span class="n">spikes_model</span><span class="o">.</span><span class="n">memories</span><span class="o">.</span><span class="n">mtas</span><span class="p">[</span><span class="n">memory</span><span class="p">]</span> <span class="o">/</span>
+            <span class="n">spikes_model</span><span class="o">.</span><span class="n">memories</span><span class="o">.</span><span class="n">counts</span><span class="p">[</span><span class="n">memory</span><span class="p">]</span>
+
+<span class="k">print</span> <span class="s">&quot;Probabilities of each memory:&quot;</span>
+<span class="k">print</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bin_memories</span><span class="p">,</span> <span class="n">spikes_model</span><span class="o">.</span><span class="n">memories</span><span class="o">.</span><span class="n">to_prob_vect</span><span class="p">())</span>
+
+<span class="c"># Probabilities of each memory:</span>
+<span class="c"># [(&#39;0100010000&#39;, 0.13), (&#39;0000000000&#39;, 0.79249999999999998), /</span>
+<span class="c"># (&#39;0011001000&#39;, 0.077499999999999999)]</span>
+</pre></div>
+</div>
+<p>Notice that the number of occurrences of the cell assembly with neuron 1 and 5 co-active is about double that of 2, 3, 6 co-active, consistent with our construction.</p>
+</div>
+<div class="section" id="saving-and-loading">
+<h2>Saving and loading<a class="headerlink" href="#saving-and-loading" title="Permalink to this headline">¶</a></h2>
+<p>One can save <a class="reference internal" href="hdnet.html#hdnet.spikes.Spikes" title="hdnet.spikes.Spikes"><code class="xref py py-class docutils literal"><span class="pre">Spikes</span></code></a>, <code class="xref py py-class docutils literal"><span class="pre">Learner`s</span> <span class="pre">and</span> <span class="pre">:class:</span></code>.SpikesModel`s:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">spikes_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">&#39;my_spikes_model&#39;</span><span class="p">)</span>
+<span class="n">loaded_spikes_model</span> <span class="o">=</span> <span class="n">SpikesModel</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">&#39;my_spikes_model&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that a <code class="xref py py-class docutils literal"><span class="pre">SpikesModel</span></code> already keeps track of the original spikes it was constructed from and all other internal objects (such as the Hopfield network).</p>
+</div>
+<div class="section" id="stimuli">
+<h2>Stimuli<a class="headerlink" href="#stimuli" title="Permalink to this headline">¶</a></h2>
+<p>Continuing our example, we now discuss how to incorporate stimuli into our analyses.</p>
+<p>First, let&#8217;s create a fake stimulus consisting of random normal 90 x 100 dimensional numpy arrays unless the fake stimulus is presented, in which case it is either a picture of Hobbes or Calvin (with some small noise added):</p>
+<div class="figure align-center" id="id7">
+<a class="reference internal image-reference" href="_images/calvin_sample.png"><img alt="_images/calvin_sample.png" src="_images/calvin_sample.png" style="width: 33%;" /></a>
+<p class="caption"><span class="caption-text">Figure 5. Noisy stimulus: Calvin.</span></p>
+</div>
+<div class="figure align-center" id="id8">
+<a class="reference internal image-reference" href="_images/hobbes_sample.png"><img alt="_images/hobbes_sample.png" src="_images/hobbes_sample.png" style="width: 33%;" /></a>
+<p class="caption"><span class="caption-text">Figure 6. Noisy stimulus: Hobbes.</span></p>
+</div>
+<p>In code this looks like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">hdnet.stimulus</span> <span class="kn">import</span> <span class="n">Stimulus</span>
+
+<span class="n">calvin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">&#39;data/calvin.npy&#39;</span><span class="p">)</span>  <span class="c"># 90 by 100 numpy array</span>
+<span class="n">hobbes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">&#39;data/hobbes.npy&#39;</span><span class="p">)</span>
+
+<span class="n">stimulus_arr</span> <span class="o">=</span> <span class="mi">20</span> \<span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> \<span class="o">*</span><span class="n">calvin</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">stimulus_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">::</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">calvin</span> <span class="o">+</span> <span class="mi">50</span> \<span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">200</span> <span class="o">/</span> <span class="mi">5</span><span class="p">,</span> \<span class="o">*</span><span class="n">calvin</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">stimulus_arr</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">::</span><span class="mi">11</span><span class="p">]</span> <span class="o">=</span> <span class="n">hobbes</span> <span class="o">+</span> <span class="mi">50</span> \<span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">200</span> <span class="o">/</span> <span class="mi">11</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="o">/</span>
+                        \<span class="o">*</span><span class="n">hobbes</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">stimulus_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Calvin Sample Stimulus&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">stimulus_arr</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Hobbes Sample Stimulus&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now, let&#8217;s try and see what were the average stimuli for each fixed-point / memory.  We call such features <em>Memory Triggered Stimulus Averages</em> (MTSA):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">stimulus</span> <span class="o">=</span> <span class="n">Stimulus</span><span class="p">(</span><span class="n">stimulus_arr</span><span class="o">=</span><span class="n">stimulus_arr</span><span class="p">)</span>
+<span class="n">avgs</span> <span class="o">=</span> <span class="n">spikes_model</span><span class="o">.</span><span class="n">memories</span><span class="o">.</span><span class="n">mem_triggered_stim_avgs</span><span class="p">(</span><span class="n">stimulus</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">stm_avg</span> <span class="ow">in</span> <span class="n">avgs</span><span class="p">:</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">stm_avg</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;gray&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Memory Triggered Stimulus Average&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The MTSAs look as following.</p>
+<div class="figure align-center" id="id9">
+<a class="reference internal image-reference" href="_images/assembly1_memory_triggered_stimulus_avg.png"><img alt="_images/assembly1_memory_triggered_stimulus_avg.png" src="_images/assembly1_memory_triggered_stimulus_avg.png" style="width: 33%;" /></a>
+<p class="caption"><span class="caption-text">Figure 7. Memory-triggered-stimulus averages of the Calvin spike pattern in the data.</span></p>
+</div>
+<div class="figure align-center" id="id10">
+<a class="reference internal image-reference" href="_images/zero_memory_triggered_stimulus_avg.png"><img alt="_images/zero_memory_triggered_stimulus_avg.png" src="_images/zero_memory_triggered_stimulus_avg.png" style="width: 33%;" /></a>
+<p class="caption"><span class="caption-text">Figure 8. Memory-triggered-stimulus averages of the empty spike pattern in the data.</span></p>
+</div>
+<div class="figure align-center" id="id11">
+<a class="reference internal image-reference" href="_images/assembly2_memory_triggered_stimulus_avg.png"><img alt="_images/assembly2_memory_triggered_stimulus_avg.png" src="_images/assembly2_memory_triggered_stimulus_avg.png" style="width: 33%;" /></a>
+<p class="caption"><span class="caption-text">Figure 9. Memory-triggered-stimulus averages of the Hobbes spike pattern in the data.</span></p>
+</div>
+</div>
+<div class="section" id="real-data">
+<h2>Real data<a class="headerlink" href="#real-data" title="Permalink to this headline">¶</a></h2>
+<p>Now, we try these methods out on some real data.  First, we download polytrode data recorded by Tim Blanche in the laboratory of Nicholas Swindale, University of British Columbia from the NSF-funded <a class="reference external" href="http://crcns.org/">CRCNS Data Sharing website</a></p>
+<p>Let&#8217;s examine the spontaneous spiking data from anesthetized cat visual cortex area 18 (around 5 minutes of spike-sorted polytrode data from 50 neurons).</p>
+<p>First we read the data using the <cite>.spk</cite> format reader integrated in <cite>hdnet</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">hdnet.data</span> <span class="kn">import</span> <span class="n">SpkReader</span>
+<span class="n">fn</span> <span class="o">=</span> <span class="s">&#39;data/Blanche/crcns_pvc3_cat_recordings/drifting_bar/spike_data&#39;</span>
+<span class="n">spikes</span> <span class="o">=</span> <span class="n">SpkReader</span><span class="o">.</span><span class="n">read_spk_folder</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now we fit a Hopfield network on the spike data:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">spikes_model</span> <span class="o">=</span> <span class="n">SpikeModel</span><span class="p">(</span><span class="n">spikes</span><span class="o">=</span><span class="n">spikes</span><span class="p">)</span>
+<span class="n">spikes_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>  <span class="c"># note: this fits a single network to all trials</span>
+</pre></div>
+</div>
+<p>After fitting the model we converge the windows of raw data to their Hopfield memories:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">spikes_model</span><span class="o">.</span><span class="n">chomp</span><span class="p">()</span>
+<span class="n">converged_spikes</span> <span class="o">=</span> <span class="n">Spikes</span><span class="p">(</span><span class="n">spikes</span><span class="o">=</span><span class="n">spikes_model</span><span class="o">.</span><span class="n">hopfield_spikes</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can now plot them and their covariance:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">plt</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">converged_spikes</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(),</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Converge dynamics on Raw data&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">converged_spikes</span><span class="o">.</span><span class="n">covariance</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)),</span> <span class="n">cmap</span><span class="o">=</span><span class="s">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Covariance of converged memories&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>TBC</p>
+</div>
+</div>
+
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        
+      </div><!-- /row -->
+
+      <!-- row -->
+      <div class="row footer-relbar">
+<div id="navbar-related" class=" related navbar navbar-default" role="navigation" aria-label="related navigation">
+  <div class="navbar-inner">
+    <ul class="nav navbar-nav ">
+        <li><a href="index.html">hdnet v0.1 documentation</a></li>
+    </ul>
+<ul class="nav navbar-nav pull-right hidden-xs hidden-sm">
+      
+        <li><a href="background.html" title="Mathematical background" >previous</a></li>
+        <li><a href="example_sequence.html" title="Example: Analyzing pattern sequences" >next</a></li>
+        <li><a href="py-modindex.html" title="Python Module Index" >modules</a></li>
+        <li><a href="genindex.html" title="General Index" >index</a></li>
+        <li><a href="#">top</a></li> 
+      
+    </ul>
+  </div>
+</div>
+      </div><!-- /row -->
+
+      <!-- footer -->
+      <footer role="contentinfo">
+          &copy; Copyright 2015, Christopher Hillar, Felix Effenberger.
+      </footer>
+      <!-- /footer -->
+
+    </div>
+    <!-- /container -->
+
+  </body>
+</html>

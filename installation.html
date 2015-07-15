@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+
+
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    
+    <title>Installing hdnet &mdash; hdnet v0.1 documentation</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    
+
+<link rel="stylesheet" href="_static/css/basicstrap-base.css" type="text/css" />
+<link rel="stylesheet" id="current-theme" href="_static/css/bootstrap3/bootstrap.min.css" type="text/css" />
+<link rel="stylesheet" id="current-adjust-theme" type="text/css" />
+
+<link rel="stylesheet" href="_static/css/font-awesome.min.css">
+
+<style type="text/css">
+  body {
+    padding-top: 60px;
+    padding-bottom: 40px;
+  }
+</style>
+
+<link rel="stylesheet" href="_static/css/basicstrap.css" type="text/css" />
+<link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:    './',
+            VERSION:     'v0.1',
+            COLLAPSE_INDEX: false,
+            FILE_SUFFIX: '.html',
+            HAS_SOURCE:  true
+  };
+</script>
+    <script type="text/javascript" src="_static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/js/bootstrap3.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery.cookie.min.js"></script>
+<script type="text/javascript" src="_static/js/basicstrap.js"></script>
+<script type="text/javascript">
+</script>
+    <link rel="top" title="hdnet v0.1 documentation" href="index.html" />
+    <link rel="next" title="Citing hdnet" href="citing.html" />
+    <link rel="prev" title="Introduction" href="introduction.html" /> 
+  </head>
+  <body role="document">
+    <div id="navbar-top" class="navbar navbar-fixed-top navbar-default" role="navigation" aria-label="top navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="index.html">hdnet v0.1 documentation</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+              <li class="dropdown visible-xs">
+                <a role="button" id="localToc" data-toggle="dropdown" data-target="#" href="#">Table Of Contents <b class="caret"></b></a>
+                <ul class="dropdown-menu localtoc sp-localtoc" role="menu" aria-labelledby="localToc">
+                <ul>
+<li><a class="reference internal" href="#">Installing hdnet</a><ul>
+<li><a class="reference internal" href="#adding-openblas-support">Adding OpenBLAS support</a></li>
+</ul>
+</li>
+</ul>
+
+                </ul>
+              </li>
+
+            
+              <li><a href="introduction.html" title="Introduction" accesskey="P">previous </a></li>
+              <li><a href="citing.html" title="Citing hdnet" accesskey="N">next </a></li>
+              <li><a href="py-modindex.html" title="Python Module Index" >modules </a></li>
+              <li><a href="genindex.html" title="General Index" accesskey="I">index </a></li>
+            
+            <li class="visible-xs"><a href="_sources/installation.txt" rel="nofollow">Show Source</a></li>
+
+            <li class="visible-xs">
+                <form class="search form-search form-inline navbar-form navbar-right sp-searchbox" action="search.html" method="get">
+                  <div class="input-append input-group">
+                    <input type="text" class="search-query form-control" name="q" placeholder="Search...">
+                    <span class="input-group-btn">
+                    <input type="submit" class="btn" value="Go" />
+                    </span>
+                  </div>
+                  <input type="hidden" name="check_keywords" value="yes" />
+                  <input type="hidden" name="area" value="default" />
+                </form>
+            </li>
+
+            
+
+          </ul>
+
+        </div>
+      </div>
+    </div>
+    
+
+    <!-- container -->
+    <div class="container">
+
+      <!-- row -->
+      <div class="row">
+         
+<div class="col-md-3 hidden-xs" id="sidebar-wrapper">
+  <div class="sidebar hidden-xs" role="navigation" aria-label="main navigation">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installing hdnet</a><ul>
+<li><a class="reference internal" href="#adding-openblas-support">Adding OpenBLAS support</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="introduction.html"
+                        title="previous chapter">Introduction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="citing.html"
+                        title="next chapter">Citing hdnet</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/installation.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" role="search">
+  <h3>Quick search</h3>
+  <form class="search form-inline" action="search.html" method="get">
+      <div class="input-append input-group">
+        <input type="text" class="search-query form-control" name="q" placeholder="Search...">
+        <span class="input-group-btn">
+        <input type="submit" class="btn" value="Go" />
+        </span>
+      </div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+  </div>
+</div> 
+        
+
+        <div class="col-md-9" id="content-wrapper">
+          <div class="document" role="main">
+            <div class="documentwrapper">
+              <div class="bodywrapper">
+                <div class="body">
+                  
+  <div class="section" id="installing-hdnet">
+<h1>Installing hdnet<a class="headerlink" href="#installing-hdnet" title="Permalink to this headline">¶</a></h1>
+<p>TBD</p>
+<div class="section" id="adding-openblas-support">
+<h2>Adding OpenBLAS support<a class="headerlink" href="#adding-openblas-support" title="Permalink to this headline">¶</a></h2>
+<p>The training process of Hopfield networks (from the classes <a class="reference internal" href="hdnet.html#hdnet.hopfield.HopfieldNet" title="hdnet.hopfield.HopfieldNet"><code class="xref py py-class docutils literal"><span class="pre">HopfieldNet</span></code></a>
+and <a class="reference internal" href="hdnet.html#hdnet.hopfield.HopfieldNetMPF" title="hdnet.hopfield.HopfieldNetMPF"><code class="xref py py-class docutils literal"><span class="pre">HopfieldNetMPF</span></code></a>) can be easily parallelized to exploit all available
+CPU cores by using a <cite>numpy</cite> installation that makes use of a multi-threaded
+linear algebra library such as <cite>OpenBLAS</cite>.</p>
+<p>For many Linux installations though, the default linear algebra library used by
+<cite>numpy</cite> is not multithreaded.</p>
+<p>For Debian based systems (such as Ubuntu), to compile <cite>numpy</cite> with support for
+OpenBLAS, a multithreaded linear algebra library, do the following (as described
+in <a class="reference external" href="http://stackoverflow.com/a/14391693">the following Stackoverflow topic</a>):</p>
+<ul>
+<li><p class="first">Install some required packages</p>
+<blockquote>
+<div><div class="code highlight-python"><div class="highlight"><pre>apt-get install build-essential gfortran python-dev git
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Create a temporary directory to compile the code</p>
+<blockquote>
+<div><div class="code highlight-python"><div class="highlight"><pre>mkdir /tmp/openblas &amp;&amp; cd /tmp/openblas
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Get and compile the OpenBLAS sources. Change the install path from <cite>/opt/OpenBLAS</cite>
+in the example to your liking, also something like <cite>~/.local/openblas</cite> is possible.</p>
+<blockquote>
+<div><div class="code highlight-python"><div class="highlight"><pre>git clone git://github.com/xianyi/OpenBLAS
+cd OpenBLAS &amp;&amp; make FC=gfortran
+sudo make PREFIX=/opt/OpenBLAS install
+sudo ldconfig
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Get the <cite>numpy</cite> sources</p>
+<blockquote>
+<div><div class="code highlight-python"><div class="highlight"><pre>git clone https://github.com/numpy/numpy
+cd numpy
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Adjust the build properties of numpy (to make it use the OpenBLAS library)</p>
+<blockquote>
+<div><div class="code highlight-python"><div class="highlight"><pre>cp site.cfg.example site.cfg
+</pre></div>
+</div>
+<p>Now open your favorite editor (<cite>vim</cite>, is it? Or <cite>emacs</cite>?) and uncomment the
+following lines:</p>
+<div class="code highlight-python"><div class="highlight"><pre>...
+[openblas]
+libraries = openblas
+library_dirs = /opt/OpenBLAS/lib
+include_dirs = /opt/OpenBLAS/include
+...
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Compile numpy with OpenBLAS support (optionally add the <cite>&#8211;user</cite> flag to the last
+python call to install the package only for the current user not using root rights;
+the optional argument is marked with parentheses [] below)</p>
+<blockquote>
+<div><div class="code highlight-python"><div class="highlight"><pre>python setup.py config
+python setup.py build &amp;&amp; python setup.py [--user] install
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Now you can test performance with the following script</p>
+<blockquote>
+<div><div class="code highlight-python"><div class="highlight"><pre>import numpy as np
+import sys
+import timeit
+
+try:
+    import numpy.core._dotblas
+    print &#39;fast BLAS&#39;
+except ImportError:
+    print &#39;slow BLAS&#39;
+
+print &#39;version:&#39;, np.__version__
+print &#39;maxint:&#39;, sys.maxint
+print
+
+x = np.random.random((1000,1000))
+
+setup = &#39;import numpy as np; x = np.random.random((1000,1000))&#39;
+count = 10
+
+t = timeit.Timer(&#39;np.dot(x, x.T)&#39;, setup=setup)
+print &#39;dot:&#39;, t.timeit(count)/count, &#39;sec&#39;
+</pre></div>
+</div>
+<p>Save it as <cite>dot_performance.py</cite> and run the following, where <cite>X</cite> is the number of
+CPU cores <cite>numpy</cite> should use for linear algebra operations:</p>
+<div class="code highlight-python"><div class="highlight"><pre>OMP_NUM_THREADS=X python dot_performance.py
+</pre></div>
+</div>
+<p>You should see a nice speedup for higher values of <cite>X</cite>.</p>
+</div></blockquote>
+</li>
+</ul>
+</div>
+</div>
+
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        
+      </div><!-- /row -->
+
+      <!-- row -->
+      <div class="row footer-relbar">
+<div id="navbar-related" class=" related navbar navbar-default" role="navigation" aria-label="related navigation">
+  <div class="navbar-inner">
+    <ul class="nav navbar-nav ">
+        <li><a href="index.html">hdnet v0.1 documentation</a></li>
+    </ul>
+<ul class="nav navbar-nav pull-right hidden-xs hidden-sm">
+      
+        <li><a href="introduction.html" title="Introduction" >previous</a></li>
+        <li><a href="citing.html" title="Citing hdnet" >next</a></li>
+        <li><a href="py-modindex.html" title="Python Module Index" >modules</a></li>
+        <li><a href="genindex.html" title="General Index" >index</a></li>
+        <li><a href="#">top</a></li> 
+      
+    </ul>
+  </div>
+</div>
+      </div><!-- /row -->
+
+      <!-- footer -->
+      <footer role="contentinfo">
+          &copy; Copyright 2015, Christopher Hillar, Felix Effenberger.
+      </footer>
+      <!-- /footer -->
+
+    </div>
+    <!-- /container -->
+
+  </body>
+</html>

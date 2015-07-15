@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+
+
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    
+    <title>hdnet v0.1 manual &mdash; hdnet v0.1 documentation</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    
+
+<link rel="stylesheet" href="_static/css/basicstrap-base.css" type="text/css" />
+<link rel="stylesheet" id="current-theme" href="_static/css/bootstrap3/bootstrap.min.css" type="text/css" />
+<link rel="stylesheet" id="current-adjust-theme" type="text/css" />
+
+<link rel="stylesheet" href="_static/css/font-awesome.min.css">
+
+<style type="text/css">
+  body {
+    padding-top: 60px;
+    padding-bottom: 40px;
+  }
+</style>
+
+<link rel="stylesheet" href="_static/css/basicstrap.css" type="text/css" />
+<link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:    './',
+            VERSION:     'v0.1',
+            COLLAPSE_INDEX: false,
+            FILE_SUFFIX: '.html',
+            HAS_SOURCE:  true
+  };
+</script>
+    <script type="text/javascript" src="_static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/js/bootstrap3.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery.cookie.min.js"></script>
+<script type="text/javascript" src="_static/js/basicstrap.js"></script>
+<script type="text/javascript">
+</script>
+    <link rel="top" title="hdnet v0.1 documentation" href="#" />
+    <link rel="next" title="Introduction" href="introduction.html" /> 
+  </head>
+  <body role="document">
+    <div id="navbar-top" class="navbar navbar-fixed-top navbar-default" role="navigation" aria-label="top navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">hdnet v0.1 documentation</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+              <li class="dropdown visible-xs">
+                <a role="button" id="localToc" data-toggle="dropdown" data-target="#" href="#">Table Of Contents <b class="caret"></b></a>
+                <ul class="dropdown-menu localtoc sp-localtoc" role="menu" aria-labelledby="localToc">
+                <ul>
+<li><a class="reference internal" href="#">hdnet v0.1 manual</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+                </ul>
+              </li>
+
+            
+              <li><a href="introduction.html" title="Introduction" accesskey="N">next </a></li>
+              <li><a href="py-modindex.html" title="Python Module Index" >modules </a></li>
+              <li><a href="genindex.html" title="General Index" accesskey="I">index </a></li>
+            
+            <li class="visible-xs"><a href="_sources/index.txt" rel="nofollow">Show Source</a></li>
+
+            <li class="visible-xs">
+                <form class="search form-search form-inline navbar-form navbar-right sp-searchbox" action="search.html" method="get">
+                  <div class="input-append input-group">
+                    <input type="text" class="search-query form-control" name="q" placeholder="Search...">
+                    <span class="input-group-btn">
+                    <input type="submit" class="btn" value="Go" />
+                    </span>
+                  </div>
+                  <input type="hidden" name="check_keywords" value="yes" />
+                  <input type="hidden" name="area" value="default" />
+                </form>
+            </li>
+
+            
+
+          </ul>
+
+        </div>
+      </div>
+    </div>
+    
+
+    <!-- container -->
+    <div class="container">
+
+      <!-- row -->
+      <div class="row">
+         
+<div class="col-md-3 hidden-xs" id="sidebar-wrapper">
+  <div class="sidebar hidden-xs" role="navigation" aria-label="main navigation">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">hdnet v0.1 manual</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="introduction.html"
+                        title="next chapter">Introduction</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" role="search">
+  <h3>Quick search</h3>
+  <form class="search form-inline" action="search.html" method="get">
+      <div class="input-append input-group">
+        <input type="text" class="search-query form-control" name="q" placeholder="Search...">
+        <span class="input-group-btn">
+        <input type="submit" class="btn" value="Go" />
+        </span>
+      </div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+  </div>
+</div> 
+        
+
+        <div class="col-md-9" id="content-wrapper">
+          <div class="document" role="main">
+            <div class="documentwrapper">
+              <div class="bodywrapper">
+                <div class="body">
+                  
+  <div class="section" id="hdnet-version-manual">
+<h1>hdnet v0.1 manual<a class="headerlink" href="#hdnet-version-manual" title="Permalink to this headline">¶</a></h1>
+<p><cite>hdnet</cite> stands for Hopfield denoising network. It is a Python package
+for analysis of neural population spiking data, i.e. parallel spike trains.</p>
+<p>In particular, it provides a novel method for finding and extracting
+salient low-dimensional representations of the dynamics of populations
+of spiking neurons based on a denoising approach to spatiotemporal
+patterns (STP) contained in the data.</p>
+<p>An always up-to-date online-version of the documentation can be obtained
+at</p>
+<p><a class="reference external" href="http://team-hdnet.github.io/hdnet/">http://team-hdnet.github.io/hdnet/</a></p>
+<p>This manual also can be <a class="reference download internal" href="_downloads/hdnet.pdf"><code class="xref download docutils literal"><span class="pre">downloaded</span> <span class="pre">in</span> <span class="pre">a</span> <span class="pre">PDF</span> <span class="pre">version</span></code></a></p>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installing hdnet</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#adding-openblas-support">Adding OpenBLAS support</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing hdnet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="background.html">Mathematical background</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="background.html#hopfield-networks">Hopfield Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="background.html#dichotomized-gaussian">Dichotomized Gaussian</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="example_basic.html">Basic example</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="example_basic.html#starting-off">Starting off</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_basic.html#going-further">Going further</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_basic.html#saving-and-loading">Saving and loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_basic.html#stimuli">Stimuli</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_basic.html#real-data">Real data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="example_sequence.html">Example: Analyzing pattern sequences</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="example_sequence.html#creating-a-synthetic-data-set">Creating a synthetic data set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_sequence.html#fitting-a-hopfield-network">Fitting a Hopfield network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_sequence.html#examining-the-pattern-sequence">Examining the pattern sequence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_sequence.html#constructing-the-markov-graph">Constructing the Markov graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_sequence.html#indentifying-base-states">Indentifying base states</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_sequence.html#cycles-as-reliably-produced-network-reponses">Cycles as reliably produced network reponses</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hdnet.html">hdnet package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hdnet.html#hdnet-data">hdnet.data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hdnet.html#hdnet-hopfield">hdnet.hopfield</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hdnet.html#hdnet-learner">hdnet.learner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hdnet.html#hdnet-math">hdnet.math</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hdnet.html#hdnet-patterns">hdnet.patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hdnet.html#hdnet-sampling">hdnet.sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hdnet.html#hdnet-spikes">hdnet.spikes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hdnet.html#hdnet-spikes-model">hdnet.spikes_model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hdnet.html#hdnet-stats">hdnet.stats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hdnet.html#hdnet-stimulus">hdnet.stimulus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hdnet.html#hdnet-util">hdnet.util</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hdnet.html#hdnet-visualization">hdnet.visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">References</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="bibliography.html#bibliography"><span>References</span></a></li>
+<li><a class="reference internal" href="genindex.html"><span>Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span>Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span>Search Page</span></a></li>
+</ul>
+</div>
+
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        
+      </div><!-- /row -->
+
+      <!-- row -->
+      <div class="row footer-relbar">
+<div id="navbar-related" class=" related navbar navbar-default" role="navigation" aria-label="related navigation">
+  <div class="navbar-inner">
+    <ul class="nav navbar-nav ">
+        <li><a href="#">hdnet v0.1 documentation</a></li>
+    </ul>
+<ul class="nav navbar-nav pull-right hidden-xs hidden-sm">
+      
+        <li><a href="introduction.html" title="Introduction" >next</a></li>
+        <li><a href="py-modindex.html" title="Python Module Index" >modules</a></li>
+        <li><a href="genindex.html" title="General Index" >index</a></li>
+        <li><a href="#">top</a></li> 
+      
+    </ul>
+  </div>
+</div>
+      </div><!-- /row -->
+
+      <!-- footer -->
+      <footer role="contentinfo">
+          &copy; Copyright 2015, Christopher Hillar, Felix Effenberger.
+      </footer>
+      <!-- /footer -->
+
+    </div>
+    <!-- /container -->
+
+  </body>
+</html>
