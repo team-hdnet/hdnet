@@ -61,6 +61,22 @@ References
 [7] A. Arieli and D. Shoham. Coherent spatiotemporal patterns of ongoing activity revealed by real-time optical imaging coupled with single-unit recording in the cat visual cortex. Journal of Neurophysiology, 1995.
 
 
+Installing
+----------
+
+Until we provide an official release, please install hdnet directly from Github using `pip`.
+
+To install / update to the latest version use:
+
+`pip install git+ssh://git@github.com/team-hdnet/hdnet.git`
+
+To install a specific version, use:
+
+`pip install git+ssh://git@github.com/team-hdnet/hdnet@VERSION`,
+
+where `VERSION` is `v0.1` for example. See releases tab above for released versions.
+ 
+
 Citing hdnet
 ------------
 
