@@ -47,11 +47,17 @@ The package ships with a tutorial and is extensively documented.
 References
 ----------
 [1] S. Grün and S. Rotter. Analysis of parallel spike trains. Springer, 2010
+
 [2] G. Pipa, D. W. Wheeler, W. Singer, and D. Nikolić. NeuroXidence: reliable and efficient analysis of an excess or deficiency of joint-spike events.. Journal of Computational Neuroscience, 25(1):64–88, 2008.
+
 [3] D. Picado-Muiño, C. Borgelt, D. Berger, G. Gerstein, and S. Grün. Finding neural assemblies with frequent item set mining.. Frontiers in neuroinformatics, 7(May):9, 2013.
+
 [4] V. Lopes-dos-Santos, S. Ribeiro, and A. B. L. Tort. Detecting cell assemblies in large neuronal populations.. Journal of Neuroscience Methods, 220(2):149–66, 2013.
+
 [5] K. S. Gansel and W. Singer. Detecting multineuronal temporal patterns in parallel spike trains.. Frontiers in Neuroinformatics, 6(May):18, 2012.
+
 [6] M. Abeles and H. Bergman. Spatiotemporal firing patterns in the frontal cortex of behaving monkeys. Journal of Neurophysiology, 1993.
+
 [7] A. Arieli and D. Shoham. Coherent spatiotemporal patterns of ongoing activity revealed by real-time optical imaging coupled with single-unit recording in the cat visual cortex. Journal of Neurophysiology, 1995.
 
 
@@ -61,16 +67,16 @@ Citing hdnet
 If you use `hdnet` in your work please cite it using the following BibTeX entry.
 
 ```
-    @online{hdnet,
-        author      = {Hillar, Christopher  and Effenberger, Felix},
-        title       = {hdnet -- a Python package for parallel spike train analysis},
-        volume      = {abs/XXX},
-        year        = {2015},
-        eprinttype  = {arxiv},
-        eprint      = {math/0307200v3}
-        url         = {https://github.com/team-hdnet/hdnet}
-        //ee        = {http://arxiv.org/abs/XXX},
-    }
+@online{hdnet,
+    author      = {Hillar, Christopher  and Effenberger, Felix},
+    title       = {\texttt{hdnet} -- a Python package for parallel spike train analysis},
+    volume      = {abs/XXX},
+    year        = {2015},
+    eprinttype  = {arxiv},
+    eprint      = {math/0307200v3}
+    url         = {https://github.com/team-hdnet/hdnet}
+    //ee        = {http://arxiv.org/abs/XXX},
+}
 ```
 
 
@@ -103,7 +109,7 @@ Building the documentation
 
 * Build documentation:
   HTML: make html
-  LaTeX: make latex && ( cd doc/_build/latex && make )
+  LaTeX: make latexpdf
 
 * Built documentation can be found in doc/_build/html and doc/_build/latex
 
