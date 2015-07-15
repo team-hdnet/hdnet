@@ -77,6 +77,12 @@ To install a specific version, use:
 where `VERSION` is `v0.1` for example. See releases tab above for released versions.
  
 
+Documentation
+-------------
+
+[View the documentation (online and PDF version available).](http://team-hdnet.github.io/hdnet/) 
+
+
 Citing hdnet
 ------------
 
