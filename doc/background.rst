@@ -3,7 +3,7 @@
 Mathematical background
 =======================
 
-The following sections described some of the underlying mathematics by methods
+The following sections describe some of the underlying mathematics of methods
 used in `hdnet`.
 
 
@@ -14,12 +14,12 @@ Hopfield Networks
 
 Hopfield network
 
-    define hopfield network
+    TODO
 
 
 Minimum probability flow (MPF)
 
-    define MPF
+    TODO
 
 
 .. _section-mathematical-background-dichotomized:

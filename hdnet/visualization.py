@@ -11,8 +11,6 @@
 
 """
 
-__version__ = "0.1"
-
 import numpy as np
 
 import matplotlib as mpl
@@ -22,19 +20,17 @@ from matplotlib.ticker import NullFormatter
 HAS_PRETTYPLOTLIB = False
 try:
     import prettyplotlib as ppl
-
     HAS_PRETTYPLOTLIB = True
-except ImportError, e:
+except:
     pass
 
 HAS_BREWER2MPL = False
 try:
     import brewer2mpl
-
     set2 = brewer2mpl.get_map('Set2', 'qualitative', 8).mpl_colors
     mpl.rc({'axes.color_cycle': set2, 'lines.linewidth': .75})
     mpl.rcParams.update({'font.size': 22})
-except ImportError, e:
+except:
     pass
 
 

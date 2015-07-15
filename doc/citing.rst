@@ -1,8 +1,7 @@
 Citing hdnet
 ============
 
-If you used `hdnet` in your work and would like to cite it,
-please use the following format.
+If you use `hdnet` in your work please cite it using the following BibTeX entry.
 
 BibTeX::
 
@@ -13,7 +12,7 @@ BibTeX::
         year        = {2015},
         eprinttype  = {arxiv},
         eprint      = {math/0307200v3}
-        url         = {https://github.com/qualiaphile/hdnet}
+        url         = {https://github.com/team-hdnet/hdnet}
         //ee        = {http://arxiv.org/abs/XXX},
     }
 

@@ -15,8 +15,7 @@
 
 """hdnet init code"""
 
-__version__ = "0.1"
-
+__version__ = 'v0.1'
 
 # end of source
 

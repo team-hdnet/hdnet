@@ -17,12 +17,10 @@
 
 """
 
-__version__ = "0.1"
-
 import numpy as np
 import os
 
-from util import hdlog
+from hdnet.util import hdlog
 from hdnet.spikes import Spikes
 
 

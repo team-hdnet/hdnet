@@ -10,12 +10,13 @@
     Record / counts of fixed-points of Hopfield network.
 
 """
+
 from collections import OrderedDict
 
 import os
 import numpy as np
 from hdnet.spikes import Spikes
-from util import hdlog, Restoreable
+from hdnet.util import hdlog, Restoreable
 
 
 class Counter(Restoreable, object):

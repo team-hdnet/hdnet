@@ -11,17 +11,16 @@
 
 """
 
-import os
 import numpy as np
 from time import time as now
 from hdnet.stimulus import Stimulus
 
-from spikes import Spikes
-from patterns import PatternsRaw, PatternsHopfield
-from learner import Learner
-from sampling import sample_from_bernoulli, sample_from_ising, sample_from_dichotomized_gaussian, \
+from hdnet.spikes import Spikes
+from hdnet.patterns import PatternsRaw, PatternsHopfield
+from hdnet.learner import Learner
+from hdnet.sampling import sample_from_bernoulli, sample_from_ising, sample_from_dichotomized_gaussian, \
     find_latent_gaussian, poisson_marginals, find_dg_any_marginal, sample_dg_any_marginal
-from util import Restoreable, hdlog
+from hdnet.util import Restoreable, hdlog
 
 
 class SpikeModel(Restoreable, object):

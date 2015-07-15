@@ -11,12 +11,10 @@
 
 """
 
-__version__ = "0.1"
-
-import os
 import numpy as np
-from util import hdlog, Restoreable
-from visualization import save_matrix_whole_canvas
+
+from hdnet.util import hdlog, Restoreable
+from hdnet.visualization import save_matrix_whole_canvas
 
 
 class Spikes(Restoreable, object):

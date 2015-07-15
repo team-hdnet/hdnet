@@ -12,10 +12,8 @@
 
 """
 
-__version__ = "0.1"
-
 import numpy as np
-from util import hdlog
+from hdnet.util import hdlog
 
 
 class SequenceAnalyzer(object):

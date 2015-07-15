@@ -11,6 +11,7 @@
 """
 
 import numpy as np
+
 from hdnet.maths import heaviside
 from hdnet.util import Restoreable, hdlog
 

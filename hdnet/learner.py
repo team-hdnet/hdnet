@@ -13,9 +13,9 @@
 
 import numpy as np
 
-from hopfield import HopfieldNetMPF, HopfieldNet
-from patterns import Counter
-from util import Restoreable, hdlog 
+from hdnet.hopfield import HopfieldNetMPF, HopfieldNet
+from hdnet.patterns import Counter
+from hdnet.util import Restoreable, hdlog
 
 
 class Learner(Restoreable, object):
