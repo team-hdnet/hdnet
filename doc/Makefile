@@ -15,7 +15,7 @@ endif
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
+ALLSPHINXOPTS   = -a -E -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
@@ -178,6 +178,8 @@ pseudoxml:
 
 
 deploy:
+	rm -rf $(BUILDDIR)/*
+	touch *.rst
 	@echo "Building PDF"
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 	@echo "Running LaTeX files through pdflatex..."
@@ -187,9 +189,8 @@ deploy:
 	@echo "Building HTML (including PDF)"
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo "Updating github-pages"
-	( cd _build/html && git commit -a -m "Updated documentation" && git push )
+	cd $(BUILDDIR)/html; git commit -a -m "Updated documentation"; git push
 
-	
 
 
 
