@@ -105,22 +105,15 @@ If you use `hdnet` in your work please cite it using the following BibTeX entry.
 Authors
 -------
 
-[Christopher Hillar](http://www.msri.org/people/members/chillar/)
+[Christopher Hillar](http://www.msri.org/people/members/chillar/)  
+Redwood Center for Theoretical Neuroscience  
+UC Berkeley, Berkeley, CA, USA  
+E-mail: chillar@berkeley.edu  
 
-Redwood Center for Theoretical Neuroscience
-
-UC Berkeley, Berkeley, CA, USA
-
-E-mail: chillar@berkeley.edu
-
-
-[Felix Effenberger](http://personal-homepages.mis.mpg.de/effen/)
-
-Max-Planck-Institute for Mathematics in the Sciences
-
-Leipzig, Germany
-
-E-mail: Felix.Effenberger@mis.mpg.de
+[Felix Effenberger](http://personal-homepages.mis.mpg.de/effen/)  
+Max-Planck-Institute for Mathematics in the Sciences  
+Leipzig, Germany  
+E-mail: Felix.Effenberger@mis.mpg.de  
 
 
 Contributing
