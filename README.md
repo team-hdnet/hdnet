@@ -80,7 +80,7 @@ where `VERSION` is `v0.1` for example. See releases tab above for released versi
 Documentation
 -------------
 
-[View the documentation (online and PDF version available).](http://team-hdnet.github.io/hdnet/) 
+[View the documentation (online and PDF version available).](http://team-hdnet.github.io/hdnet/git) 
 
 
 Citing hdnet
@@ -105,12 +105,12 @@ If you use `hdnet` in your work please cite it using the following BibTeX entry.
 Authors
 -------
 
-Christopher Hillar
+[Christopher Hillar](http://www.msri.org/people/members/chillar/)
 Redwood Center for Theoretical Neuroscience
 UC Berkeley, Berkeley, CA, USA
 E-mail: chillar@berkeley.edu
 
-Felix Effenberger
+[Felix Effenberger](http://personal-homepages.mis.mpg.de/effen/)
 Max-Planck-Institute for Mathematics in the Sciences
 Leipzig, Germany
 E-mail: Felix.Effenberger@mis.mpg.de
