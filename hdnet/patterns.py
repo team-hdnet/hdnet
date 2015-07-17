@@ -534,14 +534,16 @@ class Counter(Restoreable, object):
         stim_avgs = []
         stm_arr = stimulus.stimulus_arr
         
-        arr = np.zeros((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:])
+        arr = stm_arr.reshape(((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:]))
+        #np.zeros((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:])
+
 
         # for t in xrange(stm_arr.shape[0]):
         #     arr[t * stm_arr.shape[1]:(t + 1) * stm_arr.shape[1]] = stm_arr[t]
         # 
         for c, pattern in enumerate(self._patterns):
             idx = (self._sequence == c)
-            stim_avgs.append(stm_arr[idx].mean(axis=0))
+            stim_avgs.append(arr[idx].mean(axis=0))
             # if c > 1:
             #     stop
 
