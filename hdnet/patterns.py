@@ -10,12 +10,13 @@
     Record / counts of fixed-points of Hopfield network.
 
 """
+
 from collections import OrderedDict
 
 import os
 import numpy as np
 from hdnet.spikes import Spikes
-from util import hdlog, Restoreable
+from hdnet.util import hdlog, Restoreable
 
 
 class Counter(Restoreable, object):
@@ -191,6 +192,18 @@ class Counter(Restoreable, object):
             raw data, as 1d vectors
         """
         return self._patterns
+
+    @property
+    def num_patterns(self):
+        """
+        Returns the number of patterns encountered in the raw data.
+
+        Returns
+        -------
+        N : int
+            number of distinct patterns in the raw data
+        """
+        return len(self._patterns)
 
     @property
     def lookup_patterns(self):
@@ -439,8 +452,8 @@ class Counter(Restoreable, object):
 
     def pattern_to_binary_matrix(self, key):
         """
-        Returns representation of pattern with key
-        (as string of binary numbers) as binary vector.
+        Returns a binary matrix representation of a pattern with the given key
+        (as string of binary numbers).
         
         Parameters
         ----------
@@ -457,7 +470,7 @@ class Counter(Restoreable, object):
 
     def top_binary_matrices(self, m):
         """
-        Returns top `m` likely patterns.
+        Returns the top `m` likely patterns.
         
         Parameters
         ----------
@@ -475,6 +488,35 @@ class Counter(Restoreable, object):
             top_binary.append(self.pattern_to_binary_matrix(self._lookup_patterns[self._counts.keys()[i]]))
         return top_binary
 
+
+    def pattern_correlation_coefficients(self, labels = None, **kwargs):
+        """
+        Calculates the matrix of correlation coefficients between
+        memories.
+
+        Takes optional argument labels that allows to restrict the
+        selection of patterns to a subset of all memories. Entries
+        in labels have to be in the closed interval [0, self.num_patterns - 1].
+
+        Parameters
+        ----------
+        labels : array_like, int
+            Labels of patterns to consider
+        kwargs : dictionary
+            Additional arguments passed to np.corrcoef
+
+        Returns
+        -------
+        C : 2d numpy array
+            Matrix of normalized pairwise correlation coefficients
+        """
+
+        if labels is None:
+            labels = xrange(self.num_patterns)
+
+        pats = np.array([self.pattern_for_key(self._patterns[l]).ravel() for l in labels])
+        return np.corrcoef(pats, **kwargs)
+
     def mem_triggered_stim_avgs(self, stimulus):
         """
         Returns the average stimulus appearing when a given binary pattern appears.
@@ -491,11 +533,14 @@ class Counter(Restoreable, object):
         """
         stim_avgs = []
         stm_arr = stimulus.stimulus_arr
-        arr = np.zeros((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:])
+        
+        arr = stm_arr.reshape(((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:]))
+        #np.zeros((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:])
 
-        for t in xrange(stm_arr.shape[0]):
-            arr[t * stm_arr.shape[1]:(t + 1) * stm_arr.shape[1]] = stm_arr[t]
 
+        # for t in xrange(stm_arr.shape[0]):
+        #     arr[t * stm_arr.shape[1]:(t + 1) * stm_arr.shape[1]] = stm_arr[t]
+        # 
         for c, pattern in enumerate(self._patterns):
             idx = (self._sequence == c)
             stim_avgs.append(arr[idx].mean(axis=0))

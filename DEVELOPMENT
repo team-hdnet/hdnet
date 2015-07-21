@@ -12,9 +12,13 @@ Development documentation
   To install: pip install sphinx sphinxcontrib-napoleon sphinxcontrib-bibtex sphinx_rtd_theme
 
   Documentation:
+  http://gisellezeno.com/tutorials/sphinx-for-python-documentation.html
   http://nipy.sourceforge.net/nipy/devel/devel/guidelines/sphinx_helpers.html
   https://pythonhosted.org/an_example_pypi_project/sphinx.html
   http://raxcloud.blogspot.de/2013/02/documenting-python-code-using-sphinx.html
+
+* Setup github-pages docs
+  http://gisellezeno.com/tutorials/sphinx-for-python-documentation.html
 
 * Release sytem: PyBuilder
 
@@ -31,7 +35,7 @@ Development documentation
   bitstring
   statsmodels
 
-* Install in develop mode:
+* Install package in develop mode:
 
   python setup.py develop
 

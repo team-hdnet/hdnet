@@ -17,12 +17,10 @@
 
 """
 
-__version__ = "0.1"
-
 import numpy as np
 import os
 
-from util import hdlog
+from hdnet.util import hdlog
 from hdnet.spikes import Spikes
 
 
@@ -262,7 +260,7 @@ class MatlabReaderHDF5(Reader):
         self.open(file_name)
 
     def __getitem__(self, item):
-        return self.get_item_numpy(item)
+        return self.get_object_numpy(item)
 
     def open(self, file_name):
         """
@@ -503,23 +501,25 @@ class Binner(object):
         object.__init__(self)
 
     @staticmethod
-    def bin_spike_times(spike_times, bin_size, t_min=None, t_max=None):
+    def bin_spike_times(spike_times, bin_size, cells = None, t_min=None, t_max=None):
         """
         Bins given spike_times into bins of size bin_size. Spike times
         expected in seconds (i.e. 1.0 for a spike at second 1, 0.5 for a
         spike happening at 500ms).
 
-        Takes optional arguments t_min and t_max that can be used to restrict
-        the time range (default t_min = minimum of all spike times in
-        spike_times, default t_max = maximum of all spike times in
-        spike_times)
+        Takes optional arguments cells, t_min and t_max that can be used to restrict
+        the cell indices (defaults to all cells) and time range
+        (default t_min = minimum of all spike times in spike_times,
+        default t_max = maximum of all spike times in spike_times).
 
         Parameters
         ----------
-        spike_times : array_like
-            2d array of spike times of cells
+        spike_times : 2d numpy array
+            2d array of spike times of cells, cells as rows
         bin_size : float
             bin size to be used for binning (1ms = 0.001)
+        cells : array_like, optional
+            indices of cells to process (default None, i.e. all cells)
         t_min : float, optional
             time of leftmost bin (default None)
         t_max : float, optional
@@ -533,7 +533,14 @@ class Binner(object):
         t_min_dat = np.inf
         t_max_dat = -np.inf
 
-        spike_times_nonempty = [x for x in spike_times if len(x) > 0]
+
+        spike_times = np.atleast_1d(spike_times)
+
+
+        if cells is None:
+            cells = np.array(range(len(spike_times)))
+
+        spike_times_nonempty = [x for x in spike_times[cells] if len(x) > 0]
         if len(spike_times_nonempty) > 0:
             t_min_dat = min([t_min_dat] + map(min, spike_times_nonempty))
             t_max_dat = max([t_max_dat] + map(max, spike_times_nonempty))
@@ -549,7 +556,7 @@ class Binner(object):
             return np.zeros((len(spike_times), 1))
 
         bins = np.arange(t_min, t_max + bin_size, bin_size)
-        binned = np.zeros((len(spike_times), len(bins)), dtype=int)
+        binned = np.zeros((len(spike_times[cells]), len(bins)), dtype=int)
 
         hdlog.info('Binning {c} cells between t_min={m} and t_max={M}, {bins} bins'.format(
             c=binned.shape[0], m=t_min, M=t_max, bins=len(bins)
@@ -564,5 +571,91 @@ class Binner(object):
 
         return Spikes(spikes=binned)
 
+
+class SequenceEncoder(object):
+    """
+    Sequence encoder class. Provides methods that take spike times as list of times
+    and extract firing sequences (just preserving the sequence and discarding other
+    timing information).
+
+    **Example**:
+    Combined use with KlustaKwick reader::
+
+        spikes_times = KlustaKwickReader.read_spikes(DIRECTORY, SAMPLING_RATE)
+        # calculate spikes sequence
+        spikes_sequence = Binner.get_spike_sequence(spikes_times)
+
+    """
+    def __init__(self):
+        object.__init__(self)
+
+    @staticmethod
+    def get_spike_sequence(spike_times, cells = None, t_min=None, t_max=None):
+        """
+        Extracts the firing sequence from the given spike times, i.e. a binary
+        matrix S of dimension N x M where N is the number of neurons and M the
+        total number of spikes in the data set. Each column of S contains exactly
+        one non-zero entry, the index of the cell that spiked. Absolute
+        spike timing information is discarded, spike order is preserved.
+
+        Takes optional arguments cells, t_min and t_max that can be used to restrict
+        the cell indices (defaults to all cells) and time range
+        (default t_min = minimum of all spike times in spike_times,
+        default t_max = maximum of all spike times in spike_times).
+
+        Parameters
+        ----------
+        spike_times : array_like
+            2d array of spike times of cells
+        cells : array_like, optional
+            indices of cells to process (default None, i.e. all cells)
+        t_min : float, optional
+            time of leftmost bin (default None)
+        t_max : float, optional
+            time of rightmost bin (default None)
+
+        Returns
+        -------
+        sequence : 2d numpy array of int
+            Spike sequence matrix S
+        """
+        t_min_dat = np.inf
+        t_max_dat = -np.inf
+
+        spike_times = np.atleast_2d(spike_times)
+
+        if cells is None:
+            cells = np.array(range(len(spike_times)))
+
+        spike_times_nonempty = [x for x in spike_times[cells] if len(x) > 0]
+        if len(spike_times_nonempty) > 0:
+            t_min_dat = min([t_min_dat] + map(min, spike_times_nonempty))
+            t_max_dat = max([t_max_dat] + map(max, spike_times_nonempty))
+
+        if t_min is None:
+            t_min = t_min_dat
+
+        if t_max is None:
+            t_max = t_max_dat
+
+        if t_min == np.inf or t_max == -np.inf:
+            hdlog.info('No spikes!')
+            return np.zeros((len(spike_times), 1))
+
+        num_cells = len(cells)
+        num_spikes = sum(map(len, spike_times_nonempty))
+        sequence = np.zeros((num_cells, num_spikes), dtype=int)
+
+        hdlog.info('Extracting sequences for {c} cells between t_min={m} and t_max={M}, {s} spikes'.format(
+            c=num_cells, m=t_min, M=t_max, s=num_spikes))
+
+        times = np.array([s for c in spike_times_nonempty for s in c])
+        sort_idx = np.argsort(times)
+        idxs = np.array([i for i, c in enumerate(spike_times_nonempty) for _ in c])
+
+        for i, c in enumerate(idxs[sort_idx]):
+            sequence[i, c] = 1
+
+        return sequence
 
 # end of source

@@ -15,7 +15,7 @@ import os
 
 import numpy as np
 from hdnet.util import Restoreable, hdlog
-from visualization import save_matrix_whole_canvas
+from hdnet.visualization import save_matrix_whole_canvas
 
 
 class Stimulus(Restoreable, object):

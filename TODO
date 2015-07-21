@@ -39,9 +39,8 @@ Bugs
 ====
 
 - Pattern needs superfluous Learner for some parameters
-- Untangle Counter and Patterns
 - Rotate parameter for chomp routines: grab from class parameters
-- Investiage file reading bug on 64 bit linux machines
+- Investiage file reading bug on some 64 bit linux machines
 
 
 Documentation
