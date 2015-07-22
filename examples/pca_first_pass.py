@@ -13,7 +13,7 @@ from hdnet.sampling import sample_from_bernoulli
 
 N = 256
 S = int(1e5)
-M = 16
+M = 32
 p = 0.05
 
 amin = 11
@@ -143,7 +143,7 @@ plt.colorbar()
 
 
 binpats = []
-t = 0.0002
+t = 0.00025
 for i in xrange(M):
     pp = aassemblypatterns.T[i].copy()
     pp[pp>t] = 1
