@@ -11,16 +11,16 @@ from hdnet.patterns import PatternsHopfield
 from hdnet.sampling import sample_from_bernoulli
 
 
-N = 256
-M = 128
+N = 512
+M = 256
 
 numshow = 1000
-S = (M + 10) * numshow
+S = (M + 1) * numshow
 
 p = 0.05
 
-amin = 11
-amax = 15
+amin = 22
+amax = 30
 
 pats = np.array([sample_from_bernoulli([np.random.randint(amin, amax + 1)/float(N)]*N,1) for _ in xrange(M)])
 
@@ -47,14 +47,6 @@ corr[np.diag_indices(X.shape[0])] = 0
 
 cov = np.cov(X)
 cov[np.diag_indices(X.shape[0])] = 0
-
-plt.figure()
-plt.imshow(cov, interpolation='nearest')
-plt.title('(Off-diagonal) Covariance matrix')
-plt.xlabel('Neuron #')
-plt.ylabel('Neuron #')
-plt.colorbar()
-plt.savefig('figs/Cov.pdf')
 
 window_size = 1
 spikes = Spikes(spikes=X)
@@ -109,9 +101,15 @@ plt.ylabel('Neuron #')
 plt.savefig('figs/difference_actual_found.pdf', bbox_inches='tight', pad_inches=.02)
 
 
+print "mean difference", difference.mean()
 
-
-
+plt.figure()
+plt.imshow(cov, interpolation='nearest')
+plt.title('(Off-diagonal) Covariance matrix')
+plt.xlabel('Neuron #')
+plt.ylabel('Neuron #')
+plt.colorbar()
+plt.savefig('figs/Cov.pdf')
 
 
 #empirical = Counter(spikes)
