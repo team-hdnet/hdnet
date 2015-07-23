@@ -10,27 +10,35 @@ from hdnet.learner import Learner
 from hdnet.patterns import PatternsHopfield
 from hdnet.sampling import sample_from_bernoulli
 
-
 N = 128
-M = 64
-p = 0.05
+M = 8
+p = 0.25
 
-numshow = 1000
-S = (M + 1) * numshow
+numshow = int(N*1.5)
+S = (M + 2*M) * numshow
 
-amin = int(N * p * .9)
+amin = int(N * p) #int(N * p * .9)
 amax = int(N * p * 1.1)
 
-pats = np.array([sample_from_bernoulli([p]*N,1)] + [sample_from_bernoulli([np.random.randint(amin, amax + 1)/float(N)]*N,1) for _ in xrange(M - 1)])
+#pats = np.array([sample_from_bernoulli([p]*N,1)] + [sample_from_bernoulli([np.random.randint(amin, amax + 1)/float(N)]*N,1) for _ in xrange(M - 1)])
 
 pats = np.array([np.zeros(N) for _ in xrange(M)])
 for i in xrange(M):
-    pats[i][i:i + amin] = 1
+    pats[i][i*int(amin*0.3):i*int(amin*0.3) + amin] = 1
+
+patsrc = sample_from_bernoulli([p]*M*N,1)
+#pats = np.array([patsrc[i*8 : i*8 + N] for i in xrange(M)])
 
 X = np.zeros((N, S))
 actual = np.zeros(X.shape)
 
-patpos = np.random.permutation(S)[:M*numshow]
+'''
+#patpos = np.random.permutation(S)[:M*numshow]
+patpos = []
+
+for i in xrange(numshow):
+	patpos.extend(range(i*M, (i+1)*M))
+
 pos = 0
 for pat in pats:
 	for _ in xrange(numshow):
@@ -40,6 +48,34 @@ for pat in pats:
 
 		actual[:, patpos[pos]] = pat
 		pos += 1
+'''
+
+X = (np.random.random((S, N)) < p).astype(int).T
+
+dd = 0
+jj = 0
+#patpos = np.random.permutation(S)[:M * numshow]
+patpos = xrange(M * numshow)
+for j in patpos:
+	pat = pats[jj]
+	noise = (np.random.random((1, N)) < p)
+	patnoise = np.logical_xor(pat.astype(bool), noise).astype(int).ravel()
+	X[:, j] = patnoise
+	actual[:, j] = pat
+	if dd == 0:
+		#up
+		if jj < len(pats) - 1:
+			jj += 1
+		else:
+			jj -= 1
+			dd = 1
+	else:
+		#down
+		if jj > 0:
+			jj -= 1
+		else:
+			jj += 1
+			dd = 0
 
 corr = np.dot(X, X.T)
 corr[np.diag_indices(X.shape[0])] = 0
@@ -47,8 +83,85 @@ corr[np.diag_indices(X.shape[0])] = 0
 cov = np.cov(X)
 cov[np.diag_indices(X.shape[0])] = 0
 
+spikes = Spikes(spikes=X)
+
+print "learning.."
+learner=Learner(spikes)
+
+t1 = now()
+learner.learn_from_spikes(spikes,window_size=1)
+t2 = now()
 
 
+if (learner.network(pats) == 0).all():
+	print "no patterns!"
+
+numcorrect = (learner.network(pats) == pats).sum()  # == M * N
+print numcorrect, numcorrect/float(N*M)
+print t2-t1
+
+rast = spikes.rasterize()
+conv_spikes = learner.network(rast[:, :500].T).T
+difference = actual[:, :500] - conv_spikes
+
+perm = np.random.permutation(N)
+
+plt.figure()
+plt.imshow(rast[:, :500], interpolation='nearest', cmap='gray')
+plt.title('First 500 time bins (Raw noisy)')
+plt.xlabel('Time bin')
+plt.ylabel('Neuron #')
+plt.savefig('figs/rast.pdf', bbox_inches='tight', pad_inches=.02)
+
+plt.figure()
+plt.imshow(rast[perm, :500], interpolation='nearest', cmap='gray')
+plt.title('First 500 time bins (Raw noisy), shuffled')
+plt.xlabel('Time bin')
+plt.ylabel('Neuron #')
+plt.savefig('figs/rast_shuff.pdf', bbox_inches='tight', pad_inches=.02)
+
+
+plt.figure()
+plt.imshow(conv_spikes, interpolation='nearest', cmap='gray')
+plt.title('First 500 time bins (Converged Patterns)')
+plt.xlabel('Time bin')
+plt.ylabel('Neuron #')
+plt.savefig('figs/conv_spikes.pdf', bbox_inches='tight', pad_inches=.02)
+
+plt.figure()
+plt.imshow(conv_spikes[perm], interpolation='nearest', cmap='gray')
+plt.title('First 500 time bins (Converged Patterns), shuffled')
+plt.xlabel('Time bin')
+plt.ylabel('Neuron #')
+plt.savefig('figs/conv_spikes_shuff.pdf', bbox_inches='tight', pad_inches=.02)
+
+
+# actual = np.zeros(X.shape)
+# actual[:, patpos] += 1
+plt.figure()
+plt.imshow(actual[:, :500], interpolation='nearest', cmap='gray')
+plt.title('First 500 time bins (Actual hidden)')
+plt.xlabel('Time bin')
+plt.ylabel('Neuron #')
+plt.savefig('figs/actual_hidden.pdf', bbox_inches='tight', pad_inches=.02)
+
+plt.figure()
+plt.imshow(difference, interpolation='nearest', cmap='gray')
+plt.title('First 500 time bins (Actual - Converged)')
+plt.xlabel('Time bin')
+plt.ylabel('Neuron #')
+plt.savefig('figs/difference_actual_found.pdf', bbox_inches='tight', pad_inches=.02)
+
+
+print "mean difference", difference.mean()
+
+plt.figure()
+plt.imshow(cov, interpolation='nearest')
+plt.title('(Off-diagonal) Covariance matrix')
+plt.xlabel('Neuron #')
+plt.ylabel('Neuron #')
+plt.colorbar()
+plt.savefig('figs/Cov.pdf')
 
 ############################################
 # PCA
@@ -142,9 +255,10 @@ plt.matshow(aassemblypatterns, cmap='gray')
 plt.colorbar()
 
 
+t = 0.00025
+
 binpats = []
 numfound = 0
-t = 0.00025
 for i in xrange(nassemblies):
     pp = aassemblypatterns.T[i].copy()
     pp[pp>t] = 1
@@ -159,4 +273,8 @@ for i in xrange(nassemblies):
             break    
     print i, found
 
+binpats = np.array(binpats).T
+
+plt.figure()
+plt.matshow(binpats, cmap='gray')
 
