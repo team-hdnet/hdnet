@@ -46,19 +46,22 @@ The package ships with a tutorial and is extensively documented.
 
 References
 ----------
-[1] S. Grün and S. Rotter. Analysis of parallel spike trains. Springer, 2010
-
-[2] G. Pipa, D. W. Wheeler, W. Singer, and D. Nikolić. NeuroXidence: reliable and efficient analysis of an excess or deficiency of joint-spike events.. Journal of Computational Neuroscience, 25(1):64–88, 2008.
-
-[3] D. Picado-Muiño, C. Borgelt, D. Berger, G. Gerstein, and S. Grün. Finding neural assemblies with frequent item set mining.. Frontiers in neuroinformatics, 7(May):9, 2013.
-
-[4] V. Lopes-dos-Santos, S. Ribeiro, and A. B. L. Tort. Detecting cell assemblies in large neuronal populations.. Journal of Neuroscience Methods, 220(2):149–66, 2013.
-
-[5] K. S. Gansel and W. Singer. Detecting multineuronal temporal patterns in parallel spike trains.. Frontiers in Neuroinformatics, 6(May):18, 2012.
-
-[6] M. Abeles and H. Bergman. Spatiotemporal firing patterns in the frontal cortex of behaving monkeys. Journal of Neurophysiology, 1993.
-
-[7] A. Arieli and D. Shoham. Coherent spatiotemporal patterns of ongoing activity revealed by real-time optical imaging coupled with single-unit recording in the cat visual cortex. Journal of Neurophysiology, 1995.
+[1] S. Grün and S. Rotter. Analysis of parallel spike trains. Springer, 2010  
+[2] G. Pipa, D. W. Wheeler, W. Singer, and D. Nikolić. NeuroXidence: reliable 
+and efficient analysis of an excess or deficiency of joint-spike events. 
+Journal of Computational Neuroscience, 25(1):64–88, 2008.  
+[3] D. Picado-Muiño, C. Borgelt, D. Berger, G. Gerstein, and S. Grün. Finding
+neural assemblies with frequent item set mining.
+Frontiers in neuroinformatics, 7(May):9, 2013.  
+[4] V. Lopes-dos-Santos, S. Ribeiro, and A. B. L. Tort. Detecting cell assemblies
+in large neuronal populations. Journal of Neuroscience Methods, 220(2):149–66, 2013.  
+[5] K. S. Gansel and W. Singer. Detecting multineuronal temporal patterns in 
+parallel spike trains. Frontiers in Neuroinformatics, 6(May):18, 2012.  
+[6] M. Abeles and H. Bergman. Spatiotemporal firing patterns in the frontal cortex 
+of behaving monkeys. Journal of Neurophysiology, 1993.  
+[7] A. Arieli and D. Shoham. Coherent spatiotemporal patterns of ongoing activity
+revealed by real-time optical imaging coupled with single-unit recording in the cat
+visual cortex. Journal of Neurophysiology, 1995.
 
 
 Installing
@@ -80,7 +83,7 @@ where `VERSION` is `v0.1` for example. See releases tab above for released versi
 Documentation
 -------------
 
-[View the documentation (online and PDF version available).](http://team-hdnet.github.io/hdnet/git) 
+[View the documentation (online and PDF version available).](http://team-hdnet.github.io/hdnet) 
 
 
 Citing hdnet
@@ -108,19 +111,19 @@ Authors
 [Christopher Hillar](http://www.msri.org/people/members/chillar/)  
 Redwood Center for Theoretical Neuroscience  
 UC Berkeley, Berkeley, CA, USA  
-E-mail: chillar@berkeley.edu  
+E-mail: chillar@berkeley.edu
 
 [Felix Effenberger](http://personal-homepages.mis.mpg.de/effen/)  
 Max-Planck-Institute for Mathematics in the Sciences  
 Leipzig, Germany  
-E-mail: Felix.Effenberger@mis.mpg.de  
+E-mail: Felix.Effenberger@mis.mpg.de
 
 
 Contributing
 ------------
 
-We are looking for contributors! Interested please contact us personally
-or via a pull request!
+We are looking for contributors! If you are interested in contributing 
+or find a bug, please contact us personally or via a pull request!
 
 
 Building the documentation
