@@ -119,6 +119,12 @@ Leipzig, Germany
 E-mail: Felix.Effenberger@mis.mpg.de
 
 
+License
+-------
+
+For non-commercial use, `hdnet` is licensed under the GNU GPLv3, see file LICENSE.
+For use in commercial projects please contact the authors for licensing options. 
+
 Contributing
 ------------
 

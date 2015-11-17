@@ -728,7 +728,7 @@ class HopfieldNetMPF(HopfieldNet):
         Ksum = 0
         dJ = np.zeros((self._N, self._N), dtype=float)
         for batch in xrange(nbatch):
-            hdlog.debug("batch %i/%i" % (batch+1,nbatch))
+            hdlog.debug("batch %i/%i" % (batch + 1,nbatch))
             X = sampler(batch_size)
             S = 2 * X - 1
             Kfull = np.exp(-S * np.dot(X, J.T) + .5 * np.diag(J)[None, :])
