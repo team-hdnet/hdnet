@@ -1,0 +1,35 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+	config.vm.box = "hdnet"
+	config.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+	config.vm.network :forwarded_port, host: 8888, guest: 8888
+	
+	# synced folder
+	# config.vm.synced_folder("shared", "/shared")
+
+	# more memory
+	# config.vm.provider :virtualbox do |vb|
+	#	vb.customize ["modifyvm", :id, "--memory", 2048]
+	# end
+
+	config.vm.provision "fix-no-tty", type: "shell" do |s|
+	    s.privileged = false
+	    s.inline = "sudo sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile"
+	end
+
+	config.vm.provision "shell", inline: <<-SHELL
+		apt-get update
+		apt-get install -q -y git python-dev python-pip
+		apt-get install -q -y python-numpy python-matplotlib python-scipy
+		pip install notebook
+		pip install git+https://github.com/team-hdnet/hdnet.git
+	SHELL
+
+	config.vm.provision "shell", run: "always", inline: <<-SHELL
+		jupyter notebook --no-browser --ip=0.0.0.0 &
+	SHELL
+end

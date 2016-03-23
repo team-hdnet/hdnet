@@ -836,6 +836,74 @@ class HopfieldNetMPF(HopfieldNet):
         self._learn_iterations = status["learn_iterations"]
         return status
 
+    # parameters: 
+    # X: patterns to be learned
+    # r: radius
+
+    def store_patterns_using_r_mpf(self, X, r = 1, p = .1, m = 10, disp=False, **kwargs):
+        """
+        Stores patterns in X using generalized Minimum Probability Flow (MPF) learning
+        rule, r - MPF.
+        
+        Parameters
+        ----------
+        X : numpy array
+            (M, N)-dim array of binary input patterns of length N,
+            where N is the number of nodes in the network
+        r : int, optional
+            Radius of Hamming ball (default 1)
+        m : int, optional
+            Flipping probability of bits of data pattern (default 10)
+        p : float, optional
+            Flipping probability of bits of data pattern (default .1)
+        disp : bool, optional
+            Display scipy L-BFGS-B output (default False)
+
+        Returns
+        -------
+        status : dict
+            Dictionary containing status information
+        """
+        import math
+        import scipy.optimize
+
+        # TODO check whether this works as expected for r = 1
+
+        # TODO rework parameters r, p, m -- and investigate on good standard values
+
+        def objective_gradient_minfunc(J, X, r = r):
+        	# TODO: vectorize as much as possible
+            J = J.reshape(self._N, self._N)
+            Xt = 2 * X - 1
+            S = np.array([np.diag(2 * (np.random.random(self.N) < p).astype(int) - 1) for _ in range(m)])
+            T = np.zeros((m, self.N, self.N))
+            for k in range(m):
+                T[k] = J - np.dot(np.dot(S[k].T, J), S[k])
+            s = 0
+            for i, x in enumerate(X):
+            	# this is SLOOOW, at least cythonize after testing it does the right thing
+                e1 = math.exp(self.energy(x))
+                dot1 = np.tensordot(x.T, T, axes = 1)
+                dot2 = np.tensordot(dot1, x, axes = 1)
+                dotexp = np.exp(dot2)
+                s += np.sum(dotexp)
+            #TODO: return gradient of J here, dJ
+            #return s, dJ (or dJ, s), check docs for scipy.optimize.fmin_l_bfgs_b
+            return s
+
+        # TODO set approx_grad = False once gradient computation in place
+        A, Amin, status = scipy.optimize.fmin_l_bfgs_b(
+            objective_gradient_minfunc, self._J.ravel(), args=[X],
+            iprint=-1 if not disp else 0, approx_grad = True, **kwargs)
+
+        J = A.reshape(self._N, self._N)
+        self._theta = -.5 * np.diag(J)
+        self._J = J
+        self._J[np.eye(self._N, dtype=bool)] *= 0
+        status["learn_iterations"] = status["funcalls"] * len(X)
+        self._learn_iterations = status["learn_iterations"]
+        return status
+
     def learn_from_sampler(self, sampler, sample_size, batch_size=None, use_gpu=False):
         """
         Learn from sampler
