@@ -945,6 +945,25 @@ class PatternsHopfield(Counter):
             Y = Y_
         return Spikes(spikes=Y)
 
+    def converged_patterns(self):
+        """
+        Returns the converged versions the raw patterns encountered.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        converged : 2d numpy array
+            Converged version of raw data
+        """
+        converged = np.array((len(self.patterns[0]), len(self.sequence)))
+        mats = [self.pattern_to_binary_matrix(i) for i in range(len(self.patterns))]
+        for i, l in enumerate(self.sequence):
+            converged[i, :] = mats[l].ravel()
+        return converged
+
     def pattern_to_mta_matrix(self, label):
         """
         Returns the average of all raw patterns encountered that converged

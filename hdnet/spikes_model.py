@@ -211,13 +211,13 @@ class SpikeModel(Restoreable, object):
         Value : Type
             Description
         """
-        hdlog.debug("Chomping samples from model")
+        hdlog.info("Chomping samples from model")
         self._raw_patterns = PatternsRaw(save_sequence=True)
         self._raw_patterns.chomp_spikes(spikes=self._sample_spikes)
         hdlog.info("Raw: %d-bit, %d patterns" % (
             self._sample_spikes.N, len(self._raw_patterns)))
 
-        hdlog.debug("Chomping dynamics (from network learned on the samples) applied to samples")
+        hdlog.info("Chomping dynamics (from network learned on the samples) applied to samples")
         self._hopfield_patterns = PatternsHopfield(learner=self._learner, save_sequence=True)
         self._hopfield_patterns.chomp_spikes(spikes=self._sample_spikes)
         hdlog.info("Hopfield: %d-bit, %d patterns" % (
