@@ -472,7 +472,7 @@ class SequenceAnalyzer(object):
         entropy : float
             Entropy of probability distribution
         """
-        probs = self.label_probabilities()
+        probs = self.label_probabilities
         return -(probs * np.log2(probs)).sum()
 
     def compute_markov_graph(self, markov_probabilities=None, node_labels=None,

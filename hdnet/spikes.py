@@ -37,7 +37,7 @@ class Spikes(Restoreable, object):
         Bin size in seconds (default None)
     preprocess : bool, optional
         If True makes data binary (Heaviside), if False
-        leaves data untouched (default True)
+        leaves data untouched (default False)
 
     Returns
     -------
@@ -48,7 +48,7 @@ class Spikes(Restoreable, object):
     _SAVE_VERSION = 1
     _SAVE_TYPE = 'Spikes'
 
-    def __init__(self, spikes=None, bin_size=None, preprocess=True):
+    def __init__(self, spikes=None, bin_size=None, preprocess=False):
         object.__init__(self)
         Restoreable.__init__(self)
         self._spikes = np.atleast_2d(spikes)
@@ -181,6 +181,21 @@ class Spikes(Restoreable, object):
         number of trials : int
         """
         return self._T
+
+    def flatten_trials(self):
+        """ Concatenates all trials into one long trial
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        spikes : Spikes
+            an instance of :class:`.Spikes` class
+        """
+        tmp_arr = np.swapaxes(self.spikes, 0, 1)
+        return Spikes(spikes=tmp_arr.reshape((tmp_arr.shape[0], tmp_arr.shape[1] * tmp_arr.shape[2])), preprocess=False)
 
     @property
     def restricted_neurons_indices(self):
@@ -419,7 +434,7 @@ class Spikes(Restoreable, object):
 
     # i/o
 
-    def save(self, file_name='spikes', extra=None):
+    def save(self, file_name='spikes', extra=None, overwrite=False):
         """
         Saves contents to file.
 

@@ -533,7 +533,7 @@ class Counter(Restoreable, object):
         """
         stim_avgs = []
         stm_arr = stimulus.stimulus_arr
-        
+
         seq = np.array(self._sequence)
         # arr = stm_arr.reshape(((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:]))
         #np.zeros((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:])
