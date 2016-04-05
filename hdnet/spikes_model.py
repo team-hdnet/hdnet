@@ -179,7 +179,7 @@ class SpikeModel(Restoreable, object):
         """
         return self._hopfield_spikes
 
-    def fit(self, trials=None, remove_zeros=False, reshape=False):
+    def fit(self, trials=None, remove_zeros=True, reshape=False):
         """
         Missing documentation
         
@@ -188,7 +188,7 @@ class SpikeModel(Restoreable, object):
         trials : Type, optional
             Description (default None)
         remove_zeros : bool, optional
-            Description (default False)
+            Remove all 0 training patterns (default True)
         reshape : bool, optional
             Description (default False)
         
