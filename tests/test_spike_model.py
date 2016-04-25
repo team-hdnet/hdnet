@@ -23,11 +23,18 @@ class TestSpikeModel(TestTmpPath):
     def tearDown(self):
         super(TestSpikeModel, self).tearDown()
 
+    def test_basic_patterns(self):
+        file_contents = np.load(os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))
+        spikes = Spikes(file_contents[file_contents.keys()[0]])
+        spikes_model = SpikeModel(spikes=spikes)
+        spikes_model.fit()
+        spikes_model.chomp()
+        self.assertEqual(len(spikes_model.raw_patterns.sequence), 7)
+        self.assertEqual(len(spikes_model.raw_patterns), 4)
+        self.assertEqual(len(spikes_model.hopfield_patterns.sequence), 7)
+        self.assertEqual(len(spikes_model.hopfield_patterns), 3)
+
     def test_basic(self):
-        # spikes = Spikes(npz_file='test_data/tiny_spikes.npz')
-        # spikes_model = SpikeModel(spikes=spikes)
-        # spikes_model.fit()
-        # spikes_model.chomp()
         np.random.seed(42)
 
         file_contents = np.load(os.path.join(os.path.dirname(__file__), 'test_data/spikes_trials.npz'))
@@ -77,10 +84,10 @@ class TestSpikeModel(TestTmpPath):
         bernoulli_inhom_model.chomp()
 
         dichotomized_gaussian = DichotomizedGaussian(spikes=spikes)
-        dichotomized_gaussian.sample_from_model()
+        #dichotomized_gaussian.sample_from_model()
 
         dichotomized_gaussian_poiss = DichotomizedGaussianPoisson(spikes=spikes)
-        spikes = dichotomized_gaussian_poiss.sample_from_model()
+        #spikes = dichotomized_gaussian_poiss.sample_from_model()
 
         #from hdnet.visualization import raster_plot_psth
         #import matplotlib.pyplot as plt

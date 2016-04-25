@@ -559,7 +559,7 @@ def find_dg_any_marginal(pmfs, bin_cov, supports, accuracy=1e-10):
                 (dg_second_moment(x if x > -1 and x < 1 else -1 + .0000000001 if x <= -1 else 1 - .0000000001,
                 gammas[i], gammas[j], supports[i], supports[j])[0] - moment) ** 2
 
-            mx = minimize_scalar(minidiff, method='Bounded', bounds=(-1, 1), tol=accuracy)['x']
+            mx = minimize_scalar(minidiff, method='Bounded', bounds=(-1, 1), options = {'xatol': accuracy})['x']
 
             lam[i, j] = lam[j, i] = mx
             _, joint = dg_second_moment(mx, gammas[i], gammas[j], supports[i], supports[j])
