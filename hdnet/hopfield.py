@@ -235,10 +235,18 @@ class HopfieldNet(Restoreable, object):
         self._last_num_iter_for_convergence = 0
         self._learn_iterations = 0  # how many learning steps have been taken so far
 
-    def __call__(self, X, converge=True, max_iter=10 ** 5, clamped_nodes=None):
+    def __call__(self, X, converge=True, max_iter=10 ** 5, clamped_nodes=None, record_iterations = False):
         """
         Usage: network(X) returns the Hopfield dynamics update to patterns
-        stored in rows of M x N matrix X.
+        stored in rows of M x N matrix X. Calls :meth:`converge_dynamics`.
+        """
+        return self.converge_dynamics(X, converge=converge, max_iter=max_iter,
+                                      clamped_nodes=clamped_nodes,
+                                      record_iterations=record_iterations)
+
+    def converge_dynamics(self, X, converge=True, max_iter=10 ** 5, clamped_nodes=None, record_iterations = False):
+        """
+        Computes the Hopfield dynamics update to patterns stored in rows of M x N matrix.
 
         If `converge` is False then 1 update run through the neurons is performed,
         otherwise Hopfield dynamics are run on X until convergence or `max_iter`
@@ -259,15 +267,22 @@ class HopfieldNet(Restoreable, object):
             just one step of dynamics is performed (default True)
         max_iter : int, optional
             Maximal number of iterations of dynamics (default 10 ** 5)
-        clamped_nodes : Type, optional
+        clamped_nodes : list, optional
             List of clamped nodes that are left untouched during
             dynamics update (default None)
-        
+        record_iterations : bool, optional
+            If `True`, function records number of Hopfield dynamics
+            update steps needed for converge of input to Hopfield memory
+            for each input data vector and returns it as second return
+            argument (default False)
+
         Returns
         -------
         patterns : numpy array
             Converged patterns (memories) of Hopfield dynamics of input
             argument X
+        iters : numpy array
+            Number of dynamics iterations needed to converge to memory
         """
         if clamped_nodes is None:
             clamped_nodes = {}
@@ -277,6 +292,7 @@ class HopfieldNet(Restoreable, object):
 
         out = np.zeros_like(X)
         niter = 0
+        niters = []
         if converge:
             while (niter == 0) or not (X == out).all():
                 if niter >= max_iter:
@@ -287,12 +303,17 @@ class HopfieldNet(Restoreable, object):
                 X = self.hopfield_binary_dynamics(
                     X, clamped_nodes=clamped_nodes, update=self._update)
             self._last_num_iter_for_convergence = niter
+            if record_iterations:
+                niters.append(niter)
         else:
             self._last_num_iter_for_convergence = 1
             X = self.hopfield_binary_dynamics(X, clamped_nodes=clamped_nodes, update=self._update)
 
         if ndim == 1:
-            return X.ravel()
+            X = X.ravel()
+
+        if record_iterations:
+            return X, np.array(niters, dtype=np.int)
         else:
             return X
 

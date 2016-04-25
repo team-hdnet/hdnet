@@ -98,8 +98,8 @@ class Counter(Restoreable, object):
         # Note: code taken from scipy. Duplicated as only numpy references wanted for base functionality
         a = np.atleast_1d(a).astype(bool)
         b = np.atleast_1d(b).astype(bool)
-        dist = (np.double(np.bitwise_and((a != b), np.bitwise_or(a != 0, b != 0)).sum())
-                / np.double(np.bitwise_or(a != 0, b != 0).sum()))
+        dist = (np.double(np.bitwise_and((a != b), np.bitwise_or(a != 0, b != 0)).sum()) /
+                np.double(np.bitwise_or(a != 0, b != 0).sum()))
         return dist
 
     @staticmethod
@@ -415,7 +415,7 @@ class Counter(Restoreable, object):
         self.chomp(X, add_new=add_new, rotate=rotate)
         return self
 
-    def chomp_vector(self, x, add_new=True, rotate=None):
+    def chomp_vector(self, x, add_new=True, rotate=None, it=-1):
         """
         Counts occurrences of pattern in vector `x`, assigns it a
         integer label and stores it.
@@ -438,6 +438,8 @@ class Counter(Restoreable, object):
             pattern identity (if `rotate` was given)
         """
         bin_x = Counter.key_for_pattern(x)
+
+        # TODO: implement number of interation recording in parameter it
 
         numrot = 0
         if rotate:
@@ -770,6 +772,7 @@ class PatternsHopfield(Counter):
         self._learner = learner or None
         self._mtas = {}
         self._mtas_raw = {}
+        self._mtas_raw_iter = {}
         self._save_raw = save_raw
 
         if patterns_hopfield is not None:
@@ -812,6 +815,27 @@ class PatternsHopfield(Counter):
             Dictionary of lists of raw patterns converging to a given memory
         """
         return self._mtas_raw
+
+
+    @property
+    def mtas_raw_iter(self):
+        """
+        Computes for each raw pattern associated to a
+        memory triggered average the number of Hopfield dynamics update
+        steps needed for convergence to the Hopfield memory.
+
+\       Returns a Python dictionary keys of which are strings of binary digits
+        representing the memory (the original memory can be obtained
+        from the key using :meth:`Counter.pattern_for_key`) and values
+        are 1d numpy arrays of integers containing the number of iterations needed
+        for convergence.
+
+        Returns
+        -------
+        raw_patterns_iters : dict
+            Dictionary of 1d numpy arrays
+        """
+        return self._mtas_raw_iter
 
     def add_key(self, key, value=1, raw=None):
         """
@@ -893,11 +917,11 @@ class PatternsHopfield(Counter):
         Nothing
         """
         # TODO warn if no network
-        Y = self._learner.network(X)
-        for x, y in zip(X, Y):
-            self.chomp_vector(x, y, add_new=add_new, rotate=rotate)
+        Y, iters = self._learner.network(X, record_iterations = True)
+        for x, y, i in zip(X, Y, iters):
+            self.chomp_vector(x, y, add_new=add_new, rotate=rotate, it=i)
 
-    def chomp_vector(self, x, y, add_new=True, rotate=None):
+    def chomp_vector(self, x, y, add_new=True, rotate=None, it = -1):
         """
         Associates binary raw data `x` with its Hopfield memory `y`,
         counting occurrences and storing raw data for the calculation
@@ -930,9 +954,13 @@ class PatternsHopfield(Counter):
         if new_pattern:
             self._mtas[bin_y] = x
             self._mtas_raw[bin_y] = [x]
+            if it > -1:
+                self._mtas_raw_iter[bin_y] = [it]
         elif add_new:
             self._mtas[bin_y] += x
             self._mtas_raw[bin_y].append(x)
+            if it > -1:
+                self._mtas_raw_iter[bin_y].append(it)
 
     def apply_dynamics(self, spikes, window_size=1, trials=None, reshape=True):
         """
@@ -993,15 +1021,15 @@ class PatternsHopfield(Counter):
 
     def pattern_to_mta_matrix(self, label):
         """
-        Returns the average of all raw patterns encountered that converged
-        to a given stored memory pattern with label `label`. This average
-        is called memory triggered average (MTA).
+        Returns the average of all raw patterns encountered that
+        converged to a given stored memory pattern with label `label`.
+        This average is called memory triggered average (MTA).
         
         Parameters
         ----------
         label : int
             Label of pattern to look up
-        
+
         Returns
         -------
         mta : 1d numpy array
@@ -1009,6 +1037,39 @@ class PatternsHopfield(Counter):
         """
         key = self._patterns[label]
         return self._mtas[key] / self._counts[key]
+
+    def pattern_to_mta_matrix_weighted(self, label, weighting = 'dynamics'):
+        """
+        Returns the weighted average of all raw patterns encountered that
+        converged to a given stored memory pattern with label `label`.
+        Weights are given to different criteria, see below. This average
+        is called weighted memory triggered average (wMTA).
+
+        Parameters
+        ----------
+        label : int
+            Label of pattern to look up
+        weighting : string, optional
+            If 'dynamics': weighting according to inverse number of dynamics
+            updates needed to converge to memory.
+            If 'hamming': weighting according to inverse Hammig distance of
+            patterns to underlying memory.
+
+        Returns
+        -------
+        wmta : 1d numpy array
+            wMTA of memory with label `label`
+        """
+        key = self._patterns[label]
+        if weighting == 'dynamics':
+            s = (1. / np.array(self._mtas_raw_iter[key])).sum()
+            return np.sum(np.array(self._mtas_raw[key]) / self._mtas_raw_iter[key], axis=0) / s
+            pass
+        elif weighting == 'hamming':
+            # TODO implement
+            raise NotImplementedError
+        else:
+            hdlog.error('pattern_to_mta_matrix_weighted: invalid weighting scheme: {}'.format(weighting))
 
     def pattern_to_raw_patterns(self, label):
         """
