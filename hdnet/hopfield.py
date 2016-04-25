@@ -292,7 +292,8 @@ class HopfieldNet(Restoreable, object):
 
         out = np.zeros_like(X)
         niter = 0
-        niters = []
+        if record_iterations:
+            niters = np.zeros((X.shape[0],), dtype = np.int)
         if converge:
             while (niter == 0) or not (X == out).all():
                 if niter >= max_iter:
@@ -300,11 +301,12 @@ class HopfieldNet(Restoreable, object):
                     break
                 niter += 1
                 out = X
-                X = self.hopfield_binary_dynamics(
+                Xnew = self.hopfield_binary_dynamics(
                     X, clamped_nodes=clamped_nodes, update=self._update)
+                if record_iterations:
+                    niters += (Xnew != X).astype(np.int).max(axis = 1)
+                X = Xnew
             self._last_num_iter_for_convergence = niter
-            if record_iterations:
-                niters.append(niter)
         else:
             self._last_num_iter_for_convergence = 1
             X = self.hopfield_binary_dynamics(X, clamped_nodes=clamped_nodes, update=self._update)
@@ -313,7 +315,7 @@ class HopfieldNet(Restoreable, object):
             X = X.ravel()
 
         if record_iterations:
-            return X, np.array(niters, dtype=np.int)
+            return X, niters
         else:
             return X
 

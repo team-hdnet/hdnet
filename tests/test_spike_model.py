@@ -24,15 +24,18 @@ class TestSpikeModel(TestTmpPath):
         super(TestSpikeModel, self).tearDown()
 
     def test_basic_patterns(self):
-        file_contents = np.load(os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))
-        spikes = Spikes(file_contents[file_contents.keys()[0]])
+        np.random.seed(42)
+        spikes = (np.random.random((2, 10, 200)) < .05).astype(int)
+        spikes[0, [1, 5], ::5] = 1
+        spikes[1, [2, 3, 6], ::11] = 1
+        spikes = Spikes(spikes=spikes)
         spikes_model = SpikeModel(spikes=spikes)
         spikes_model.fit()
         spikes_model.chomp()
-        self.assertEqual(len(spikes_model.raw_patterns.sequence), 7)
-        self.assertEqual(len(spikes_model.raw_patterns), 4)
-        self.assertEqual(len(spikes_model.hopfield_patterns.sequence), 7)
+        self.assertEqual(len(spikes_model.hopfield_patterns.sequence), 400)
         self.assertEqual(len(spikes_model.hopfield_patterns), 3)
+        self.assertEqual(len(spikes_model.raw_patterns.sequence), 400)
+        self.assertEqual(len(spikes_model.raw_patterns), 51)
 
     def test_basic(self):
         np.random.seed(42)
