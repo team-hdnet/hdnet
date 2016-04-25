@@ -559,7 +559,6 @@ class Counter(Restoreable, object):
         # arr = stm_arr.reshape(((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:]))
         #np.zeros((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:])
 
-
         # for t in xrange(stm_arr.shape[0]):
         #     arr[t * stm_arr.shape[1]:(t + 1) * stm_arr.shape[1]] = stm_arr[t]
         # 
