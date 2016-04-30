@@ -179,7 +179,7 @@ class SpikeModel(Restoreable, object):
         """
         return self._hopfield_spikes
 
-    def fit(self, trials=None, remove_zeros=False, reshape=False):
+    def fit(self, trials=None, remove_zeros=True, reshape=False):
         """
         Missing documentation
         
@@ -188,7 +188,7 @@ class SpikeModel(Restoreable, object):
         trials : Type, optional
             Description (default None)
         remove_zeros : bool, optional
-            Description (default False)
+            Remove all 0 training patterns (default True)
         reshape : bool, optional
             Description (default False)
         
@@ -295,6 +295,9 @@ class SpikeModel(Restoreable, object):
             return counts, couplings
         return counts
 
+    def entropy(self):
+        pass
+
     def sample_from_model(self, trials=None, reshape=False):
         """
         Missing documentation
@@ -313,7 +316,7 @@ class SpikeModel(Restoreable, object):
         """
         return self._original_spikes.to_windowed(window_size=self._window_size, trials=trials, reshape=reshape)
 
-    def save(self, folder_name='spikes_model'):
+    def save(self, folder_name='spikes_model', overwrite=False):
         """
         saves as npz's: network, params, spikes file_name
         
@@ -321,7 +324,9 @@ class SpikeModel(Restoreable, object):
         ----------
         folder_name : str, optional
             Description (default 'spikes_model')
-        
+        overwrite: bool, optional
+            Overwrite flag, whether to overwrite existing files (default False)
+    
         Returns
         -------
         Value : Type
@@ -329,7 +334,8 @@ class SpikeModel(Restoreable, object):
         """
         super(SpikeModel, self)._save(
             'spikes_model.npz', self._SAVE_ATTRIBUTES_V1, self._SAVE_VERSION,
-            has_internal=True, folder_name=folder_name, internal_objects=self._INTERNAL_OBJECTS)
+            has_internal=True, folder_name=folder_name, internal_objects=self._INTERNAL_OBJECTS,
+            overwrite=overwrite)
 
     @classmethod
     def load(cls, folder_name='spikes_model', load_extra=False):

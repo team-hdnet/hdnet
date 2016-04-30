@@ -175,6 +175,8 @@ class Stimulus(Restoreable, object):
             File name to save to (default 'stimulus')
         extra : dict, optional
             Extra information to save to file (default None)
+        overwrite: bool, optional
+            Overwrite flag, whether to overwrite existing files (default False)
 
         Returns
         -------

@@ -571,6 +571,60 @@ class Binner(object):
 
         return Spikes(spikes=binned)
 
+@staticmethod
+def bin_spike_times_trials(spike_times, bin_size, cells = None, t_min = None, t_max = None):
+    """
+    Bins given spike_times into bins of size bin_size. Spike times
+    expected in seconds (i.e. 1.0 for a spike at second 1, 0.5 for a
+    spike happening at 500ms).
+
+    Takes optional arguments cells, t_min and t_max that can be used to restrict
+    the cell indices (defaults to all cells) and time range
+    (default t_min = minimum of all spike times in spike_times,
+    default t_max = maximum of all spike times in spike_times).
+
+    Parameters
+    ----------
+    spike_times : 3d numpy array
+        3d array of spike times of cells, dimensions: trials, cells, spike times
+    bin_size : float
+        bin size to be used for binning (1ms = 0.001)
+    cells : array_like, optional
+        indices of cells to process (default None, i.e. all cells)
+    t_min : float, optional
+        time of leftmost bin (default None)
+    t_max : float, optional
+        time of rightmost bin (default None)
+
+    Returns
+    -------
+    spikes : :class:`.Spikes`
+        Spikes class containing binned spikes.
+    """
+    t_min_dat = np.inf
+    t_max_dat = -np.inf
+
+    if cells is None:
+        cells = np.array(range(spike_times.shape[1]))
+
+    for t in range(spike_times.shape[0]):
+        spike_times_nonempty = [x for x in spike_times[t][cells] if len(x) > 0]
+        if len(spike_times_nonempty) > 0:
+            t_min_dat = min([t_min_dat] + map(min, spike_times_nonempty))
+            t_max_dat = max([t_max_dat] + map(max, spike_times_nonempty))
+
+    if t_min is None:
+        t_min = t_min_dat
+
+    if t_max is None:
+        t_max = t_max_dat
+
+    alls = []
+    for t in range(spike_times.shape[0]):
+        s = Binner.bin_spike_times(spike_times[t], cells = cells, bin_size = bin_size, t_min = t_min, t_max = t_max)
+        alls.append(s.spikes[0])
+    return Spikes(np.array(alls))
+
 
 class SequenceEncoder(object):
     """

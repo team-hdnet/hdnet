@@ -84,6 +84,9 @@ for c, memory in enumerate(bin_memories):
 spikes_model.save('my_spikes_model')
 spikes_model = SpikeModel.load('my_spikes_model')
 
+
+
+
 # (Fake) Stimuli
 calvin = np.load('examples/data/calvin.npy')  # 90 by 100 numpy array
 hobbes = np.load('examples/data/hobbes.npy')
@@ -104,16 +107,18 @@ for stm_avg in avgs:
     plt.matshow(stm_avg, cmap='gray')
     plt.title('Memory Triggered Stimulus Average')
 
+
+
 # Real Data
 # spikes = Spikes(spk_folder='data/Blanche/crcns_pvc3_cat_recordings/drifting_bar/spike_data')
 # spikes_model = SpikeModel(spikes=spikes)
 # spikes_model.fit()  # note: this fits a single network to all trials
 # spikes_model.chomp()
 # converged_spikes = Spikes(spikes_arr=spikes_model.hopfield_spikes)
-from hdnet.data import SpkReader
-fn = 'data/Blanche/crcns_pvc3_cat_recordings/drifting_bar/spike_data'
-spikes = SpkReader.read_spk_folder(fn)
-spikes_model = SpikeModel(spikes=spikes)
+# from hdnet.data import SpkReader
+# fn = 'data/Blanche/crcns_pvc3_cat_recordings/drifting_bar/spike_data'
+# spikes = SpkReader.read_spk_folder(fn)
+# spikes_model = SpikeModel(spikes=spikes)
 # spikes_model.fit()  # note: this fits a single network to all trials
 # spikes_model.chomp()
 # converged_spikes = Spikes(spikes=spikes_model.hopfield_spikes)

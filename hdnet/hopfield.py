@@ -235,10 +235,18 @@ class HopfieldNet(Restoreable, object):
         self._last_num_iter_for_convergence = 0
         self._learn_iterations = 0  # how many learning steps have been taken so far
 
-    def __call__(self, X, converge=True, max_iter=10 ** 5, clamped_nodes=None):
+    def __call__(self, X, converge=True, max_iter=10 ** 5, clamped_nodes=None, record_iterations = False):
         """
         Usage: network(X) returns the Hopfield dynamics update to patterns
-        stored in rows of M x N matrix X.
+        stored in rows of M x N matrix X. Calls :meth:`converge_dynamics`.
+        """
+        return self.converge_dynamics(X, converge=converge, max_iter=max_iter,
+                                      clamped_nodes=clamped_nodes,
+                                      record_iterations=record_iterations)
+
+    def converge_dynamics(self, X, converge=True, max_iter=10 ** 5, clamped_nodes=None, record_iterations = False):
+        """
+        Computes the Hopfield dynamics update to patterns stored in rows of M x N matrix.
 
         If `converge` is False then 1 update run through the neurons is performed,
         otherwise Hopfield dynamics are run on X until convergence or `max_iter`
@@ -259,15 +267,22 @@ class HopfieldNet(Restoreable, object):
             just one step of dynamics is performed (default True)
         max_iter : int, optional
             Maximal number of iterations of dynamics (default 10 ** 5)
-        clamped_nodes : Type, optional
+        clamped_nodes : list, optional
             List of clamped nodes that are left untouched during
             dynamics update (default None)
-        
+        record_iterations : bool, optional
+            If `True`, function records number of Hopfield dynamics
+            update steps needed for converge of input to Hopfield memory
+            for each input data vector and returns it as second return
+            argument (default False)
+
         Returns
         -------
         patterns : numpy array
             Converged patterns (memories) of Hopfield dynamics of input
             argument X
+        iters : numpy array
+            Number of dynamics iterations needed to converge to memory
         """
         if clamped_nodes is None:
             clamped_nodes = {}
@@ -277,6 +292,8 @@ class HopfieldNet(Restoreable, object):
 
         out = np.zeros_like(X)
         niter = 0
+        if record_iterations:
+            niters = np.zeros((X.shape[0],), dtype = np.int)
         if converge:
             while (niter == 0) or not (X == out).all():
                 if niter >= max_iter:
@@ -284,15 +301,21 @@ class HopfieldNet(Restoreable, object):
                     break
                 niter += 1
                 out = X
-                X = self.hopfield_binary_dynamics(
+                Xnew = self.hopfield_binary_dynamics(
                     X, clamped_nodes=clamped_nodes, update=self._update)
+                if record_iterations:
+                    niters += (Xnew != X).astype(np.int).max(axis = 1)
+                X = Xnew
             self._last_num_iter_for_convergence = niter
         else:
             self._last_num_iter_for_convergence = 1
             X = self.hopfield_binary_dynamics(X, clamped_nodes=clamped_nodes, update=self._update)
 
         if ndim == 1:
-            return X.ravel()
+            X = X.ravel()
+
+        if record_iterations:
+            return X, niters
         else:
             return X
 
@@ -827,6 +850,74 @@ class HopfieldNetMPF(HopfieldNet):
             iprint=-1 if not disp else 0, **kwargs)
         # A,Amin,status = scipy.optimize.fmin_l_bfgs_b(
         # self.objective_gradient_minfunc, np.zeros(self.N * self.N,), args=[X])
+
+        J = A.reshape(self._N, self._N)
+        self._theta = -.5 * np.diag(J)
+        self._J = J
+        self._J[np.eye(self._N, dtype=bool)] *= 0
+        status["learn_iterations"] = status["funcalls"] * len(X)
+        self._learn_iterations = status["learn_iterations"]
+        return status
+
+    # parameters: 
+    # X: patterns to be learned
+    # r: radius
+
+    def store_patterns_using_r_mpf(self, X, r = 1, p = .1, m = 10, disp=False, **kwargs):
+        """
+        Stores patterns in X using generalized Minimum Probability Flow (MPF) learning
+        rule, r - MPF.
+        
+        Parameters
+        ----------
+        X : numpy array
+            (M, N)-dim array of binary input patterns of length N,
+            where N is the number of nodes in the network
+        r : int, optional
+            Radius of Hamming ball (default 1)
+        m : int, optional
+            Flipping probability of bits of data pattern (default 10)
+        p : float, optional
+            Flipping probability of bits of data pattern (default .1)
+        disp : bool, optional
+            Display scipy L-BFGS-B output (default False)
+
+        Returns
+        -------
+        status : dict
+            Dictionary containing status information
+        """
+        import math
+        import scipy.optimize
+
+        # TODO check whether this works as expected for r = 1
+
+        # TODO rework parameters r, p, m -- and investigate on good standard values
+
+        def objective_gradient_minfunc(J, X, r = r):
+        	# TODO: vectorize as much as possible
+            J = J.reshape(self._N, self._N)
+            Xt = 2 * X - 1
+            S = np.array([np.diag(2 * (np.random.random(self.N) < p).astype(int) - 1) for _ in range(m)])
+            T = np.zeros((m, self.N, self.N))
+            for k in range(m):
+                T[k] = J - np.dot(np.dot(S[k].T, J), S[k])
+            s = 0
+            for i, x in enumerate(X):
+            	# this is SLOOOW, at least cythonize after testing it does the right thing
+                e1 = math.exp(self.energy(x))
+                dot1 = np.tensordot(x.T, T, axes = 1)
+                dot2 = np.tensordot(dot1, x, axes = 1)
+                dotexp = np.exp(dot2)
+                s += np.sum(dotexp)
+            #TODO: return gradient of J here, dJ
+            #return s, dJ (or dJ, s), check docs for scipy.optimize.fmin_l_bfgs_b
+            return s
+
+        # TODO set approx_grad = False once gradient computation in place
+        A, Amin, status = scipy.optimize.fmin_l_bfgs_b(
+            objective_gradient_minfunc, self._J.ravel(), args=[X],
+            iprint=-1 if not disp else 0, approx_grad = True, **kwargs)
 
         J = A.reshape(self._N, self._N)
         self._theta = -.5 * np.diag(J)

@@ -142,3 +142,5 @@ Temporary Items
 *.synctex.gz
 docs/manual/*.pdf
 
+internal/*
+

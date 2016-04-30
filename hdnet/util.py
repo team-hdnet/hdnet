@@ -35,7 +35,7 @@ class Restoreable(object):
         object.__init__(self)
 
     def _save(self, file_name, attributes, version, has_internal=False, folder_name=None,
-              internal_objects=None, extra=None):
+              internal_objects=None, extra=None, overwrite=False):
         """
         Missing documentation
         
@@ -67,9 +67,10 @@ class Restoreable(object):
         file_name = base + ext
 
         if has_internal:
-            if os.path.exists(folder_name):  # replace with Exception
-                hdlog.error("Folder '%s' exists, cannot save!" % folder_name)
-                return
+            if os.path.exists(folder_name):
+                if not overwrite:
+                    hdlog.error("Folder '%s' exists, cannot save! Use 'overwrite = True' to overwrite." % folder_name)
+                    return
             else:
                 os.mkdir(folder_name)
             file_name = os.path.join(folder_name, file_name)

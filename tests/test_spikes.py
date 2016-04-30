@@ -25,8 +25,8 @@ class TestSpikes(TestTmpPath):
     def test_basic(self):
         file_contents = np.load(os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))
         spikes = Spikes(file_contents[file_contents.keys()[0]])
-        self.assertEqual(spikes._spikes.sum(), 9)
-        self.assertEqual(spikes.rasterize(stop=5).sum(), 7)
+        self.assertEqual(spikes._spikes.sum(), 10)
+        self.assertEqual(spikes.rasterize(stop=5).sum(), 8)
 
         spikes.rasterize(save_png_name=os.path.join(self.TMP_PATH, 'spikes'))
         self.assertTrue(os.path.exists(os.path.join(self.TMP_PATH, 'spikes.png')))
