@@ -348,13 +348,13 @@ class Spikes(Restoreable, object):
             Description
         """
         trials = trials or range(self._T)
-        X = np.zeros((len(trials), window_size * self._N, self._M - window_size + 1))
+        X = np.zeros((len(trials), window_size * self._N, self._M - window_size + 1), dtype = np.int)
         for c, t in enumerate(trials):
             for i in xrange(0, self._M - window_size + 1):
                 X[c, :, i] = self._spikes[t, :, i:window_size + i].ravel()
 
         if reshape:
-            Y = np.zeros((X.shape[0] * X.shape[2], X.shape[1]))
+            Y = np.zeros((X.shape[0] * X.shape[2], X.shape[1]), dtype = np.int)
             tot = 0
             for t in xrange(len(trials)):
                 for j in xrange(X.shape[2]):

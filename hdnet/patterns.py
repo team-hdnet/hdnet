@@ -313,6 +313,27 @@ class Counter(Restoreable, object):
             self.add_key(key_, counter.counts[key])
         return self
 
+    def entropy(self):
+        """
+        Computes entropy of distribution of contained patterns.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        ent : float
+            Entropy (in bits) of the distribution of the contained patterns.
+        """
+        dist = self.counts_by_label
+        if len(dist) == 0:
+            return 0
+        else:
+            p = np.array(dist, dtype = np.double)
+            p = p / p.sum()
+            return np.nansum(-(p * np.log2(p)))
+
     def add_key(self, key, value=1, **kwargs):
         """
         Adds a new key (pattern) to the collection.
@@ -519,7 +540,7 @@ class Counter(Restoreable, object):
         pats = np.array([self.pattern_for_key(self._patterns[l]).ravel() for l in labels])
         return np.corrcoef(pats, **kwargs)
 
-    def mem_triggered_stim_avgs(self, stimulus):
+    def mem_triggered_stim_avgs(self, stimulus, average = True):
         """
         Returns the average stimulus appearing when a given binary pattern appears.
         
@@ -533,23 +554,29 @@ class Counter(Restoreable, object):
         averages : numpy array
             Stimulus average calculated
         """
-        stim_avgs = []
         stm_arr = stimulus.stimulus_arr
 
-        seq = np.array(self._sequence)
         # arr = stm_arr.reshape(((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:]))
         #np.zeros((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:])
 
         # for t in xrange(stm_arr.shape[0]):
         #     arr[t * stm_arr.shape[1]:(t + 1) * stm_arr.shape[1]] = stm_arr[t]
         # 
-        for c, pattern in enumerate(self._patterns):
-            idx = (seq == c)
-            stim_avgs.append(stm_arr[idx].mean(axis=0))
+
+        seq = np.array(self.sequence)
+        stim_avgs = []
+
+        for c, pattern in enumerate(self.patterns):
+            x = stm_arr[seq == c]
+            if average:
+                x = x.mean(axis=0)
+            stim_avgs.append(x)
             # if c > 1:
             #     stop
-
-        return stim_avgs
+        if not average:
+            return {self.patterns[i]: a for i, a in enumerate(stim_avgs)}
+        else:
+            return stim_avgs
 
     # i/o
 

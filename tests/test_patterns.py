@@ -32,7 +32,7 @@ class TestPatternsHopfield(TestTmpPath):
         counter = Counter()
         counter.chomp_spikes(spikes)
         hdlog.info(counter._counts)
-        self.assertEqual(len(counter), 3)
+        self.assertEqual(len(counter), 4)
 
         counter = Counter()
         counter.chomp_spikes(spikes, window_size=3)
@@ -73,14 +73,14 @@ class TestPatternsHopfield(TestTmpPath):
         counter.chomp_spikes(spikes)
         self.assertEqual(counter._sequence, [0, 1, 0, 2, 3, 4, 1, 5, 4, 6, 2, 0, 6, 2, 2])
 
-        spikes_arr = np.random.randn(5, 10000)
+        np.random.seed(42)
+        spikes_arr = (np.random.randn(5, 10000) < .05).astype(np.int)
         spikes = Spikes(spikes=spikes_arr)
-        self.assertTrue(np.abs(spikes._spikes[0, :, :].mean() - .5) < .1)
-        empirical = Counter()
+        empirical = PatternsRaw()
         empirical.chomp_spikes(spikes)
-        empirical_w2 = Counter()
+        empirical_w2 = PatternsRaw()
         empirical_w2.chomp_spikes(spikes, window_size=2)
-        #self.assertTrue(np.abs(empirical_w2.entropy() - 2 * empirical.entropy()) < 1)
+        self.assertTrue(np.abs(empirical_w2.entropy() - 2 * empirical.entropy()) < .1)
 
     def test_patterns_raw(self):
         file_contents = np.load(os.path.join(os.path.dirname(__file__), 'test_data/tiny_spikes.npz'))
@@ -89,7 +89,7 @@ class TestPatternsHopfield(TestTmpPath):
         patterns = PatternsRaw()
         patterns.chomp_spikes(spikes)
         hdlog.info(patterns._counts)
-        self.assertEqual(len(patterns), 3)
+        self.assertEqual(len(patterns), 4)
 
         patterns = PatternsRaw()
         patterns.chomp_spikes(spikes, window_size=3)
