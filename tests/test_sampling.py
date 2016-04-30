@@ -6,7 +6,7 @@
 import unittest
 import numpy as np
 
-from hdnet.sampling import sample_from_prob_vector, sample_from_bernoulli, sample_from_ising, \
+from hdnet.sampling import sample_from_prob_vector, sample_from_bernoulli, sample_from_ising_gibbs, \
     sample_from_dichotomized_gaussian
 
 
@@ -39,13 +39,15 @@ class TestSampling(unittest.TestCase):
 
         self.assertTrue(np.abs(sample_from_prob_vector(p, 1000).mean() - exp_state) < 5)
 
-        J = np.random.random((6, 6)) - np.random.random((6, 6))
+    def test_ising(self):
+        np.random.seed(42)
+        J = np.random.random((4, 4)) * 3.
         J -= np.diag(J.diagonal())
         J += J.T
-        theta = np.zeros(6)
-
-        self.assertTrue((J.sum(axis=1).argsort() == sample_from_ising(J,
-                            theta, num_samples=10000).mean(axis=1).argsort()).sum() >= 2)
+        theta = np.zeros(4)
+        expected_means = np.array([ 0.2, 0.2, 0.2, 0.2])
+        self.assertTrue(np.all(sample_from_ising_gibbs(
+            J, theta, 10000, 4 * 100, 4 * 10).mean(axis = 1) - expected_means < 1e-2))
 
     def test_dichotomous(self):
         np.random.seed(42)

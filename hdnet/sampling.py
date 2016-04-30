@@ -116,48 +116,69 @@ def integer_to_binary(state, N):
     return np.binary_repr(state, N)
 
 
-def sample_from_ising(J, theta, num_samples=2):
+def sample_from_ising_gibbs(J, theta, num_samples, burn_in = None, sampling_steps = None):
     """
-    Given an Ising model `J`, `theta` on N neurons produces `num_samples` samples
-    Returns: a (N x num_samples) binary matrix with each column a binary vector (Ising sample)
-
-    .. warning:
-
-        MIGHT NOT BE WORKING PROPERLY!
+    Given an Ising model `J`, `theta` on N sites produces `num_samples` samples
+    from the model using a (MCMC) Gibbs sampler.
+    Inspired by a Matlab implementation of a Gibbs sampler by J. Sohl-Dickstein.
 
     Parameters
     ----------
-    J : Type
-        Description
-    theta : Type
-        Description
-    num_samples : int, optional
-        Description (default 2)
-    
+    J : 2d numpy array
+        Coupling strengths of Ising model (symmetric, 0 diagonal values)
+    theta : 1d numpy array
+        Site biases of Ising model
+    num_samples : int
+        Number of samples to draw
+    burn_in : int, optional
+        Burn in time of Markov chain (default 100*N)
+    sampling_steps : int, optional
+        Number of Markov steps in between samples (default 10*N)
+
     Returns
     -------
-    Value : Type
-        Description
+    X : 2d numpy array
+        array of dimensions N x num_samples containing N samples
     """
     N = len(theta)
 
-    p = np.zeros(2 ** N)
-    for i in xrange(2 ** N):
-        x = np.array([np.int(k) for k in list(np.binary_repr(i, N))])
-        p[i] = -energy(J, theta, x)
-    p = np.exp(p)
-    p /= p.sum()
+    if burn_in is None:
+        burn_in = 100 * N
 
-    samples_int = sample_from_prob_vector(p, num_samples=num_samples)
+    if sampling_steps is None:
+        sampling_steps = 10 * N
+    
+    n_sampling_steps = burn_in + (num_samples - 1) * sampling_steps
 
-    if num_samples == 1:
-        return np.array([np.int(k) for k in list(np.binary_repr(samples_int, N))])
+    # sampling dimensions
+    dimensions = np.random.random_integers(0, N - 1, n_sampling_steps)
 
-    samples = np.zeros((N, num_samples))
-    for i in xrange(num_samples):
-        samples[:, i] = np.array([np.int(k) for k in list(np.binary_repr(samples_int[i], N))])
+    # random numbers
+    rand = np.random.random((n_sampling_steps, 1))
 
-    return samples
+    # samples
+    X = np.zeros((N, num_samples))
+
+    # starting vector
+    x = np.random.random((N, 1)) * 2
+
+    idx = 0
+    next_sample = burn_in
+
+    for si in range(n_sampling_steps):
+        E_active = 2 * np.dot(J[dimensions[si], :], x) + theta[dimensions[si]]
+        p_active = 1. / (1. + np.exp(E_active)) # NB. sigmoid s: s(-E_active)
+        if p_active > rand[si]:
+            x[dimensions[si]] = 1
+        else:
+            x[dimensions[si]] = 0
+        
+        if si == next_sample:
+            next_sample += sampling_steps
+            X[:, idx] = x.ravel()
+            idx += 1
+
+    return X
 
 
 def ltqnorm(p):

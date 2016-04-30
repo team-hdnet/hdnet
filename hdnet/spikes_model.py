@@ -18,7 +18,7 @@ from hdnet.stimulus import Stimulus
 from hdnet.spikes import Spikes
 from hdnet.patterns import PatternsRaw, PatternsHopfield
 from hdnet.learner import Learner
-from hdnet.sampling import sample_from_bernoulli, sample_from_ising, sample_from_dichotomized_gaussian, \
+from hdnet.sampling import sample_from_bernoulli, sample_from_ising_gibbs, sample_from_dichotomized_gaussian, \
     find_latent_gaussian, poisson_marginals, find_dg_any_marginal, sample_dg_any_marginal
 from hdnet.util import Restoreable, hdlog
 
@@ -510,20 +510,12 @@ class Ising(SpikeModel):
     """
     Class modeling the Ising / Hopfield model of spikes
 
-    .. warning:
-
-        MIGHT NOT BE WORKING PROPERLY!
-
     """
 
     def sample_from_model(self, J=None, theta=None, trials=None, reshape=False):
         """
         Returns new spikes object with iid Ising spike trains:
         (with Ising model determined by learning with MPF)
-        
-        .. warning:
-
-            MIGHT NOT BE WORKING PROPERLY!
 
         Parameters
         ----------
@@ -556,7 +548,7 @@ class Ising(SpikeModel):
                 learner.learn_from_spikes(window_size=1, trials=[t])
                 J = learner._network.J
                 theta = learner._network.theta
-            X[c, :, :] = sample_from_ising(J, theta, self._original_spikes.M)
+            X[c, :, :] = sample_from_ising_gibbs(J, theta, self._original_spikes.M)
 
         return Spikes(spikes=X)
 
