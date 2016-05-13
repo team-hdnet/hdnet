@@ -133,7 +133,7 @@ class Counter(Restoreable, object):
         # Note: code taken from scipy. Duplicated as only numpy references wanted for base functionality
         a = np.atleast_1d(a)
         b = np.atleast_1d(b)
-        return (a != b).mean()
+        return (a != b).astype(np.int).mean(axis = 0)
 
     def __init__(self, counter=None, save_sequence=True):
         object.__init__(self)
@@ -415,7 +415,7 @@ class Counter(Restoreable, object):
         self.chomp(X, add_new=add_new, rotate=rotate)
         return self
 
-    def chomp_vector(self, x, add_new=True, rotate=None, it=-1):
+    def chomp_vector(self, x, add_new = True, rotate = None, iterations = None, energy = None):
         """
         Counts occurrences of pattern in vector `x`, assigns it a
         integer label and stores it.
@@ -596,8 +596,8 @@ class Counter(Restoreable, object):
         Nothing
         """
         return super(Counter, self)._save(file_name=file_name,
-                                         attributes=self._SAVE_ATTRIBUTES_V1, version=self._SAVE_VERSION,
-                                         extra=extra)
+                                         attributes=getattr(self, '_SAVE_ATTRIBUTES_V' + str(self._SAVE_VERSION)),
+                                         version=self._SAVE_VERSION, extra=extra)
 
     @classmethod
     def load(cls, file_name='counter', load_extra=False):
@@ -762,7 +762,10 @@ class PatternsHopfield(Counter):
     _SAVE_ATTRIBUTES_V1 = ['_counts', '_patterns', '_lookup_patterns',
                         '_sequence', '_skipped_patterns', '_seen_sequence',
                         '_mtas', '_mtas_raw']
-    _SAVE_VERSION = 1
+    _SAVE_ATTRIBUTES_V2 = ['_counts', '_patterns', '_lookup_patterns',
+                        '_sequence', '_skipped_patterns', '_seen_sequence',
+                        '_mtas', '_mtas_raw', '_mtas_raw_iterations', '_mtas_raw_energy']
+    _SAVE_VERSION = 2
     _SAVE_TYPE = 'PatternsHopfield'
 
     def __init__(self, learner=None, patterns_hopfield=None, save_sequence=True, save_raw=True):
@@ -771,7 +774,8 @@ class PatternsHopfield(Counter):
         self._learner = learner or None
         self._mtas = {}
         self._mtas_raw = {}
-        self._mtas_raw_iter = {}
+        self._mtas_raw_iterations = {}
+        self._mtas_raw_energy = {}
         self._save_raw = save_raw
 
         if patterns_hopfield is not None:
@@ -817,13 +821,13 @@ class PatternsHopfield(Counter):
 
 
     @property
-    def mtas_raw_iter(self):
+    def mtas_raw_iterations(self):
         """
         Computes for each raw pattern associated to a
         memory triggered average the number of Hopfield dynamics update
         steps needed for convergence to the Hopfield memory.
 
-\       Returns a Python dictionary keys of which are strings of binary digits
+\       Returns a Python dictionary, keys of which are strings of binary digits
         representing the memory (the original memory can be obtained
         from the key using :meth:`Counter.pattern_for_key`) and values
         are 1d numpy arrays of integers containing the number of iterations needed
@@ -831,10 +835,30 @@ class PatternsHopfield(Counter):
 
         Returns
         -------
-        raw_patterns_iters : dict
+        raw_patterns_iterations : dict
             Dictionary of 1d numpy arrays
         """
-        return self._mtas_raw_iter
+        return self._mtas_raw_iterations
+
+    @property
+    def mtas_raw_energy(self):
+        """
+        Computes for each raw pattern associated to a
+        memory triggered average the Ising energy decrease
+        due to convergence to the Hopfield memory.
+
+\       Returns a Python dictionary, keys of which are strings of binary digits
+        representing the memory (the original memory can be obtained
+        from the key using :meth:`Counter.pattern_for_key`) and values
+        are 1d numpy arrays of floats containing Ising energy decrease upon
+        convergence to the Hopfield memory.
+
+        Returns
+        -------
+        raw_patterns_energy : dict
+            Dictionary of 1d numpy arrays
+        """
+        return self._mtas_raw_energy
 
     def add_key(self, key, value=1, raw=None):
         """
@@ -892,7 +916,7 @@ class PatternsHopfield(Counter):
             self.add_key(o_key, patterns_hopfield.counts[key], raw)
         return self
 
-    def chomp(self, X, add_new=True, rotate=None):
+    def chomp(self, X, add_new = True, rotate = None):
         """
         Computes Hopfield fixed points of M rows in N x M input
         matrix `X` using stored Hopfield network and stores
@@ -916,11 +940,11 @@ class PatternsHopfield(Counter):
         Nothing
         """
         # TODO warn if no network
-        Y, iters = self._learner.network(X, record_iterations = True)
-        for x, y, i in zip(X, Y, iters):
-            self.chomp_vector(x, y, add_new=add_new, rotate=rotate, it=i)
+        Y, iters, energies = self._learner.network(X, record_iterations = True, record_energies = True)
+        for x, y, i, e in zip(X, Y, iters, energies):
+            self.chomp_vector(x, y, add_new = add_new, rotate = rotate, iterations= i, energy = e)
 
-    def chomp_vector(self, x, y, add_new=True, rotate=None, it = -1):
+    def chomp_vector(self, x, y, add_new = True, rotate = None, iterations = None, energy = None):
         """
         Associates binary raw data `x` with its Hopfield memory `y`,
         counting occurrences and storing raw data for the calculation
@@ -953,13 +977,17 @@ class PatternsHopfield(Counter):
         if new_pattern:
             self._mtas[bin_y] = x
             self._mtas_raw[bin_y] = [x]
-            if it > -1:
-                self._mtas_raw_iter[bin_y] = [it]
+            if not iterations is None:
+                self._mtas_raw_iterations[bin_y] = [iterations]
+            if not energy is None:
+                self._mtas_raw_energy[bin_y] = [energy]
         elif add_new:
             self._mtas[bin_y] += x
             self._mtas_raw[bin_y].append(x)
-            if it > -1:
-                self._mtas_raw_iter[bin_y].append(it)
+            if not iterations is None:
+                self._mtas_raw_iterations[bin_y].append(iterations)
+            if not energy is None:
+                self._mtas_raw_energy[bin_y].append(energy)
 
     def apply_dynamics(self, spikes, window_size=1, trials=None, reshape=True):
         """
@@ -1035,9 +1063,9 @@ class PatternsHopfield(Counter):
             MTA of memory with label `label`
         """
         key = self._patterns[label]
-        return self._mtas[key] / self._counts[key]
+        return self._mtas[key].astype(np.double) / self._counts[key]
 
-    def pattern_to_mta_matrix_weighted(self, label, weighting = 'dynamics'):
+    def pattern_to_mta_matrix_weighted(self, label, weighting = 'energy'):
         """
         Returns the weighted average of all raw patterns encountered that
         converged to a given stored memory pattern with label `label`.
@@ -1048,11 +1076,13 @@ class PatternsHopfield(Counter):
         ----------
         label : int
             Label of pattern to look up
-        weighting : string, optional
-            If 'dynamics': weighting according to inverse number of dynamics
+        weighting : string, optional, default 'energy'
+            If 'energy': weighting according to inverse Ising energy decrease
+            upon converging to memory.
+            If 'iterations': weighting according to inverse number of dynamics
             updates needed to converge to memory.
             If 'hamming': weighting according to inverse Hammig distance of
-            patterns to underlying memory.
+            patterns to underlying memory [NOT IMPLEMENTED YET].
 
         Returns
         -------
@@ -1060,15 +1090,31 @@ class PatternsHopfield(Counter):
             wMTA of memory with label `label`
         """
         key = self._patterns[label]
-        if weighting == 'dynamics':
-            s = (1. / np.array(self._mtas_raw_iter[key])).sum()
-            return np.sum(np.array(self._mtas_raw[key]) / self._mtas_raw_iter[key], axis=0) / s
-            pass
+        if weighting == 'iterations':
+            n = 1. / (1. + np.array(self._mtas_raw_iterations[key]))
+            s = n.sum()
+            if len(self._mtas_raw[key]) > 0:
+                n = np.tile(n, [self._mtas_raw[key][0].shape[0], 1]).T
+            w = np.sum(np.array(self._mtas_raw[key]) * n, axis = 0) / s
+        elif weighting == 'energy':
+            n = 1. / (1. + np.array(self._mtas_raw_energy[key]))
+            s = n.sum()
+            if len(self._mtas_raw[key]) > 0:
+                n = np.tile(n, [self._mtas_raw[key][0].shape[0], 1]).T
+            w = np.sum(np.array(self._mtas_raw[key]) * n, axis = 0) / s
         elif weighting == 'hamming':
-            # TODO implement
-            raise NotImplementedError
+            mem = self.pattern_to_binary_matrix(label)
+            mem = np.tile(mem, [len(self._mtas_raw[key]), 1])
+            n = 1. / (1. + self.pattern_distance_hamming(mem, np.array(self._mtas_raw[key])))
+            s = n.sum()
+            n = np.tile(n, [len(self._mtas_raw[key]), 1])
+            w = np.sum(np.array(self._mtas_raw[key]) * n, axis = 0) / s
         else:
             hdlog.error('pattern_to_mta_matrix_weighted: invalid weighting scheme: {}'.format(weighting))
+            return
+        if w.max() > 1.:
+            w = w / w.max()
+        return w
 
     def pattern_to_raw_patterns(self, label):
         """
@@ -1235,6 +1281,11 @@ class PatternsHopfield(Counter):
         # internal function to load v1 file format
         hdlog.debug('Loading PatternsHopfield patterns, format version 1')
         return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V1)
+
+    def _load_v2(self, contents, load_extra=False):
+        # internal function to load v1 file format
+        hdlog.debug('Loading PatternsHopfield patterns, format version 2')
+        return Restoreable._load_attributes(self, contents, self._SAVE_ATTRIBUTES_V2)
 
     @classmethod
     def load_legacy(cls, file_name='patterns_hopfield'):

@@ -235,16 +235,19 @@ class HopfieldNet(Restoreable, object):
         self._last_num_iter_for_convergence = 0
         self._learn_iterations = 0  # how many learning steps have been taken so far
 
-    def __call__(self, X, converge=True, max_iter=10 ** 5, clamped_nodes=None, record_iterations = False):
+    def __call__(self, X, converge = True, max_iter = 10 ** 5, clamped_nodes = None, record_iterations = False,
+                 record_energies = False):
         """
         Usage: network(X) returns the Hopfield dynamics update to patterns
         stored in rows of M x N matrix X. Calls :meth:`converge_dynamics`.
         """
-        return self.converge_dynamics(X, converge=converge, max_iter=max_iter,
-                                      clamped_nodes=clamped_nodes,
-                                      record_iterations=record_iterations)
+        return self.converge_dynamics(X, converge = converge, max_iter = max_iter,
+                                      clamped_nodes = clamped_nodes,
+                                      record_iterations = record_iterations,
+                                      record_energies = record_energies)
 
-    def converge_dynamics(self, X, converge=True, max_iter=10 ** 5, clamped_nodes=None, record_iterations = False):
+    def converge_dynamics(self, X, converge = True, max_iter = 10 ** 5, clamped_nodes = None, record_iterations = False,
+                          record_energies = False):
         """
         Computes the Hopfield dynamics update to patterns stored in rows of M x N matrix.
 
@@ -275,6 +278,11 @@ class HopfieldNet(Restoreable, object):
             update steps needed for converge of input to Hopfield memory
             for each input data vector and returns it as second return
             argument (default False)
+        record_energies : bool, optional
+            If `True`, function records difference in Ising energy for each
+            update step needed for convergence of input to Hopfield memory
+            for each input data vector and returns it as third return
+            argument (default False)
 
         Returns
         -------
@@ -283,6 +291,8 @@ class HopfieldNet(Restoreable, object):
             argument X
         iters : numpy array
             Number of dynamics iterations needed to converge to memory
+        energies : numpy array
+            Ising energy reduction upon convergence to memory
         """
         if clamped_nodes is None:
             clamped_nodes = {}
@@ -294,6 +304,9 @@ class HopfieldNet(Restoreable, object):
         niter = 0
         if record_iterations:
             niters = np.zeros((X.shape[0],), dtype = np.int)
+        if record_energies:
+            energies = np.zeros((X.shape[0],), dtype = np.double)
+            old_energies = self.energy(X)
         if converge:
             while (niter == 0) or not (X == out).all():
                 if niter >= max_iter:
@@ -305,17 +318,31 @@ class HopfieldNet(Restoreable, object):
                     X, clamped_nodes=clamped_nodes, update=self._update)
                 if record_iterations:
                     niters += (Xnew != X).astype(np.int).max(axis = 1)
+                if record_energies:
+                    new_energies = self.energy(Xnew)
+                    energies += (old_energies - new_energies)
+                    old_energies = new_energies
                 X = Xnew
             self._last_num_iter_for_convergence = niter
         else:
             self._last_num_iter_for_convergence = 1
-            X = self.hopfield_binary_dynamics(X, clamped_nodes=clamped_nodes, update=self._update)
+            Xnew = self.hopfield_binary_dynamics(X, clamped_nodes=clamped_nodes, update=self._update)
+            if record_iterations:
+                niters += (Xnew != X).astype(np.int).max(axis = 1)
+            if record_energies:
+                new_energies = self.energy(Xnew)
+                energies += (old_energies - new_energies)
+            X = Xnew
 
         if ndim == 1:
             X = X.ravel()
 
-        if record_iterations:
+        if record_iterations and record_energies:
+            return X, niters, energies
+        elif record_iterations:
             return X, niters
+        elif record_energies:
+            return X, energies
         else:
             return X
 
@@ -532,7 +559,14 @@ class HopfieldNet(Restoreable, object):
         energy : float
             Energy of input pattern according to Hopfield network.
         """
-        return -.5 * np.dot(x, np.dot(self._J - np.diag(self._J.diagonal()), x)) + np.dot(self._theta, x)
+        X = np.atleast_2d(x)
+        energies = []
+        for x in X:
+            energies.append(-.5 * np.dot(x, np.dot(self._J - np.diag(self._J.diagonal()), x)) + np.dot(self._theta, x))
+        if len(energies) == 1:
+            return np.array(energies[0], dtype = np.double)
+        else:
+            return np.array(energies, dtype = np.double)
 
     # representation
 
@@ -895,7 +929,7 @@ class HopfieldNetMPF(HopfieldNet):
         # TODO rework parameters r, p, m -- and investigate on good standard values
 
         def objective_gradient_minfunc(J, X, r = r):
-        	# TODO: vectorize as much as possible
+            # TODO: vectorize as much as possible
             J = J.reshape(self._N, self._N)
             Xt = 2 * X - 1
             S = np.array([np.diag(2 * (np.random.random(self.N) < p).astype(int) - 1) for _ in range(m)])
@@ -904,7 +938,7 @@ class HopfieldNetMPF(HopfieldNet):
                 T[k] = J - np.dot(np.dot(S[k].T, J), S[k])
             s = 0
             for i, x in enumerate(X):
-            	# this is SLOOOW, at least cythonize after testing it does the right thing
+                # this is SLOOOW, at least cythonize after testing it does the right thing
                 e1 = math.exp(self.energy(x))
                 dot1 = np.tensordot(x.T, T, axes = 1)
                 dot2 = np.tensordot(dot1, x, axes = 1)
