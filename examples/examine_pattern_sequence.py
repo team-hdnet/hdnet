@@ -73,7 +73,6 @@ if FILTER_LABEL_SEQUENCE:
 label_probabilities = sa.compute_label_probabilities()
 markov_probabilities = sa.compute_label_markov_probabilities()
 label_entropy = sa.compute_label_markov_entropies()
-n_labels = len(label_probabilities)
 
 # plot label probabilities, markov transition probabilities and node entropy
 fig, ax = plt.subplots()

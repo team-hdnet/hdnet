@@ -518,9 +518,10 @@ class SequenceAnalyzer(object):
         """
         import networkx as nx
 
+        if self._graph is not None:
+            return self._graph
+
         if markov_probabilities is None:
-            if self._graph is not None:
-                return self._graph
             markov_probabilities = self.label_markov_probabilities
 
         # nodes
@@ -598,7 +599,7 @@ class SequenceAnalyzer(object):
             if not n in filtered_nodes:
                 graph.remove_node(n)
                 removed += 1
-        return removed
+        return graph, removed
 
     def reduce_graph_bridge(self, graph=None):
         """

@@ -26,6 +26,8 @@ setup(
         'numpy',
         'matplotlib',
         'bitstring',
-        'networkx'
+        'networkx',
+	'statsmodels',
+	'h5py'
     ],
     zip_safe=False)

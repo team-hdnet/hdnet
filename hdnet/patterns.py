@@ -566,6 +566,7 @@ class Counter(Restoreable, object):
         seq = np.array(self.sequence)
         stim_avgs = []
 
+        stm_arr = stm_arr.reshape(tuple([stm_arr.shape[0] * stm_arr.shape[1]] + list(stm_arr.shape[2:])))
         for c, pattern in enumerate(self.patterns):
             x = stm_arr[seq == c]
             if average:
@@ -818,7 +819,6 @@ class PatternsHopfield(Counter):
             Dictionary of lists of raw patterns converging to a given memory
         """
         return self._mtas_raw
-
 
     @property
     def mtas_raw_iterations(self):
@@ -1231,6 +1231,9 @@ class PatternsHopfield(Counter):
         """
         # TODO implement
         pass
+
+
+
 
     # i/o
 

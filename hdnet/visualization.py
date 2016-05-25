@@ -549,7 +549,7 @@ def combine_windows(windows):
 
 def plot_graph(g, nodeval=None, cmap_nodes='cool', cmap_edges='autumn',
                node_vmin=None, node_vmax=None, edge_vmin=None, edge_vmax=None,
-               draw_edge_weights=True, edge_weight_format='%.3f'):
+               draw_edge_weights=True, edge_weight_format='%.3f', algorithm = 'neato'):
     """
     Missing documentation
     
@@ -580,7 +580,10 @@ def plot_graph(g, nodeval=None, cmap_nodes='cool', cmap_edges='autumn',
     import networkx as nx
 
     fig = plt.figure()
-    pos = nx.spring_layout(g)
+    if algorithm == 'neato':
+        pos = nx.graphviz_layout(g , prog='neato')
+    else:
+        pos = nx.spring_layout(g)
     kwargs = {}
     if node_vmin is not None:
         kwargs['node_vmin'] = node_vmin
