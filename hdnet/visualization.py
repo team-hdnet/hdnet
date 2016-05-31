@@ -150,9 +150,9 @@ def raster_plot_psth(spikes,
     x = []
     y = []
     for cell_idx in xrange(spikes.shape[1]):
-        spikes = np.where(spikes[trial][cell_idx][start_idx:stop_idx] == 1)[0]
-        x.extend(spikes * bin_size)
-        y.extend([cell_idx] * spikes.shape[0])
+        s = np.where(spikes[trial][cell_idx][start_idx:stop_idx] == 1)[0]
+        x.extend(s * bin_size)
+        y.extend([cell_idx] * s.shape[0])
 
     x_span = max(x) - min(x)
     hist_bins = int(x_span / hist_bin_size)
