@@ -183,15 +183,27 @@ class Counter(Restoreable, object):
     def patterns(self):
         """
         Returns the patterns encountered in the raw data
-        as 1d vectors.
+        as 01-strings.
         
+        Returns
+        -------
+        patterns : list of 01-strings
+        """
+        return self._patterns
+
+    @property
+    def patterns_as_binary(self):
+        """
+        Returns the patterns encountered in the raw data
+        as binary vectors.
+
         Returns
         -------
         patterns : 2d numpy array, int
             Binary array of patterns encountered in the
             raw data, as 1d vectors
         """
-        return self._patterns
+        return np.array([self.pattern_to_binary_matrix(i) for i in range(len(self._patterns))])
 
     @property
     def num_patterns(self):
