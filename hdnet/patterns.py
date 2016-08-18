@@ -578,7 +578,9 @@ class Counter(Restoreable, object):
         seq = np.array(self.sequence)
         stim_avgs = []
 
-        stm_arr = stm_arr.reshape(tuple([stm_arr.shape[0] * stm_arr.shape[1]] + list(stm_arr.shape[2:])))
+        if len(stm_arr.shape) > 2:
+            stm_arr = stm_arr.reshape(tuple([stm_arr.shape[0] * stm_arr.shape[1]] + list(stm_arr.shape[2:])))
+        
         for c, pattern in enumerate(self.patterns):
             x = stm_arr[seq == c]
             if average:
@@ -1001,15 +1003,16 @@ class PatternsHopfield(Counter):
             if not energy is None:
                 self._mtas_raw_energy[bin_y].append(energy)
 
-    def apply_dynamics(self, spikes, window_size=1, trials=None, reshape=True):
+    def apply_dynamics(self, spikes, window_size=1, trials=None, reshape=True, as_spikes=True):
         """
         Computes Hopfield fixed points over data obtained from
         `spikes` using a sliding window of size `window_size`.
 
         Parameters
         ----------
-        spikes : :class:`.Spikes`
+        spikes : :class:`.Spikes` or numpy array
             Instance of :class:`.Spikes` to operate on
+            or numpy array of spike data
         window_size : int, optional
             Window size to use (default 1)
         trials : int, optional
@@ -1017,13 +1020,19 @@ class PatternsHopfield(Counter):
         reshape : bool, optional
             Flag whether to reshape the spike vectors into
             matrix form before returning (default True)
+        as_spikes : bool, optional
+            Flag whether to return a Spikes class instance
+            (when True) or a plain numpy array (default True)
         
         Returns
         -------
         spikes : :class:`.Spikes`
             Instance of spikes class with converged spikes
         """
-        X = spikes.to_windowed(window_size=window_size, trials=trials, reshape=True)
+        if isinstance(spikes, Spikes):
+            X = spikes.to_windowed(window_size=window_size, trials=trials, reshape=True)
+        else:
+            X = spikes.T
         # TODO warn if no network
         Y = self._learner.network(X)
         if reshape:
@@ -1037,7 +1046,44 @@ class PatternsHopfield(Counter):
             for n in xrange(N):
                 Y_[:, n, :] = Y[:, n].reshape((T, M))
             Y = Y_
-        return Spikes(spikes=Y)
+        if as_spikes:
+            return Spikes(spikes=Y)
+        else:
+            return Y
+
+    def get_memory_label(self, spikes, window_size=1, trials=None, reshape=True):
+        """
+        Computes the memory label of the raw spikes using the underlying
+        patern sequence.
+
+        Parameters
+        ----------
+        spikes : :class:`.Spikes` or numpy array
+            Instance of :class:`.Spikes` to operate on, or numpy array
+        window_size : int, optional
+            Window size to use (default 1)
+        trials : int, optional
+            Number of trials to use for reshape (default None)
+        reshape : bool, optional
+            Flag whether to reshape the spike vectors into
+            matrix form before returning (default True)
+        
+        Returns
+        -------
+        label : int or None
+            Label of associated memory or None if memory did not occur
+            in underlying sequence
+        """
+        Y = self.apply_dynamics(spikes, window_size=window_size,
+            trials=trials, reshape=False, as_spikes=False)
+        patterns = []
+        for y in Y:
+            key = Counter.key_for_pattern(y)
+            if not key in self._lookup_patterns:
+                patterns.append(None)
+            else:
+                patterns.append(self._lookup_patterns[key])
+        return patterns
 
     def converged_patterns(self):
         """
