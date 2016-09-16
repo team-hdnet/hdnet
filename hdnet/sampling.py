@@ -115,6 +115,49 @@ def integer_to_binary(state, N):
     """
     return np.binary_repr(state, N)
 
+def sample_from_ising_exact(J, theta, num_samples):
+    """
+    Given an Ising model `J`, `theta` on N neurons produces `num_samples` samples
+    Returns: a (N x num_samples) binary matrix with each column a binary vector (Ising sample)
+
+    .. warning:
+
+    MIGHT NOT BE WORKING PROPERLY!
+
+    Parameters
+    ----------
+    J : Type
+    Description
+    theta : Type
+    Description
+    num_samples : int, optional
+    Description (default 2)
+
+    Returns
+    -------
+    Value : Type
+    Description
+    """
+    N = len(theta)
+
+    p = np.zeros(2 ** N)
+    for i in xrange(2 ** N):
+        x = np.array([np.int(k) for k in list(np.binary_repr(i, N))])
+        p[i] = -energy(J, theta, x)
+        p = np.exp(p)
+        p /= p.sum()
+
+    samples_int = sample_from_prob_vector(p, num_samples=num_samples)
+
+    if num_samples == 1:
+        return np.array([np.int(k) for k in list(np.binary_repr(samples_int, N))])
+
+    samples = np.zeros((N, num_samples))
+    for i in xrange(num_samples):
+        samples[:, i] = np.array([np.int(k) for k in list(np.binary_repr(samples_int[i], N))])
+
+    return samples
+
 
 def sample_from_ising_gibbs(J, theta, num_samples, burn_in = None, sampling_steps = None):
     """
