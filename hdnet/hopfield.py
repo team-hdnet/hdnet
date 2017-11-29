@@ -10,6 +10,8 @@
     Classes providing Hopfield network functionality, both dynamics and training.
 """
 
+from __future__ import print_function
+
 import numpy as np
 
 from hdnet.maths import heaviside
@@ -82,7 +84,7 @@ class HopfieldNet(Restoreable, object):
 
         self._name = name or self.__class__.__name__
         self._update = update
-        self._neuron_order = xrange(self._N) if self._N else None
+        self._neuron_order = range(self._N) if self._N else None
         self._last_num_iter_for_convergence = 0  # hopfield dynamics steps previous __call__ took
         self._learn_iterations = 0  # how many learning steps have been taken so far
 
@@ -708,7 +710,7 @@ class HopfieldNetMPF(HopfieldNet):
             J = self._J
             J[np.eye(self._N, dtype=bool)] = -2 * self._theta
         Ksum = 0
-        for batch in xrange(nbatch):
+        for batch in range(nbatch):
             X = sampler(batch_size)
             S = 2 * X - 1
             Kfull = np.exp(-S * np.dot(X, J.T) + .5 * np.diag(J)[None, :])
@@ -784,7 +786,7 @@ class HopfieldNetMPF(HopfieldNet):
             J[np.eye(self._N, dtype=bool)] = -2 * self._theta
         Ksum = 0
         dJ = np.zeros((self._N, self._N), dtype=float)
-        for batch in xrange(nbatch):
+        for batch in range(nbatch):
             hdlog.debug("batch %i/%i" % (batch + 1,nbatch))
             X = sampler(batch_size)
             S = 2 * X - 1

@@ -11,6 +11,8 @@
 
 """
 
+from __future__ import print_function
+
 import numpy as np
 from time import time as now
 from hdnet.stimulus import Stimulus
@@ -397,7 +399,7 @@ class BernoulliHomogeneous(SpikeModel):
         Value : Type
             Description
         """
-        trials = trials or xrange(self._original_spikes.T)
+        trials = trials or range(self._original_spikes.T)
         X = np.zeros(
             (len(trials), self._window_size * self._original_spikes.N, self._original_spikes.M - self._window_size + 1))
 
@@ -409,8 +411,8 @@ class BernoulliHomogeneous(SpikeModel):
         if reshape:
             Y = np.zeros((X.shape[0] * X.shape[2], X.shape[1]))
             tot = 0
-            for t in xrange(len(trials)):
-                for c in xrange(X.shape[2]):
+            for t in range(len(trials)):
+                for c in range(X.shape[2]):
                     Y[tot, :] = X[t, :, c]
                     tot += 1
             return Y
@@ -439,7 +441,7 @@ class BernoulliInhomogeneous(SpikeModel):
         Value : Type
             Description
         """
-        trials = trials or xrange(self._original_spikes.T)
+        trials = trials or range(self._original_spikes.T)
         X = np.zeros(
             (len(trials), self._window_size * self._original_spikes.N, self._original_spikes.M - self._window_size + 1))
 
@@ -449,22 +451,22 @@ class BernoulliInhomogeneous(SpikeModel):
             spikes = self._original_spikes.spikes
 
             ps = []
-            for i in xrange(num_neurons):
+            for i in range(num_neurons):
                 ps.append(
                     [spikes[0, i, 0:averaging_window_size].mean()] + [spikes[0, i, (j - 1) * averaging_window_size:j * averaging_window_size].mean() for j
-                                                            in xrange(1, num_samples / averaging_window_size)])
+                                                            in range(1, num_samples / averaging_window_size)])
             ps = np.array(ps)
 
-            for j in xrange(num_neurons):
-                for i in xrange(0, self._original_spikes.M - self._window_size + 1):
+            for j in range(num_neurons):
+                for i in range(0, self._original_spikes.M - self._window_size + 1):
                     X[c, j, i] = int(np.random.random() < ps[j, i / averaging_window_size])
                     # sample_from_Bernoulli([ps[j,i/numbins]], 1).ravel()[0]
 
         if reshape:
             Y = np.zeros((X.shape[0] * X.shape[2], X.shape[1]))
             tot = 0
-            for t in xrange(len(trials)):
-                for c in xrange(X.shape[2]):
+            for t in range(len(trials)):
+                for c in range(X.shape[2]):
                     Y[tot, :] = X[t, :, c]
                     tot += 1
             return Y
@@ -497,7 +499,7 @@ class Shuffled(SpikeModel):
         """
         idx = np.random.permutation(self._original_spikes.M)
         new_arr = np.zeros(self._original_spikes.spikes.shape)
-        for i in xrange(self._original_spikes.T):
+        for i in range(self._original_spikes.T):
             if trial_independence:
                 idx = np.random.permutation(self._original_spikes.M)
             arr = self._original_spikes.spikes[i, :, :].copy()
@@ -583,7 +585,7 @@ class DichotomizedGaussian(SpikeModel):
             bin_cov = np.cov(spikes_windowed.spikes[t, :, :])
             gauss_means, gauss_cov = find_latent_gaussian(bin_means, bin_cov)
 
-            for i in xrange(0, spikes_windowed.M, self._window_size):
+            for i in range(0, spikes_windowed.M, self._window_size):
                 x = sample_from_dichotomized_gaussian(bin_means, bin_cov, 1, gauss_means, gauss_cov)
                 X[c, :, i:i+self._window_size] = x.reshape(self._original_spikes.N, self._window_size)
 
@@ -597,8 +599,8 @@ class DichotomizedGaussian(SpikeModel):
         if reshape:
             Y = np.zeros((X.shape[0] * X.shape[2], X.shape[1]))
             tot = 0
-            for t in xrange(len(trials)):
-                for c in xrange(X.shape[2]):
+            for t in range(len(trials)):
+                for c in range(X.shape[2]):
                     Y[tot, :] = X[t, :, c]
                     tot += 1
             return Y
@@ -651,8 +653,8 @@ class DichotomizedGaussianPoisson(SpikeModel):
         if reshape:
             Y = np.zeros((X.shape[0] * X.shape[2], X.shape[1]))
             tot = 0
-            for t in xrange(len(trials)):
-                for c in xrange(X.shape[2]):
+            for t in range(len(trials)):
+                for c in range(X.shape[2]):
                     Y[tot, :] = X[t, :, c]
                     tot += 1
             return Y

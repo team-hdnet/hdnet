@@ -12,6 +12,8 @@
 
 """
 
+from __future__ import print_function
+
 import numpy as np
 from hdnet.util import hdlog
 
@@ -143,7 +145,7 @@ class SequenceAnalyzer(object):
             sequence = self.sequence
 
         seq_filtered = []
-        for i in xrange(repetitions, len(sequence)):
+        for i in range(repetitions, len(sequence)):
             if all([x == sequence[i] for x in sequence[i - repetitions:i]]):
                 continue
             seq_filtered.append(sequence[i])
@@ -208,7 +210,7 @@ class SequenceAnalyzer(object):
                 filter_at = i
                 break
 
-        for i in xrange(filter_at, len(indices_sorted)):
+        for i in range(filter_at, len(indices_sorted)):
             sequence[sequence == keys[indices_sorted[i]]] = replacement_label
         return sequence
 
@@ -263,7 +265,7 @@ class SequenceAnalyzer(object):
         generator : generator object
             Lazy generator object for subsequences
         """
-        for i in xrange(len(sequence) - length + 1):
+        for i in range(len(sequence) - length + 1):
             yield sequence[i:i + length]
 
     def find_subsequences(self, thresholds, sequence=None):
@@ -298,7 +300,7 @@ class SequenceAnalyzer(object):
         all_counts = []
 
         maxlen = len(thresholds)
-        for l in xrange(2, maxlen + 2):
+        for l in range(2, maxlen + 2):
             for k in counts.keys():
                 if counts[k] < thresholds[l - 2]:
                     del counts[k]
@@ -348,7 +350,7 @@ class SequenceAnalyzer(object):
 
         positions = []
         subsequence = np.atleast_1d(subsequence)
-        for i in xrange(len(subsequence), len(sequence)):
+        for i in range(len(subsequence), len(sequence)):
             if np.all(sequence[i - len(subsequence):i] == subsequence):
                 positions.append(i)
 
@@ -381,7 +383,7 @@ class SequenceAnalyzer(object):
         labels = list(set(sequence))
         if parent is not None:
             values = np.zeros(len(parent.counts))
-            for i in xrange(len(labels)):
+            for i in range(len(labels)):
                 if labels[i] in parent.counts:
                     values[parent.lookup_patterns[labels[i]]] = \
                         self.counter.counts_by_label[labels[i]]
@@ -420,7 +422,7 @@ class SequenceAnalyzer(object):
         n_fp = len(set(sequence))
         m_prob = np.zeros((n_fp, n_fp), dtype=float)
 
-        for p in xrange(n_fp):
+        for p in range(n_fp):
             for pidx in np.where(sequence == labels[p])[0]:
                 if pidx == len(sequence) - 1:
                     continue
@@ -531,8 +533,8 @@ class SequenceAnalyzer(object):
 
         # edges
         edges = []
-        for i in xrange(n):
-            for j in xrange(n):
+        for i in range(n):
+            for j in range(n):
                 if i == j and no_cycle:
                     continue
                 if markov_probabilities[i][j] > thres:

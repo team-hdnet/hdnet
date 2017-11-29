@@ -11,6 +11,8 @@
 
 """
 
+from __future__ import print_function
+
 from collections import OrderedDict
 
 import os
@@ -547,7 +549,7 @@ class Counter(Restoreable, object):
         """
 
         if labels is None:
-            labels = xrange(self.num_patterns)
+            labels = range(self.num_patterns)
 
         pats = np.array([self.pattern_for_key(self._patterns[l]).ravel() for l in labels])
         return np.corrcoef(pats, **kwargs)
@@ -571,7 +573,7 @@ class Counter(Restoreable, object):
         # arr = stm_arr.reshape(((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:]))
         #np.zeros((stm_arr.shape[0] * stm_arr.shape[1],) + stm_arr.shape[2:])
 
-        # for t in xrange(stm_arr.shape[0]):
+        # for t in range(stm_arr.shape[0]):
         #     arr[t * stm_arr.shape[1]:(t + 1) * stm_arr.shape[1]] = stm_arr[t]
         # 
 
@@ -1041,9 +1043,9 @@ class PatternsHopfield(Counter):
                 T = spikes.T
             else:
                 T = len(trials)
-            M = Y.shape[0] / T
+            M = Y.shape[0] // T
             Y_ = np.zeros((T, N, M))
-            for n in xrange(N):
+            for n in range(N):
                 Y_[:, n, :] = Y[:, n].reshape((T, M))
             Y = Y_
         if as_spikes:
