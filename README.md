@@ -50,6 +50,7 @@ Papers Using HDNET:
 
 [A] Hillar, Christopher, and Felix Effenberger. "Robust discovery of temporal structure in multi-neuron recordings using hopfield networks." Procedia Computer Science 53 (2015): 365-374.
 https://www.sciencedirect.com/science/article/pii/S1877050915018165
+
 [B] Effenberger, Felix, and Christopher Hillar. "Discovery of salient low-dimensional dynamical structure in neuronal population activity using hopfield networks." In International Workshop on Similarity-Based Pattern Recognition, pp. 199-208. Springer, Cham, 2015.
 https://link.springer.com/chapter/10.1007/978-3-319-24261-3_16
 
