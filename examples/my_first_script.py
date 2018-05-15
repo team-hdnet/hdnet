@@ -30,7 +30,7 @@ spikes_model = BernoulliHomogeneous(spikes=spikes)
 BH_sample_spikes = spikes_model.sample_from_model()
 plt.matshow(BH_sample_spikes.rasterize(), cmap='gray')
 plt.title('BernoulliHomogeneous sample')
-print "%1.4f means" % BH_sample_spikes.spikes.mean()
+print("%1.4f means" % BH_sample_spikes.spikes.mean())
 plt.matshow(BH_sample_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
 plt.title('BernoulliHomogeneous covariance')
 
@@ -41,7 +41,7 @@ spikes_model = DichotomizedGaussian(spikes=spikes)
 DG_sample_spikes = spikes_model.sample_from_model()
 plt.matshow(DG_sample_spikes.rasterize(), cmap='gray')
 plt.title('DichotomizedGaussian sample')
-print "%1.4f means" % DG_sample_spikes.spikes.mean()
+print("%1.4f means" % DG_sample_spikes.spikes.mean())
 plt.matshow(DG_sample_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
 plt.title('DichotomizedGaussian covariance')
 
@@ -126,4 +126,3 @@ for stm_avg in avgs:
 # plt.title('Converge dynamics on Raw data')
 # plt.matshow(converged_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
 # plt.title('Covariance of converged memories')
-
