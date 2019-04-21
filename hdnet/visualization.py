@@ -19,7 +19,7 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.ticker import NullFormatter
-from networkx.drawing.nx_graph import graphviz_layout
+from networkx.drawing.nx_agraph import graphviz_layout
 
 from hdnet.util import hdlog
 
