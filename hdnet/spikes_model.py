@@ -264,13 +264,9 @@ class SpikeModel(Restoreable, object):
         counts = np.zeros((2, len(trials), len(window_sizes)))
         entropies = np.zeros((2, len(trials), len(window_sizes)))
 
-        couplings = {}
-
         tot_learn_time = 0
 
         for ws, window_size in enumerate(window_sizes):
-            couplings[window_size] = []
-
             for c, trial in enumerate(trials):
                 hdlog.info("Trial %d | ws %d" % (trial, window_size))
 
@@ -283,7 +279,7 @@ class SpikeModel(Restoreable, object):
                 tot_learn_time += diff
 
                 if save_couplings:
-                    couplings[ws].append(self._learner.network.J.copy())
+                    couplings[trial].append(self._learner.network.J.copy())
 
                 self.chomp()
                 entropies[0, c, ws] = self._raw_patterns.entropy()
