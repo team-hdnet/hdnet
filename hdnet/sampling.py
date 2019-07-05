@@ -11,6 +11,8 @@
 
 """
 
+from __future__ import print_function
+
 import numpy as np
 
 
@@ -41,7 +43,7 @@ def sample_from_prob_vector(p, num_samples=1):
     test = np.array([uniform, ] * N).T
     sample = (test < right_end_points).astype('int')
     samples = np.zeros(num_samples)
-    for i in xrange(num_samples):
+    for i in range(num_samples):
         samples[i] = idx[np.searchsorted(sample[i], 1)]
     if num_samples == 1:
         return samples[0]
@@ -141,7 +143,7 @@ def sample_from_ising_exact(J, theta, num_samples):
     N = len(theta)
 
     p = np.zeros(2 ** N)
-    for i in xrange(2 ** N):
+    for i in range(2 ** N):
         x = np.array([np.int(k) for k in list(np.binary_repr(i, N))])
         p[i] = -energy(J, theta, x)
         p = np.exp(p)
@@ -153,7 +155,7 @@ def sample_from_ising_exact(J, theta, num_samples):
         return np.array([np.int(k) for k in list(np.binary_repr(samples_int, N))])
 
     samples = np.zeros((N, num_samples))
-    for i in xrange(num_samples):
+    for i in range(num_samples):
         samples[:, i] = np.array([np.int(k) for k in list(np.binary_repr(samples_int[i], N))])
 
     return samples
@@ -339,8 +341,8 @@ def find_latent_gaussian(bin_means, bin_cov, accuracy=1e-10):
     gauss_mean = np.array([ltqnorm(m) for m in bin_means])
     gauss_cov = np.eye(d)
 
-    for i in xrange(d):
-        for j in xrange(i + 1, d):
+    for i in range(d):
+        for j in range(i + 1, d):
             c_min = -1
             c_max = 1
 
@@ -451,9 +453,9 @@ def poisson_marginals(means, accuracy=1e-10):
     pmfs = []
     supps = []
 
-    for k in xrange(len(means)):
-        cmfs.append(poisson.cdf(xrange(0, int(max(math.ceil(5 * means[k]), 20) + 1)), means[k]))
-        pmfs.append(poisson.pmf(xrange(0, int(max(math.ceil(5 * means[k]), 20) + 1)), means[k]))
+    for k in range(len(means)):
+        cmfs.append(poisson.cdf(range(0, int(max(math.ceil(5 * means[k]), 20) + 1)), means[k]))
+        pmfs.append(poisson.pmf(range(0, int(max(math.ceil(5 * means[k]), 20) + 1)), means[k]))
         supps.append(np.where((cmfs[k] <= 1 - accuracy) & (pmfs[k] >= accuracy))[0])
         cmfs[k] = cmfs[k][supps[k]]
         pmfs[k] = poisson.pmf(supps[k], means[k])
@@ -495,13 +497,13 @@ def dg_second_moment(u, gauss_mean1, gauss_mean2, support1, support2):
 
     ps = np.zeros((len(support1), len(support2)))
 
-    for i in xrange(len(support1)):
-        for j in xrange(len(support2)):
+    for i in range(len(support1)):
+        for j in range(len(support2)):
             ps[i, j] = mvnormcdf([gauss_mean1[i], gauss_mean2[j]], [0, 0], sig)
 
     ps2 = ps.copy()
-    for i in xrange(len(support1)):
-        for j in xrange(len(support2)):
+    for i in range(len(support1)):
+        for j in range(len(support2)):
             if i > 0 and j > 0:
                 ps2[i, j] = ps[i, j] + ps[i - 1, j - 1] - ps[i - 1, j] - ps[i, j - 1]
             elif j > 0 and i == 0:
@@ -580,10 +582,10 @@ def find_dg_any_marginal(pmfs, bin_cov, supports, accuracy=1e-10):
     mu = []
     gammas = []
 
-    for i in xrange(d):
+    for i in range(d):
         # take default supports if only one argument is specified
         if len(supports) < i:
-            supports.append(xrange(len(pmfs[k]) for k in xrange(len(pmfs))))
+            supports.append(range(len(pmfs[k]) for k in range(len(pmfs))))
 
         supports[i] = supports[i].ravel()
         pmfs[i] = pmfs[i].ravel()
@@ -603,10 +605,10 @@ def find_dg_any_marginal(pmfs, bin_cov, supports, accuracy=1e-10):
     lam = np.zeros((d, d)) * np.nan
     joints = {}
     
-    for i in xrange(d):
+    for i in range(d):
         lam[i, i] = 1
         joints[i, i] = pmfs[i]
-        for j in xrange(i + 1, d):
+        for j in range(i + 1, d):
             #fprintf('Finding Lambda(#d #d)\n',i,j)
             moment = bin_cov[i, j] + mu[i] * mu[j]
             #take the correlation coefficient between the two dimensions as
@@ -668,15 +670,15 @@ def sample_dg_any_marginal(gauss_means, gauss_cov, num_samples, supports=None):
 
     if supports is None:
         supports = []
-        for i in xrange(d):
-            supports.append(xrange(len(gauss_means[i])))
+        for i in range(d):
+            supports.append(range(len(gauss_means[i])))
 
     cc = np.linalg.cholesky(gauss_cov).T
     B = np.dot(np.random.randn(num_samples, d), cc)
 
     hists = []
     samples = np.zeros((num_samples, d))
-    for i in xrange(d):
+    for i in range(d):
         bins = np.hstack((-np.inf, gauss_means[i], np.inf))
         h = np.histogram(B[:, i], bins=bins)[0]
         hists.append(h / float(num_samples))

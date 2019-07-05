@@ -46,6 +46,16 @@ The package ships with a tutorial and is extensively documented.
 
 References
 ----------
+Papers Using HDNET:
+
+[A] Hillar, Christopher, and Felix Effenberger. "Robust discovery of temporal structure in multi-neuron recordings using hopfield networks." Procedia Computer Science 53 (2015): 365-374.
+https://www.sciencedirect.com/science/article/pii/S1877050915018165
+
+[B] Effenberger, Felix, and Christopher Hillar. "Discovery of salient low-dimensional dynamical structure in neuronal population activity using hopfield networks." In International Workshop on Similarity-Based Pattern Recognition, pp. 199-208. Springer, Cham, 2015.
+https://link.springer.com/chapter/10.1007/978-3-319-24261-3_16
+
+Others:
+
 [1] S. Grün and S. Rotter. Analysis of parallel spike trains. Springer, 2010  
 [2] G. Pipa, D. W. Wheeler, W. Singer, and D. Nikolić. NeuroXidence: reliable 
 and efficient analysis of an excess or deficiency of joint-spike events. 

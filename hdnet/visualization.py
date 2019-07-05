@@ -11,12 +11,15 @@
 
 """
 
+from __future__ import print_function
+
 import os
 import numpy as np
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.ticker import NullFormatter
+from networkx.drawing.nx_agraph import graphviz_layout
 
 from hdnet.util import hdlog
 
@@ -40,14 +43,14 @@ except:
 def plot_matrix_whole_canvas(matrix, **kwargs):
     """
     Missing documentation
-    
+
     Parameters
     ----------
     matrix : Type
         Description
     kwargs : Type
         Description
-    
+
     Returns
     -------
     Value : Type
@@ -62,7 +65,7 @@ def plot_matrix_whole_canvas(matrix, **kwargs):
 def save_matrix_whole_canvas(matrix, fname, **kwargs):
     """
     Missing documentation
-    
+
     Parameters
     ----------
     matrix : Type
@@ -71,7 +74,7 @@ def save_matrix_whole_canvas(matrix, fname, **kwargs):
         Description
     kwargs : Type
         Description
-    
+
     Returns
     -------
     Value : Type
@@ -100,7 +103,7 @@ def raster_plot_psth(spikes,
                      color_hist='#070d0d'):
     """
     Missing documentation
-    
+
     Parameters
     ----------
     spikes : Type
@@ -133,7 +136,7 @@ def raster_plot_psth(spikes,
         Description (default '#070d0d')
     color_hist : str, optional
         Description (default '#070d0d')
-    
+
     Returns
     -------
     Value : Type
@@ -152,7 +155,7 @@ def raster_plot_psth(spikes,
 
     x = []
     y = []
-    for cell_idx in xrange(spikes.shape[1]):
+    for cell_idx in range(spikes.shape[1]):
         s = np.where(spikes[trial][cell_idx][start_idx:stop_idx] == 1)[0]
         x.extend(s * bin_size)
         y.extend([cell_idx] * s.shape[0])
@@ -267,7 +270,7 @@ def pattern_rank_plot(
         plot_mtas=True):
     """
     Missing documentation
-    
+
     Parameters
     ----------
     empirical : Type
@@ -284,13 +287,13 @@ def pattern_rank_plot(
         Description (default None)
     plot_mtas : bool, optional
         Description (default True)
-    
+
     Returns
     -------
     Value : Type
         Description
     """
-    
+
     hop_vals = np.array(patterns.counts.values())
     hop_idx = hop_vals.argsort()
     hop_sort = hop_vals[hop_idx]
@@ -312,8 +315,8 @@ def pattern_rank_plot(
     else:
         plot = plt
 
-    plot.plot(xrange(1, len(emp_sort) + 1), emp_sort[::-1], color=color_empirical, lw=3, label=label_empirical)
-    plot.plot(xrange(1, len(hop_sort) + 1), hop_sort[::-1], color=color_pattern, lw=3, label=label_patterns)
+    plot.plot(range(1, len(emp_sort) + 1), emp_sort[::-1], color=color_empirical, lw=3, label=label_empirical)
+    plot.plot(range(1, len(hop_sort) + 1), hop_sort[::-1], color=color_pattern, lw=3, label=label_patterns)
 
     if mark_empirical:
         mark_empirical = np.array(mark_empirical) + 1
@@ -339,7 +342,7 @@ def pattern_rank_plot(
         fig2, axs2 = plt.subplots(2 + (1 if plot_mtas else 0), len(mark_converged))
         nullfmt = mpl.ticker.NullFormatter()
 
-        for i in xrange(len(mark_converged)):
+        for i in range(len(mark_converged)):
             # empirical
             axs2[0, i].xaxis.set_major_formatter(nullfmt)
             axs2[0, i].yaxis.set_major_formatter(nullfmt)
@@ -393,7 +396,7 @@ def pattern_rank_plot(
 def plot_memories_distribution_matrix(patterns, trials, t_min=None, t_max=None, p_min=None, p_max=None, v_min=None, v_max=None, cmap='Paired'):
     """
     Missing documentation
-    
+
     Parameters
     ----------
     patterns : Type
@@ -414,7 +417,7 @@ def plot_memories_distribution_matrix(patterns, trials, t_min=None, t_max=None, 
         Description (default None)
     cmap : str, optional
         Description (default 'Paired')
-    
+
     Returns
     -------
     Value : Type
@@ -440,7 +443,7 @@ def plot_memories_distribution_matrix(patterns, trials, t_min=None, t_max=None, 
     length = sequence.shape[1]
     dists = np.zeros((n_fp, length), dtype=float)
 
-    for i in xrange(length):
+    for i in range(length):
         for fp in sequence[:, i]:
             if fp >= p_min and fp <= p_max:
                 dists[fp, i] += 1
@@ -453,8 +456,8 @@ def plot_memories_distribution_matrix(patterns, trials, t_min=None, t_max=None, 
     if not v_max is None:
         dists[dists > v_max] = 0
 
-    mtas = np.array([patterns.pattern_to_mta_matrix(i) for i in xrange(p_min, p_max + 1)])
-    rawpat = np.array([patterns.pattern_to_binary_matrix(i) for i in xrange(p_min, p_max + 1)])
+    mtas = np.array([patterns.pattern_to_mta_matrix(i) for i in range(p_min, p_max + 1)])
+    rawpat = np.array([patterns.pattern_to_binary_matrix(i) for i in range(p_min, p_max + 1)])
 
     mls = []
     mlsraw = []
@@ -483,7 +486,7 @@ def plot_memories_distribution_matrix(patterns, trials, t_min=None, t_max=None, 
 def plot_all_matrices(matrices, file_names, cmap='gray', colorbar=True, vmin=None, vmax=None):
     """
     Missing documentation
-    
+
     Parameters
     ----------
     matrices : Type
@@ -498,7 +501,7 @@ def plot_all_matrices(matrices, file_names, cmap='gray', colorbar=True, vmin=Non
         Description (default None)
     vmax : Type, optional
         Description (default None)
-    
+
     Returns
     -------
     Value : Type
@@ -524,7 +527,7 @@ def plot_all_matrices(matrices, file_names, cmap='gray', colorbar=True, vmin=Non
 def combine_windows(windows):
     """
     Missing documentation
-    
+
     Returns
     -------
     Value : Type
@@ -540,12 +543,12 @@ def combine_windows(windows):
         combined[:, i:i + ws] += w
     # phase in
     avg = min(ws, windows.shape[0])
-    for i in xrange(avg):
+    for i in range(avg):
         combined[:, i] /= float(i + 1)
     # middle
     combined[:, avg:l + 1 - avg] /= float(windows.shape[0])
     # phase out
-    for i in xrange(l + 1 - avg, l):
+    for i in range(l + 1 - avg, l):
         combined[:, i] /= float(l - i)
     return combined
 
@@ -555,7 +558,7 @@ def plot_graph(g, nodeval=None, cmap_nodes='cool', cmap_edges='autumn',
                draw_edge_weights=True, edge_weight_format='%.3f', algorithm = 'neato'):
     """
     Missing documentation
-    
+
     Parameters
     ----------
     g : Type
@@ -574,7 +577,7 @@ def plot_graph(g, nodeval=None, cmap_nodes='cool', cmap_edges='autumn',
         Description (default None)
     edge_vmax : Type, optional
         Description (default None)
-    
+
     Returns
     -------
     Value : Type
@@ -584,7 +587,7 @@ def plot_graph(g, nodeval=None, cmap_nodes='cool', cmap_edges='autumn',
 
     fig = plt.figure()
     if algorithm == 'neato':
-        pos = nx.graphviz_layout(g , prog='neato')
+        pos = graphviz_layout(g , prog='neato')
     else:
         pos = nx.spring_layout(g)
     kwargs = {}

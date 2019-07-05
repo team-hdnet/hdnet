@@ -11,6 +11,8 @@
 
 """
 
+from __future__ import print_function
+
 import os
 import logging
 import numpy as np
@@ -88,8 +90,8 @@ class Restoreable(object):
                 else:
                     value = getattr(self, key)
                 if isinstance(value, dict):
-                    extra['DICT_KEYS_' + key] = value.keys()
-                    extra['DICT_VALUES_' + key] = value.values()
+                    extra['DICT_KEYS_' + key] = tuple(value.keys())
+                    extra['DICT_VALUES_' + key] = tuple(value.values())
                 else:
                     extra[key] = value
             extra[Restoreable._VERSION_FIELD] = version
