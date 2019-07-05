@@ -294,7 +294,7 @@ class SpikeModel(Restoreable, object):
         hdlog.info("Total learn time: %1.3f mins" % (tot_learn_time / 60.))
         self._learn_time = tot_learn_time
         if save_couplings:
-            return counts, couplings
+            return counts, entropies, couplings
         return counts, entropies
 
     def entropy(self):
