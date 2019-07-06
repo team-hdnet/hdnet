@@ -57,7 +57,9 @@ class Spikes(Restoreable, object):
 
         spikes_shape = self._spikes.shape
         if len(spikes_shape) == 2:  # single trial
-            self._spikes = self._spikes.reshape((1, spikes_shape[0], spikes_shape[1]))
+            spikes3d = np.zeros((1, spikes_shape[0], spikes_shape[1]))
+            spikes3d[0] = self._spikes
+            self._spikes = spikes3d
 
         self._T = self._spikes.shape[0]
         self._N = self._spikes.shape[1]
