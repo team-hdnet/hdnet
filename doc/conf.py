@@ -45,6 +45,8 @@ extensions = [
     'sphinxcontrib.bibtex'
 ]
 
+
+extensions.append('sphinx.ext.pngmath')
 mathjax_path = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'
 
 # Add any paths that contain templates here, relative to this directory.
@@ -137,7 +139,7 @@ if not on_rtd:
         'relbar_inverse': False,
         'inner_theme': False,
         'content_fixed': True,
-        'content_width': '100ch',        
+        'content_width': '100ch',
         #'inner_theme_name': 'bootswatch-yeti',
     }
 

@@ -18,6 +18,8 @@ Let us first create our synthetic data:
     import numpy as np
     from hdnet.spikes import Spikes
     from hdnet.spikes_model import SpikeModel, BernoulliHomogeneous, DichotomizedGaussian
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
 
     # Let's first make up some simuilated spikes: 100 trials
     spikes = (np.random.random((50, 10, 200)) < .05).astype(int)
@@ -44,19 +46,19 @@ Again, we fit a Hopfield network to windowed spike trains (window length
     spikes_model = SpikeModel(spikes=spikes)
     spikes_model.fit()  # note: this fits a single network to all trials
     spikes_model.chomp()
-    converged_spikes = Spikes(spikes=spikes_model.hopfield_spikes)
-    
+    converged_spikes = Spikes(spikes=spikes_model.hopfield_spikes.spikes)
+
 Examining the pattern sequence
 ------------------------------
 
-Let us now examine the memory sequence of the converged patterns. First 
+Let us now examine the memory sequence of the converged patterns. First
 we instantiate a SequenceAnalyzer object on the pattern instance:
 
 .. code-block:: python
 
     from hdnet.stats import SequenceAnalyzer
     from hdnet.visualization import combine_windows, plot_graph
-    
+
     patterns = spikes_model.hopfield_patterns
     sa = SequenceAnalyzer(patterns)
 
@@ -65,7 +67,7 @@ and Markov entropies of the labels (defined as the entropy of the Markov
 transition probabilities for each label):
 
 .. code-block:: python
-    
+
     # compute probabilities of labels, markov transition probabilities and
     label_probabilities = sa.compute_label_probabilities()
     markov_probabilities = sa.compute_label_markov_probabilities()
@@ -75,13 +77,13 @@ transition probabilities for each label):
 Let us now plot some of the quantities that we calcualted:
 
 .. code-block:: python
-    
+
     # plot label probabilities, markov transition probabilities and node entropy
     fig, ax = plt.subplots()
     ax.hist(label_probabilities, weights=[1. / n_labels] * n_labels,
         range=(label_probabilities.min(), label_probabilities.max()),
         bins=50, color='k')
-    
+
     ax.set_xlabel('probability')
     ax.set_ylabel('fraction')
     ax.set_yscale('log', nonposy='clip')
@@ -97,7 +99,7 @@ Let us now plot some of the quantities that we calcualted:
     Figure 1. Histogram of label probabilities on a log-log scale.
 
 .. code-block:: python
-    
+
     fig = plt.figure(figsize=(8,6))
     ax = fig.add_subplot(1,1,1)
     cmap = mpl.cm.autumn
@@ -122,7 +124,7 @@ Let us now plot some of the quantities that we calcualted:
     Figure 2. Matrix of Markov transition probabilities between labels.
 
 .. code-block:: python
-    
+
     fig, ax = plt.subplots()
     plt.hist(label_entropy,
              weights=[1. / n_labels] * n_labels, bins=50, color='k')
@@ -132,29 +134,29 @@ Let us now plot some of the quantities that we calcualted:
     plt.tight_layout()
     plt.savefig('label_entropy.png')
     plt.close()
-    
+
 .. figure:: /figures/label_entropy.png
     :width: 50%
     :align: center
 
-    Figure 3. Histogram of label entropies.    
-    
+    Figure 3. Histogram of label entropies.
+
 Constructing the Markov graph
 -----------------------------
-    
+
 The matrix of Markov transition probabilities defines a graph, the so called
 *Markov graph*. Let us construct and plot it using a force based layout
 for the nodes:
-    
+
 .. code-block:: python
 
     # construct markov graph
     markov_graph = sa.compute_markov_graph()
-    print "Markov graph has %d nodes, %d edges" % (len(markov_graph.nodes()),
-                                               len(markov_graph.edges()))
-    
+    print ("Markov graph has %d nodes, %d edges" % (len(markov_graph.nodes()),
+                                               len(markov_graph.edges())))
+
     # plot markov graph
-    plot_graph(markov_graph, label_probabilities, cmap1='cool', cmap2='autumn')
+    plot_graph(markov_graph, label_probabilities, cmap_nodes='cool', cmap_edges='autumn')
     plt.savefig('markov_graph.png')
 
 .. figure:: /figures/label_entropy.png
@@ -169,7 +171,7 @@ of the graph (where each node corresponds to a Hopfield memory):
 .. code-block:: python
 
     # plot memory triggered averages for all nodes of markov graph
-    fig, ax = plt.subplots(1, 4) 
+    fig, ax = plt.subplots(1, 4)
     for i, node in enumerate(markov_graph.nodes()):
         ax = plt.subplot(1, 4, i + 1)
         ax.matshow(patterns.pattern_to_mta_matrix(node).reshape(10, 1),
@@ -193,37 +195,37 @@ Indentifying base states
 
 In many cases we will be able to identify one node in the graph that
 corresponds to the base state of the network; characteristic for a base
-state is that it has high degree (sum of in- and out-degrees) in the 
+state is that it has high degree (sum of in- and out-degrees) in the
 Markov graph:
-  
+
 .. code-block:: python
 
-    # try to guess base node (resting state memory) as node with highest 
+    # try to guess base node (resting state memory) as node with highest
     # degree (converging and diverging connections)
     # -- adjust post hoc if necessary!
-    markov_degrees = markov_graph.degree()
-    base_node = max(markov_degrees, key=markov_degrees.get)
-    print "base node is %d" % base_node
+    markov_degrees = markov_graph.degree(list(markov_graph.nodes))
+    base_node = max(markov_degrees)[0]
+    print ("base node is %d" % base_node)
 
 As you will see, the base node is 0 in this case.
 
 Cycles as reliably produced network reponses
 --------------------------------------------
 
-Now we calculate simple cycles (i.e. closed simple paths starting and 
-ending at the same node) in the Markov graph starting at the base node. 
+Now we calculate simple cycles (i.e. closed simple paths starting and
+ending at the same node) in the Markov graph starting at the base node.
 Each cycle can be thought of as a cycle in the state space of the network,
 corresponding to an excitation cycle of the network and describing how
 it is brought out of the base state, passing through a series of transient
 excited states to finally fall back into the base state. This essentially
-corresponds extracting several 1-dimensional aspects of the network 
+corresponds extracting several 1-dimensional aspects of the network
 dynamics.
 
 As a measure for how reliably the network generates these cycles in the
 state space we use the Markov entropies of the nodes in the cycle:
-lower entropy of a memory means that the following state is more 
+lower entropy of a memory means that the following state is more
 predictable, i.e. the path is more stably visited, whereas higher entropy
-means that the path is scattered when passing through a memory. 
+means that the path is scattered when passing through a memory.
 We score all cycles by their entropy (where the entropy of a cycles is a
 weighted sum of the entropies of the nodes it consists of). The lower
 the entropy, the more stably that cycle occurrs in the data:
@@ -232,21 +234,22 @@ the entropy, the more stably that cycle occurrs in the data:
 
     # calculate cycles of entropies around base node
     # adjust weighting and weighting per element if needed
-    print "calculating cycles around base node.."
+    print ("calculating cycles around base node..")
     cycles, scores = sa.calculate_cycles_entropy_scores(
                                                    base_node,
                                                    min_len=2,
                                                    max_len=20)
-    print "%d cycles" % (len(cycles))
+    print ("%d cycles" % (len(cycles)))
 
 Let is plot some statistics about the extracted cycles:
 
 .. code-block:: python
-    
+
     # plot cycle statistics
     n_cycles = len(cycles)
-    cycle_len = np.array(map(len, cycles))
-    fig, ax = plt.subplots() 
+    cycle_len = np.array([])
+    for i in range(0,n_cycles):
+      cycle_len = np.append(cycle_len,len(cycles[i]))
     ax.hist(cycle_len, weights=[1. / n_cycles] * n_cycles, bins=50, color='k')
     ax.set_xlabel('cycle length')
     ax.set_ylabel('fraction')
@@ -262,8 +265,8 @@ Let is plot some statistics about the extracted cycles:
     Figure 6. Distribution of cycle lengths.
 
 .. code-block:: python
-    
-    fig, ax = plt.subplots() 
+
+    fig, ax = plt.subplots()
     plt.hist(scores, weights=[1. / n_cycles] * n_cycles, bins=50, color='k')
     plt.xlabel('cycle score')
     plt.ylabel('fraction')
@@ -279,8 +282,8 @@ Let is plot some statistics about the extracted cycles:
     Figure 7. Distribution of cycle scores.
 
 .. code-block:: python
-    
-    fig, ax = plt.subplots() 
+
+    fig, ax = plt.subplots()
     plt.scatter(cycle_len, scores, color='k')
     plt.xlabel('cycle length')
     plt.ylabel('cycle score')
@@ -304,7 +307,7 @@ response for each cycle:
         mta_sequence = [patterns.pattern_to_mta_matrix(l).reshape(10, 1)
                         for l in cycle]
         combined = combine_windows(np.array(mta_sequence))
-        fig, ax = plt.subplots() 
+        fig, ax = plt.subplots()
         plt.matshow(combined, cmap='gray', vmin=0, vmax=1)
         plt.axis('off')
         plt.title('cycle %d\nlength %d\nscore %f' % \

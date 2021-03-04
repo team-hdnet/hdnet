@@ -1,9 +1,78 @@
 Installing hdnet
 ================
 
-TBD
+The simplest way to install HDNet is to first clone the HDNet repo to your own
+computer and then run setup.py.
 
+* Install some required packages
 
+    .. code::
+
+        git clone https://github.com/team-hdnet/hdnet.git
+
+	Then get into the directory, where you've cloned HDNet and run:
+	
+    .. code::
+    	 
+    	 python setup.py
+    	 
+* A Simpler way which may or may not work for many would be using 'pip' :
+	
+    .. code::
+    	
+    	pip install git+ssh://git@github.com/team-hdnet/hdnet.git
+    	
+    	and if you want a specific version then better use:
+    	
+    .. code::
+    	
+    	pip install git+ssh://git@github.com/team-hdnet/hdnet@VERSION
+    	
+    	where 'VERSION' is v0.1 for example.
+    	
+    	
+A few more dependencies: NetworkX and PyGraphViz  	
+-------------------------------------------------
+
+NetworkX is the Python Library for dealing with Graphs and Networks, which we'll be
+using a lot in HDNet, PyGraphViz is used for the visualization requirements of 
+NetworkX, when we want to draw Markox Models in order to gain better intuition.
+
+* Install NetworkX using pip
+
+	.. code::
+		
+		pip install networkx
+
+* Install PyGraphViz: This would first require getting graphviz and a C/C++ compiler
+like G++(and of course Python 3.6 or higher!):
+
+* Install GraphViz by using the following commands according to your OS:
+
+For Ubuntu and Debian:
+
+	.. code::
+		
+		sudo apt-get install graphviz graphviz-dev
+
+For Fedora and Red Hat:
+
+	.. code::
+		
+		sudo dnf install graphviz graphviz-devel
+		
+For MacOS(using Homebrew package manager):
+
+	.. code ::
+		
+		brew install graphviz
+		
+* Once, you're done with that install PyGraphViz using 'pip':
+
+	.. code ::
+		
+		pip install pygraphviz
+		
 Adding OpenBLAS support
 -----------------------
 
@@ -69,6 +138,7 @@ in `the following Stackoverflow topic <http://stackoverflow.com/a/14391693>`_):
 * Compile numpy with OpenBLAS support (optionally add the `--user` flag to the last
   python call to install the package only for the current user not using root rights;
   the optional argument is marked with parentheses [] below)
+  (NOTE: The first command may not work for the latest versions of OpenBLAS and hence, it can be skipped!)
 
     .. code::
 
@@ -79,27 +149,24 @@ in `the following Stackoverflow topic <http://stackoverflow.com/a/14391693>`_):
 
     .. code::
 
-        import numpy as np
-        import sys
-        import timeit
+        import numpy
+	from numpy.distutils.system_info import get_info
+	import sys
+	import timeit
 
-        try:
-            import numpy.core._dotblas
-            print 'fast BLAS'
-        except ImportError:
-            print 'slow BLAS'
+	print("version: %s" % numpy.__version__)
+	print("maxint:  %i\n" % sys.maxsize)
 
-        print 'version:', np.__version__
-        print 'maxint:', sys.maxint
-        print
+	info = get_info('blas_opt')
+	print('BLAS info:')
+	for kk, vv in info.items():
+    	print(' * ' + kk + ' ' + str(vv))
 
-        x = np.random.random((1000,1000))
+	setup = "import numpy; x = numpy.random.random((1000, 1000))"
+	count = 10
 
-        setup = 'import numpy as np; x = np.random.random((1000,1000))'
-        count = 10
-
-        t = timeit.Timer('np.dot(x, x.T)', setup=setup)
-        print 'dot:', t.timeit(count)/count, 'sec'
+	t = timeit.Timer("numpy.dot(x, x.T)", setup=setup)
+	print("\ndot: %f sec" % (t.timeit(count) / count))
 
     Save it as `dot_performance.py` and run the following, where `X` is the number of
     CPU cores `numpy` should use for linear algebra operations:
