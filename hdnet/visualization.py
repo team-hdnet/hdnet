@@ -597,7 +597,7 @@ def plot_graph(g, nodeval=None, cmap_nodes='cool', cmap_edges='autumn',
         kwargs['node_vmax'] = node_vmax
     nx.draw_networkx_nodes(g, pos, nodelist=g.nodes(),
                            node_color='0.8' if nodeval is None else nodeval,
-                           node_size=500, alpha=1, with_labels=True,
+                           node_size=500, alpha=1,
                            cmap=plt.get_cmap(cmap_nodes), **kwargs)
 
     kwargs = {}

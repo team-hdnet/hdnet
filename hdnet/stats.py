@@ -361,7 +361,7 @@ class SequenceAnalyzer(object):
         Compute probability vector of patterns as empirical probabilities.
         If parent counter object present then return probability vector in
         that space.
-        
+
         Parameters
         ----------
         sequence : 1d numpy array, int, optional
@@ -369,7 +369,7 @@ class SequenceAnalyzer(object):
             used (default None)
         parent : :class:`.Counter`, optional
             Parent Counter object (default None)
-        
+
         Returns
         -------
         probabilities : numpy array
@@ -632,7 +632,7 @@ class SequenceAnalyzer(object):
                 pred = graph.predecessors(n)
                 succ = graph.successors(n)
                 if len(pred) == 1 and len(succ) == 1:
-                    weight = float(np.mean([graph.get_edge_data(pred[0], n)['weight'], 
+                    weight = float(np.mean([graph.get_edge_data(pred[0], n)['weight'],
                                             graph.get_edge_data(n,succ[0])['weight']]))
                     graph.add_edge(pred[0], succ[0], weight=weight)
                     graph.remove_node(n)
@@ -643,7 +643,7 @@ class SequenceAnalyzer(object):
     def reduce_graph_stub(self, graph=None):
         """
         Removes all "stub" nodes v from `graph`, where a stub node
-        is defined as one having only only one incoming and no 
+        is defined as one having only only one incoming and no
         outgoing edges, i.e. u -> v.
 
         Parameters
@@ -665,7 +665,7 @@ class SequenceAnalyzer(object):
         while removed > 0:
             removed = 0
             for n in graph.nodes():
-                if len(graph.predecessors(n)) + len(graph.successors(n)) <= 1:
+                if len(list(graph.predecessors(n))) + len(list(graph.successors(n))) <= 1:
                         graph.remove_node(n)
                         removed += 1
                         all_removed.append(n)
@@ -744,7 +744,7 @@ class SequenceAnalyzer(object):
                 graph.remove_edge(path[-1], node)
                 removed.append((path[-1], node))
         return removed
-                
+
 
     def reduce_graph_triangles(self, graph=None):
         """
@@ -811,7 +811,7 @@ class SequenceAnalyzer(object):
                 graph.remove_node(n)
                 removed.append(n)
         return removed
-    
+
     def calculate_cycles_entropy_scores(self, node, min_len=2, max_len=20, weighting=None,
                                        weighting_element=None, node_entropies=None, graph=None):
         """
@@ -834,8 +834,8 @@ class SequenceAnalyzer(object):
             Weighting function per element, if None `lambda x, p: x`
             is taken (default None)
         node_entropies : 1d numpy array, optional
-            Node entropies to use, if None entropies from Markov 
-            transition probabilities of internal sequence are used 
+            Node entropies to use, if None entropies from Markov
+            transition probabilities of internal sequence are used
             (default None)
         graph : :class:`networkx.DiGraph`, optional
             Graph to operate on, if None Markov graph belonging
@@ -843,7 +843,7 @@ class SequenceAnalyzer(object):
 
         Returns
         -------
-        (cycles, scores) : (1d numpy array, 1d numpy array) 
+        (cycles, scores) : (1d numpy array, 1d numpy array)
             Scored cycles, where cycles is a 1d array of cycles and scores a
             1d array of cycle scores. Index in scores identical to index in cycles,
             arrays sorted by score (ascending).
@@ -856,7 +856,7 @@ class SequenceAnalyzer(object):
         cycles = []
         for p in graph.predecessors(node):
             cycles.extend(
-                [p + [node] for p in nx.all_simple_paths(graph, node, p, cutoff=max_len) 
+                [p + [node] for p in nx.all_simple_paths(graph, node, p, cutoff=max_len)
                  if len(p) >= min_len - 1])
 
         if weighting is None:
@@ -891,8 +891,8 @@ class SequenceAnalyzer(object):
             Weighting function per element, if None `lambda x, p: x`
             is taken (default None)
         node_entropies : 1d numpy array, optional
-            Node entropies to use, if None entropies from Markov 
-            transition probabilities of internal sequence are used 
+            Node entropies to use, if None entropies from Markov
+            transition probabilities of internal sequence are used
             (default None)
         graph : :class:`networkx.DiGraph`, optional
             Graph to operate on, if None Markov graph belonging
@@ -900,7 +900,7 @@ class SequenceAnalyzer(object):
 
         Returns
         -------
-        (paths, scores) : (1d numpy array, 1d numpy array) 
+        (paths, scores) : (1d numpy array, 1d numpy array)
             Scored paths, where paths is a 1d array of paths and scores a
             1d array of cycle scores. Index in scores identical to index in paths,
             arrays sorted by score (ascending).
