@@ -50,12 +50,12 @@ from hdnet.visualization import combine_windows, plot_graph
 
 # load coverged patterns here
 
-n = NUMBER_OF_NEURONS
-ws = WINDOW_SIZE
-pattern_file = 'SAVED_PATTERNS_FILE'
+n = 10 #NUMBER_OF_NEURONS
+ws = 1  #WINDOW_SIZE
+#pattern_file = 'SAVED_PATTERNS_FILE'
 
 # load pattern sequence
-patterns = PatternsHopfield.load(pattern_file)
+patterns = PatternsHopfield.load('my_spikes_model/patterns_hopfield.npz')
 sequence = patterns.sequence
 labels = set(sequence)
 n_labels = len(labels)
@@ -116,8 +116,8 @@ plt.close()
 
 # construct markov graph
 markov_graph = sa.compute_markov_graph()
-print "Markov graph has %d nodes, %d edges" % (len(markov_graph.nodes()),
-                                               len(markov_graph.edges()))
+print ("Markov graph has %d nodes, %d edges" % (len(markov_graph.nodes()),
+                                               len(markov_graph.edges())))
 
 # reduce markov graph to most likely occurring labels
 # adjust threshold if needed
@@ -129,7 +129,7 @@ plot_graph(markov_graph)
 plt.savefig('markov_graph_filtered.png')
 
 # plot memory triggered averages for all nodes of markov graph
-fig, ax = plt.subplots(threshold / 10, 10) 
+fig, ax = plt.subplots(int(threshold / 10), 10)
 for i, node in enumerate(markov_graph.nodes()):
     ax = plt.subplot(threshold / 10, 10, i + 1)
     ax.matshow(patterns.pattern_to_mta_matrix(node).reshape(n, ws),
@@ -140,23 +140,23 @@ for i, node in enumerate(markov_graph.nodes()):
 plt.savefig('mtas.png')
 plt.close()
 
-print "filtering markov graph"
+print ("filtering markov graph")
 sa.reduce_graph_self_cycles()
 sa.reduce_graph_triangles()
 sa.reduce_graph_stub()
-print "Filtered Markov graph has %d nodes, %d edges" % \
-      (len(markov_graph.nodes()), len(markov_graph.edges()))
+print ("Filtered Markov graph has %d nodes, %d edges" % \
+      (len(markov_graph.nodes()), len(markov_graph.edges())))
 
 # try to guess base node (resting state memory) as node with highest degree
 # (converging and diverging connections)
 # -- adjust post hoc if necessary!
-markov_degrees = markov_graph.degree()
-base_node = max(markov_degrees, key=markov_degrees.get)
-print "base node is %d" % base_node
+markov_degrees = markov_graph.degree(list(markov_graph.nodes))
+base_node = max(markov_degrees)[0]
+print ("base node is %d" % base_node)
 
 # calculate cycles of entropies around base node
 # adjust weighting and weighting per element if needed
-print "calculating cycles around base node.."
+print ("calculating cycles around base node..")
 weighting = lambda x: 1. / len(x)
 weighting_element = lambda x, p: x / ((p + 1) * 2.) # prefer longer sequences
 cycles, scores = sa.calculate_cycles_entropy_scores(
@@ -165,12 +165,15 @@ cycles, scores = sa.calculate_cycles_entropy_scores(
                                                max_len=20,
                                                weighting=weighting,
                                                weighting_element=weighting_element)
-print "%d cycles" % (len(cycles))
+print ("%d cycles" % (len(cycles)))
 
 # plot cycle statistics
 n_cycles = len(cycles)
-cycle_len = np.array(map(len, cycles))
-fig, ax = plt.subplots() 
+cycle_len = np.array([])
+for i in range(0,n_cycles):
+    cycle_len = np.append(cycle_len,len(cycles[i]))
+
+fig, ax = plt.subplots()
 ax.hist(cycle_len, weights=[1. / n_cycles] * n_cycles, bins=50, color='k')
 ax.set_xlabel('cycle length')
 ax.set_ylabel('fraction')
@@ -179,7 +182,7 @@ plt.tight_layout()
 plt.savefig('cycle_lengths.png')
 plt.close()
 
-fig, ax = plt.subplots() 
+fig, ax = plt.subplots()
 plt.hist(scores, weights=[1. / n_cycles] * n_cycles, bins=50, color='k')
 plt.xlabel('cycle score')
 plt.ylabel('fraction')
@@ -188,7 +191,7 @@ plt.tight_layout()
 plt.savefig('cycle_scores.png')
 plt.close()
 
-fig, ax = plt.subplots() 
+fig, ax = plt.subplots()
 plt.scatter(cycle_len, scores, color='k')
 plt.xlabel('cycle length')
 plt.ylabel('cycle score')
@@ -197,7 +200,7 @@ plt.tight_layout()
 plt.savefig('cycle_lengths_vs_scores_scatter.png')
 plt.close()
 
-fig, ax = plt.subplots() 
+fig, ax = plt.subplots()
 plt.hist2d(cycle_len, scores, bins=100)
 plt.xlabel('cycle length')
 plt.ylabel('cycle score')
@@ -211,14 +214,14 @@ plt.close()
 # adjust if needed
 max_plot = 100
 interesting = np.arange(min(n_cycles, max_plot))
-print "plotting averaged sequences of %d cycles.." % (len(interesting))
+print ("plotting averaged sequences of %d cycles.." % (len(interesting)))
 
 for i, idx in enumerate(interesting):
     cycle = cycles[idx]
     mta_sequence = [patterns.pattern_to_mta_matrix(l).reshape(n, ws)
                     for l in cycle]
     combined = combine_windows(np.array(mta_sequence))
-    fig, ax = plt.subplots() 
+    fig, ax = plt.subplots()
     plt.matshow(combined, cmap='gray')
     plt.axis('off')
     plt.title('cycle %d\nlength %d\nscore %f' % \

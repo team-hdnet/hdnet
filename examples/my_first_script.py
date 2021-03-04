@@ -20,9 +20,15 @@ spikes = Spikes(spikes=spikes)
 # let's look at them: quick save as PNG or make PSTH pyplot
 plt.matshow(spikes.rasterize(), cmap='gray')
 plt.title('Raw spikes')
+plt.show()
+buff = input('Press a key to continue!')
+plt.close()
 #spikes.rasterize(save_png_name='raster')
 plt.matshow(spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
 plt.title('Raw spikes covariance')
+plt.show()
+buff = input('Press a key to continue!')
+plt.close()
 #spikes.covariance(save_png_name='simul_cov_matrices')
 
 # let's examine the structure in spikes using a spike modeler
@@ -30,9 +36,15 @@ spikes_model = BernoulliHomogeneous(spikes=spikes)
 BH_sample_spikes = spikes_model.sample_from_model()
 plt.matshow(BH_sample_spikes.rasterize(), cmap='gray')
 plt.title('BernoulliHomogeneous sample')
+plt.show()
+buff = input('Press a key to continue!')
+plt.close()
 print("%1.4f means" % BH_sample_spikes.spikes.mean())
 plt.matshow(BH_sample_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
 plt.title('BernoulliHomogeneous covariance')
+plt.show()
+buff = input('Press a key to continue!')
+plt.close()
 
 # let's model them as DichotomizedGaussian:
 # from the paper: Generating spike-trains with specified correlations, Macke et al.
@@ -42,8 +54,14 @@ DG_sample_spikes = spikes_model.sample_from_model()
 plt.matshow(DG_sample_spikes.rasterize(), cmap='gray')
 plt.title('DichotomizedGaussian sample')
 print("%1.4f means" % DG_sample_spikes.spikes.mean())
+plt.show()
+buff = input('Press a key to continue!')
+plt.close()
 plt.matshow(DG_sample_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
 plt.title('DichotomizedGaussian covariance')
+plt.show()
+buff = input('Press a key to continue!')
+plt.close()
 
 # the basic modeler trains a Hopfield network using MPF on the raw spikes
 spikes_model = SpikeModel(spikes=spikes)
@@ -52,8 +70,14 @@ spikes_model.chomp()
 converged_spikes = spikes_model.hopfield_spikes
 plt.matshow(converged_spikes.rasterize(), cmap='gray')
 plt.title('Converge dynamics on Raw data')
+plt.show()
+buff = input('Press a key to continue!')
+plt.close()
 plt.matshow(converged_spikes.covariance().reshape((2 * 10, 10)), cmap='gray')
 plt.title('Covariance of converged memories')
+plt.show()
+buff = input('Press a key to continue!')
+plt.close()
 
 # let's examine more carefully the memories discovered in the Hopnet
 # plot memory label (its chronological appearance) as a function of time
@@ -62,12 +86,18 @@ plt.scatter(range(len(spikes_model.hopfield_patterns.sequence)), 1 + np.array(sp
 plt.xlabel('time bin')
 plt.ylabel('Memory number (chronological order of appearance)')
 plt.title('Converged memory label at each time bin')
+plt.show()
+buff = input('Press a key to continue!')
+plt.close()
 # versus the Raw data
 plt.figure()
 plt.scatter(range(len(spikes_model.raw_patterns.sequence)), 1 + np.array(spikes_model.raw_patterns.sequence))
 plt.ylabel('Raw pattern number (chronological order of appearance)')
 plt.xlabel('time bin')
 plt.title('Raw pattern label at each time bin')
+plt.show()
+buff = input('Press a key to continue!')
+plt.close()
 
 # memories are ordered by their first appearance:
 bin_memories = spikes_model.hopfield_patterns.patterns
@@ -88,17 +118,23 @@ spikes_model = SpikeModel.load('my_spikes_model')
 
 
 # (Fake) Stimuli
-calvin = np.load('examples/data/calvin.npy')  # 90 by 100 numpy array
-hobbes = np.load('examples/data/hobbes.npy')
+calvin = np.load('data/calvin.npy')  # 90 by 100 numpy array
+hobbes = np.load('data/hobbes.npy')
 
 stimulus_arr = 20 * np.random.randn(2, 200, *calvin.shape)
-stimulus_arr[0, ::5] = calvin + 50 * np.random.randn(200 / 5, *calvin.shape)
-stimulus_arr[1, ::11] = hobbes + 50 * np.random.randn(200 / 11 + 1, *hobbes.shape)
+stimulus_arr[0, ::5] = calvin + 50 * np.random.randn(40, *calvin.shape)
+stimulus_arr[1, ::11] = hobbes + 50 * np.random.randn(19, *hobbes.shape)
 
 plt.matshow(stimulus_arr[0, 0], cmap='gray')
 plt.title('Calvin Sample Stimulus')
+plt.show()
+buff = input('Press a key to continue!')
+plt.close()
 plt.matshow(stimulus_arr[1, 0], cmap='gray')
 plt.title('Hobbes Sample Stimulus')
+plt.show()
+buff = input('Press a key to continue!')
+plt.close()
 
 stimulus = Stimulus(stimulus_arr=stimulus_arr)
 avgs = spikes_model.hopfield_patterns.mem_triggered_stim_avgs(stimulus)
@@ -106,6 +142,9 @@ avgs = spikes_model.hopfield_patterns.mem_triggered_stim_avgs(stimulus)
 for stm_avg in avgs:
     plt.matshow(stm_avg, cmap='gray')
     plt.title('Memory Triggered Stimulus Average')
+    plt.show()
+    buff = input('Press a key to continue!')
+    plt.close()
 
 
 
