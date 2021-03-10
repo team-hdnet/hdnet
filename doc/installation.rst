@@ -4,8 +4,6 @@ Installing hdnet
 The simplest way to install HDNet is to first clone the HDNet repo to your own
 computer and then run setup.py.
 
-* Install some required packages
-
     .. code::
 
         git clone https://github.com/team-hdnet/hdnet.git

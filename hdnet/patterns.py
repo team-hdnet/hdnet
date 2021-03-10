@@ -12,9 +12,10 @@
 """
 
 from __future__ import print_function
-
+from itertools import combinations
 from collections import OrderedDict
 
+import math
 import os
 import numpy as np
 from hdnet.spikes import Spikes
@@ -146,7 +147,7 @@ class Counter(Restoreable, object):
 		self._lookup_patterns = {}
 		self._sequence = []
 		self._save_sequence = save_sequence
-		self._skipped_patterns = 0
+		self._skipped_patterns = []
 		self._seen_sequence = []
 
 		if counter is not None:
@@ -247,7 +248,7 @@ class Counter(Restoreable, object):
 		sequence : 1d numpy array, int
 			Sequence of pattern labels over raw data
 		"""
-		return self._sequence
+		return np.array(self._sequence)
 
 	@property
 	def skipped_patterns(self):
@@ -260,7 +261,7 @@ class Counter(Restoreable, object):
 		skipped : 1d numpy array
 			Skipped patterns indicator
 		"""
-		return self._skipped_patterns
+		return np.array(self._skipped_patterns)
 
 	@property
 	def seen_sequence(self):
@@ -275,7 +276,7 @@ class Counter(Restoreable, object):
 		seen : 1d numpy array
 			Sequence of seen flags
 		"""
-		return self._seen_sequence
+		return np.array(self._seen_sequence)
 
 	def __add__(self, other):
 		"""
@@ -323,8 +324,8 @@ class Counter(Restoreable, object):
 			This instance
 		"""
 		for key in counter.counts.keys():
-			key_ = Counter.key_for_pattern(Counter.pattern_for_key(key))
-			self.add_key(key_, counter.counts[key])
+			#key_ = counter.key_for_pattern(counter.pattern_for_key(key))
+			self.add_key(key, counter.counts[key])
 		return self
 
 	def entropy(self):
@@ -424,15 +425,18 @@ class Counter(Restoreable, object):
 			Returns pointer to itself
 		"""
 		if rotate and add_new:
-			self._skipped_patterns = 0
+			self._skipped_patterns = []
 		X = spikes.to_windowed(window_size=window_size, trials=trials, reshape=True)
 		self.chomp(X, add_new=add_new, rotate=rotate)
 		return self
 
 	def chomp_vector(self, x, add_new = True, rotate = None, iterations = None, energy = None):
 		"""
-		Counts occurrences of pattern in vector `x`, assigns it a
+		Counts occurrences of pattern `x`, assigns it a
 		integer label and stores it.
+		If rotate isn't an empty tuple then it would also go over all the
+		window modulus patterns that could be generated from the given pattern
+		and increment their count instead of storing it as a new pattern
 
 		Parameters
 		----------
@@ -449,7 +453,7 @@ class Counter(Restoreable, object):
 		bin_x, new_pattern, numrot : str, bool, int
 			Key of pattern `x`, Flag whether pattern was seen
 			before, number of rotations performed to obtain
-			pattern identity (if `rotate` was given)
+			pattern identity (if `interationrotate` was given)
 		"""
 		bin_x = Counter.key_for_pattern(x)
 
@@ -461,14 +465,14 @@ class Counter(Restoreable, object):
 			found = bin_x in self._counts
 			while not found and numrot < rotate[1]:
 				xrot = np.roll(xrot, 1, axis=1)
-				bin_x = Counter.key_for_pattern(xrot.reshape(x.shape))
+				bin_x = Counter.key_for_pattern(xrot)
 				found = bin_x in self._counts
 				numrot += 1
 
 			if not found:
 				bin_x = Counter.key_for_pattern(x)
 			elif numrot > 0:
-				self._skipped_patterns += 1
+				self._skipped_patterns.append(bin_x)
 
 		if bin_x in self._counts:
 			self._seen_sequence.append(1)
@@ -494,8 +498,8 @@ class Counter(Restoreable, object):
 
 		Parameters
 		----------
-		key : str
-			Key of pattern
+		key : int
+			Label of pattern
 
 		Returns
 		-------
@@ -523,7 +527,7 @@ class Counter(Restoreable, object):
 		idx = np.array(self._counts.values()).argsort()[-m:]
 		for i in idx:
 			top_binary.append(self.pattern_to_binary_matrix(self._lookup_patterns[self._counts.keys()[i]]))
-		return top_binary
+		return np.array(top_binary)
 
 
 	def pattern_correlation_coefficients(self, labels = None, **kwargs):
@@ -567,6 +571,9 @@ class Counter(Restoreable, object):
 		-------
 		averages : numpy array
 			Stimulus average calculated
+		or
+		A Dictionary with the stimuli corresponding to each pattern
+		if average is false.
 		"""
 		stm_arr = stimulus.stimulus_arr
 
@@ -579,10 +586,10 @@ class Counter(Restoreable, object):
 
 		seq = np.array(self.sequence)
 		stim_avgs = []
-
+		"""
 		if len(stm_arr.shape) > 2:
 			stm_arr = stm_arr.reshape(tuple([stm_arr.shape[0] * stm_arr.shape[1]] + list(stm_arr.shape[2:])))
-
+		"""
 		for c, pattern in enumerate(self.patterns):
 			x = stm_arr[seq == c]
 			if average:
@@ -806,7 +813,9 @@ class PatternsHopfield(Counter):
 		Returns a Python dictionary keys of which are strings of binary digits
 		representing the memory (the original memory can be obtained
 		from the key using :meth:`Counter.pattern_for_key`) and values
-		are 2d numpy arrays representing the memory triggered average.
+		are 1d numpy arrays representing the sum of all raw patterns that
+		converge to that memory so that they could later be divided by
+		count and MTA be obtained from them.
 
 
 		Returns
@@ -843,7 +852,7 @@ class PatternsHopfield(Counter):
 		memory triggered average the number of Hopfield dynamics update
 		steps needed for convergence to the Hopfield memory.
 
-\       Returns a Python dictionary, keys of which are strings of binary digits
+        Returns a Python dictionary, keys of which are strings of binary digits
 		representing the memory (the original memory can be obtained
 		from the key using :meth:`Counter.pattern_for_key`) and values
 		are 1d numpy arrays of integers containing the number of iterations needed
@@ -863,7 +872,7 @@ class PatternsHopfield(Counter):
 		memory triggered average the Ising energy decrease
 		due to convergence to the Hopfield memory.
 
-\       Returns a Python dictionary, keys of which are strings of binary digits
+        Returns a Python dictionary, keys of which are strings of binary digits
 		representing the memory (the original memory can be obtained
 		from the key using :meth:`Counter.pattern_for_key`) and values
 		are 1d numpy arrays of floats containing Ising energy decrease upon
@@ -956,6 +965,8 @@ class PatternsHopfield(Counter):
 		Nothing
 		"""
 		# TODO warn if no network
+		if self._learner.network is None:
+			hdlog.warn('The Hopfield Network has not been trained yet')
 		Y, iters, energies = self._learner.network(X, record_iterations = True, record_energies = True)
 		for x, y, i, e in zip(X, Y, iters, energies):
 			self.chomp_vector(x, y, add_new = add_new, rotate = rotate, iterations= i, energy = e)
@@ -1035,6 +1046,8 @@ class PatternsHopfield(Counter):
 		else:
 			X = spikes.T
 		# TODO warn if no network
+		if self._learner.network is None:
+			hdlog.warn('The Hopfield Network has not been trained yet')
 		Y = self._learner.network(X)
 		if reshape:
 			N = Y.shape[1]
@@ -1055,7 +1068,7 @@ class PatternsHopfield(Counter):
 	def get_memory_label(self, spikes, window_size=1, trials=None, reshape=True):
 		"""
 		Computes the memory label of the raw spikes using the underlying
-		patern sequence.
+		pattern sequence.
 
 		Parameters
 		----------
@@ -1071,8 +1084,8 @@ class PatternsHopfield(Counter):
 
 		Returns
 		-------
-		label : int or None
-			Label of associated memory or None if memory did not occur
+		label :list of int(s) or None
+			Labels of associated memories or None if memory did not occur
 			in underlying sequence
 		"""
 		Y = self.apply_dynamics(spikes, window_size=window_size,
@@ -1289,7 +1302,28 @@ class PatternsHopfield(Counter):
 			Approximated basin sizes of each memory
 		"""
 		# TODO implement
-		pass
+		N = len(self._patterns[0])
+		if math.comb(N,max_corrupt_bits)>10000:
+			print("Calculating basin size not feasible, enter less number of corrupt bits!")
+			return
+		basin_sizes = []
+		for label, key in enumerate(self._patterns):
+			pattern = self.pattern_for_key(key)
+			j = 0.0
+			for i in range(1,max_corrupt_bits+1):
+				sample = []
+				comb_ind = list(combinations(list(range(0,N)),i))
+				for ind in comb_ind:
+					pattern[list(ind)] = 1-pattern[list(ind)]
+					sample.append(pattern)
+					pattern[list(ind)] = 1-pattern[list(ind)]
+				sample=np.array(sample)
+				sample = sample.T
+				result = self.get_memory_label(Spikes(spikes = sample))
+				j+=(float(i)*float(result.count(label)))/float(len(comb_ind))
+			basin_sizes.append(j)
+
+		return np.array(basin_sizes)
 
 
 

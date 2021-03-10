@@ -24,9 +24,9 @@ hdlog = logging.getLogger(HDLOGNAME)
 
 
 class Restoreable(object):
-    #mixin class for saving
+    #mixing class for saving
     """
-    Mixin class for supporting of saving and loading of contents in compressed
+    Mixing class for supporting of saving and loading of contents in compressed
     numpy format (numpy.savez). Supports file versioning and type identification.
     """
     _VERSION_FIELD = 'hdnet_version'
@@ -40,7 +40,7 @@ class Restoreable(object):
               internal_objects=None, extra=None, overwrite=False):
         """
         Missing documentation
-        
+
         Parameters
         ----------
         file_name : Type
@@ -57,7 +57,7 @@ class Restoreable(object):
             Description (default None)
         extra : Type, optional
             Description (default None)
-        
+
         Returns
         -------
         Value : Type
@@ -109,7 +109,7 @@ class Restoreable(object):
     def _load(cls, file_name, has_internal=False, folder_name=None, internal_objects=None, load_extra=False):
         """
         Missing documentation
-        
+
         Parameters
         ----------
         file_name : Type
@@ -122,7 +122,7 @@ class Restoreable(object):
             Description (default None)
         load_extra : bool, optional
             Description (default False)
-        
+
         Returns
         -------
         Value : Type
@@ -182,7 +182,7 @@ class Restoreable(object):
     def _load_attributes(instance, contents, attributes):
         """
         Missing documentation
-        
+
         Parameters
         ----------
         instance : Type
@@ -191,7 +191,7 @@ class Restoreable(object):
             Description
         attributes : Type
             Description
-        
+
         Returns
         -------
         Value : Type
@@ -213,7 +213,7 @@ class Restoreable(object):
     def _load_raw(file_name):
         """
         Missing documentation
-        
+
         Returns
         -------
         Value : Type

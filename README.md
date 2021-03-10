@@ -77,18 +77,26 @@ visual cortex. Journal of Neurophysiology, 1995.
 Installing
 ----------
 
-Until we provide an official release, please install hdnet directly from Github using `pip`.
 
-To install / update to the latest version use:
 
-`pip install git+ssh://git@github.com/team-hdnet/hdnet.git`
+The simplest way to install HDNet is to first clone the HDNet repo to your own
+computer and then run setup.py.
 
-To install a specific version, use:
+'git clone https://github.com/team-hdnet/hdnet.git'
 
-`pip install git+ssh://git@github.com/team-hdnet/hdnet@VERSION`,
+Then get into the directory, where you've cloned HDNet and run:
 
-where `VERSION` is `v0.1` for example. See releases tab above for released versions.
- 
+'python setup.py'
+    	 
+A Simpler way which may or may not work for many would be using 'pip' :
+	
+'pip install git+ssh://git@github.com/team-hdnet/hdnet.git'
+    	
+and if you want a specific version then better use:
+    	
+'pip install git+ssh://git@github.com/team-hdnet/hdnet@VERSION'
+    	
+where 'VERSION' is v0.1 for example.
 
 Documentation
 -------------

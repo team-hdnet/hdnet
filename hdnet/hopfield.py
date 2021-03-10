@@ -22,7 +22,7 @@ from hdnet.util import Restoreable, hdlog
 # try:
 # import pyximport
 #     pyximport.install()
-# 
+#
 #     import dynamics
 #     CYTHON = True
 #     print "using cython"
@@ -104,7 +104,7 @@ class HopfieldNet(Restoreable, object):
         """
         Returns the number of nodes in the network, shortcut
         for :meth:`num_nodes`.
-        
+
         Returns
         -------
         n : int
@@ -170,12 +170,12 @@ class HopfieldNet(Restoreable, object):
     @property
     def neuron_order(self):
         """
-        Missing documentation
+        A range object from 0 to number of Neurons there are
 
         Returns
         -------
-        Value : Type
-            Description
+        neuron_order : range
+            A range order depicting the indices for neurons/nodes
         """
         return self._neuron_order
 
@@ -195,12 +195,14 @@ class HopfieldNet(Restoreable, object):
     @property
     def symmetric(self):
         """
-        Missing documentation
-        
+        The Coupling Matrix is supposed to be symmetric in HopFieldNets,
+        but just in case, they aren't they have this property stored in this
+        boolean.
+
         Returns
         -------
-        Value : Type
-            Description
+        symmetric: Boolean
+            Variable Describing whether or not the Coupling Matrix is symmetric
         """
         return self._symmetric
 
@@ -209,7 +211,7 @@ class HopfieldNet(Restoreable, object):
         """
         Returns update flag as string, indicating Hopfield
         update type. Can be 'synchronous; or 'asynchronous'.
-        
+
         Returns
         -------
         update : str
@@ -261,7 +263,7 @@ class HopfieldNet(Restoreable, object):
             Set max_iter = Inf to always force convergence
 
         `clamped_nodes` is dictionary of those nodes not to update during the dynamics.
-        
+
         Parameters
         ----------
         X : numpy array
@@ -373,13 +375,13 @@ class HopfieldNet(Restoreable, object):
         """
         Store patterns in X using outer product learning rule (OPR).
         Sets coupling matrix J.
-        
+
         Parameters
         ----------
         X : numpy array
             (M, N)-dim array of binary input patterns of length N to be stored,
             where N is the number of nodes in the network
-        
+
         Returns
         -------
         Nothing
@@ -408,7 +410,7 @@ class HopfieldNet(Restoreable, object):
         clamped_nodes : dict, optional
             Dictionary of nodes to leave untouched during dynamics
             update (default None)
-        
+
         Returns
         -------
         Value : Type
@@ -461,7 +463,7 @@ class HopfieldNet(Restoreable, object):
         """
         Returns fraction of raw patterns stored as memories in
         unmodified form.
-        
+
         Parameters
         ----------
         X : 2d numpy array, int
@@ -470,7 +472,7 @@ class HopfieldNet(Restoreable, object):
         converge : bool, optional
             Flag whether to converge Hopfield dynamics. If False,
             just one step of dynamics is performed (default True)
-        
+
         Returns
         -------
         fraction : float
@@ -482,7 +484,7 @@ class HopfieldNet(Restoreable, object):
         """
         Returns array consisting of the number of Hopfield iterations
         needed to converge elements in `X` to their memories.
-        
+
         Parameters
         ----------
         X : numpy array
@@ -490,7 +492,7 @@ class HopfieldNet(Restoreable, object):
             where N is the number of nodes in the network
         max_iter : int, optional
             Maximal number if iterations to perform per element (default 10 ** 5)
-        
+
         Returns
         -------
         count : numpy array
@@ -514,7 +516,7 @@ class HopfieldNet(Restoreable, object):
         """
         Returns vector of row 2-norms of coupling matrix J
         of Hopfield network.
-        
+
         Returns
         -------
         norm : 1d numpy array, float
@@ -525,7 +527,7 @@ class HopfieldNet(Restoreable, object):
     def compute_kappa(self, X):
         """
         Computes minimum marginal of dynamics update.
-        
+
         Parameters
         ----------
         X : numpy array
@@ -549,13 +551,13 @@ class HopfieldNet(Restoreable, object):
         The energy of a pattern ``x`` computes as:
 
         .. math:: E(x) = -\frac{1}{2} x^T \cdot [J - \text{diag}(J)] \cdot x + \theta\cdot x
-        
+
         Parameters
         ----------
         X : numpy array
             (M, N)-dim array of binary input patterns of length N,
             where N is the number of nodes in the network
-        
+
         Returns
         -------
         energy : float
@@ -580,14 +582,14 @@ class HopfieldNet(Restoreable, object):
     def save(self, file_name='hopfield_network', extra=None):
         """
         Saves Hopfield network to file.
-        
+
         Parameters
         ----------
         file_name : str, optional
             File name to save network to (default 'hopfield_network')
         extra : dict, optional
             Extra information to save to file (default None)
-        
+
         Returns
         -------
         Nothing
@@ -608,14 +610,14 @@ class HopfieldNet(Restoreable, object):
             this:
 
             net = HopfieldNet.load('file_name')
-        
+
         Parameters
         ----------
         file_name : str, optional
             File name to load network from (default 'hopfield_network')
         load_extra : bool, optional
             Flag whether to load extra file contents, if any (default False)
-        
+
         Returns
         -------
         network : :class:`.HopfieldNet`
@@ -630,7 +632,7 @@ class HopfieldNet(Restoreable, object):
 
 
 class HopfieldNetMPF(HopfieldNet):
-    r"""
+    """
     Hopfield network, with training using Minimum Probability Flow (MPF)
     (Sohl-Dickstein, Battaglino, Deweese, 2009) for training / learning of binary patterns
 
@@ -658,7 +660,7 @@ class HopfieldNetMPF(HopfieldNet):
         """
         Note: accepts J with -2 theta on the diagonal
         Returns the MPF objective function evaluated over patterns X
-        
+
         Parameters
         ----------
         X : numpy array
@@ -684,10 +686,10 @@ class HopfieldNetMPF(HopfieldNet):
     def objective_function_batched(self, sampler, sample_size, batch_size, randstate, J=None):
         """
         This is to be able to fit network with more samples X than can be held in memory at once
-        
+
         Parameters
         ----------
-        sampler : Type
+        sampler :
             Description
         sample_size : Type
             Description
@@ -698,7 +700,7 @@ class HopfieldNetMPF(HopfieldNet):
         J : numpy array, optional
             Coupling matrix of size N x N, where N denotes the number
             of nodes in the network (default None)
-        
+
         Returns
         -------
         Value : Type
@@ -721,7 +723,7 @@ class HopfieldNetMPF(HopfieldNet):
         """
         Computes MPF objective gradient on input data X given coupling
         strengths J.
-        
+
         Parameters
         ----------
         X : numpy array
@@ -732,7 +734,7 @@ class HopfieldNetMPF(HopfieldNet):
             of nodes in the network (default None)
         return_K : bool, optional
             Flag wether to return K (default False)
-        
+
         Returns
         -------
         dJ [, K] : numpy array [, numpy array]
@@ -756,28 +758,34 @@ class HopfieldNetMPF(HopfieldNet):
     def objective_gradient_batched(self, sampler, sample_size, batch_size, randstate,
                                    J=None, return_K=False):
         """
-        Missing documentation
-        
+        Computes the MPF Objective Gradient on a particular batch of the input
+        data X given coupling Strengths J
+
         Parameters
         ----------
-        sampler : Type
-            Description
-        sample_size : Type
-            Description
-        batch_size : Type
-            Description
-        randstate : Type
-            Description
+        sampler : Sampler
+            An Object of Sampler Class representing the entire Spikes Sample
+        sample_size : int
+            Total Number of raw-patterns
+        batch_size : int
+            The Size of a single batch which could be loaded into memory
+            at once
+        randstate : int
+            The state for random number generator
         J : numpy array, optional
             Coupling matrix of size N x N, where N denotes the number
             of nodes in the network (default None)
         return_K : bool, optional
-            Description (default False)
-        
+            Whether or not to return K, which is the
+            average value of the Objective Function across all
+            patterns (default False)
+
         Returns
         -------
-        Value : Type
-            Description
+        dJ : Numpy Array
+            The Gradients for the Coupling matrix
+        K_sum : float (optional)
+            The Average value of the Objective Function across all patterns
         """
         np.random.set_state(randstate)
         nbatch = sample_size / batch_size
@@ -803,16 +811,17 @@ class HopfieldNetMPF(HopfieldNet):
 
     def objective_gradient_minfunc(self, J, X):
         """
-        Missing documentation
-        
+        Getting the Gradient of Objective Function ravelled into a 1D numpy
+        array, even if J is given in a ravelled 1D form
+
         Parameters
         ----------
-        J : Type
-            Description
+        J : Numpy Array
+            The Coupling Matrix
         X : numpy array
             (M, N)-dim array of binary input patterns of length N,
             where N is the number of nodes in the network
-        
+
         Returns
         -------
         Value : Type
@@ -823,26 +832,31 @@ class HopfieldNetMPF(HopfieldNet):
 
     def objective_gradient_minfunc_batched(self, J, sampler, sample_size, batch_size, randstate):
         """
-        Missing documentation
-        
+        Getting the Gradient of Objective Function ravelled into a 1D numpy
+        array for separate batches which can be simultaneously loaded to Memory,
+        even if J is given in a ravelled 1D form
+
         Parameters
         ----------
         J : numpy array
             Coupling matrix of size N x N, where N denotes the number
             of nodes in the network
-        sampler : Type
-            Description
-        sample_size : Type
-            Description
-        batch_size : Type
-            Description
-        randstate : Type
-            Description
-        
+        sampler : Sampler
+            An Object of Sampler Class representing the entire Spikes Sample
+        sample_size : int
+            Total Number of raw-patterns
+        batch_size : int
+            The Size of a single batch which could be loaded into memory
+            at once
+        randstate : int
+            The state for random number generator
+
         Returns
         -------
-        Value : Type
-            Description
+        dJ : Numpy Array
+            The Gradients for the Coupling matrix ravelled into a 1D Array
+        K  : float (optional)
+            The Average value of the Objective Function across all patterns
         """
         K, dJ = self.objective_gradient_batched(J=J.reshape(self._N, self._N), return_K=True,
                                                 sampler=sampler, sample_size=sample_size, batch_size=batch_size,
@@ -852,7 +866,7 @@ class HopfieldNetMPF(HopfieldNet):
     def optcallback(p):
         """
         Missing documentation
-        
+
         Returns
         -------
         Value : Type
@@ -860,16 +874,19 @@ class HopfieldNetMPF(HopfieldNet):
         """
         pass
 
-    def store_patterns_using_mpf(self, X, disp=False, **kwargs):
+    def store_patterns_using_mpf(self, X, disp=False,freq = 100 ,**kwargs):
         """
         Stores patterns in X using Minimum Probability Flow (MPF) learning
         rule.
-        
+
         Parameters
         ----------
         X : numpy array
             (M, N)-dim array of binary input patterns of length N,
             where N is the number of nodes in the network
+
+        freq: Number of Iterations after which, the status should be diplayed
+
         disp : bool, optional
             Display scipy L-BFGS-B output (default False)
 
@@ -881,9 +898,19 @@ class HopfieldNetMPF(HopfieldNet):
         # TODO: document
         # TODO: status printing?
         import scipy.optimize
+        it = 1
         A, Amin, status = scipy.optimize.fmin_l_bfgs_b(
             self.objective_gradient_minfunc, self._J.ravel(), args=[X],
-            iprint=-1 if not disp else 0, **kwargs)
+            iprint=-1 if not disp else 0, maxiter = freq,**kwargs)
+        print("After %d iterations, The Objective Function was minimized to: %10.3e" % (it*freq, A))
+        it+=1
+        while status['warnflag'] is not 1:
+            A, Amin, status = scipy.optimize.fmin_l_bfgs_b(
+                self.objective_gradient_minfunc, Amin, args=[X],
+                iprint=-1 if not disp else 0,maxiter = freq, **kwargs)
+            print("After %d iterations, The Objective Function was minimized to: %10.3e" % (it*freq, A))
+            it+=1
+
         # A,Amin,status = scipy.optimize.fmin_l_bfgs_b(
         # self.objective_gradient_minfunc, np.zeros(self.N * self.N,), args=[X])
 
@@ -895,7 +922,7 @@ class HopfieldNetMPF(HopfieldNet):
         self._learn_iterations = status["learn_iterations"]
         return status
 
-    # parameters: 
+    # parameters:
     # X: patterns to be learned
     # r: radius
 
@@ -903,7 +930,7 @@ class HopfieldNetMPF(HopfieldNet):
         """
         Stores patterns in X using generalized Minimum Probability Flow (MPF) learning
         rule, r - MPF.
-        
+
         Parameters
         ----------
         X : numpy array
@@ -966,7 +993,7 @@ class HopfieldNetMPF(HopfieldNet):
     def learn_from_sampler(self, sampler, sample_size, batch_size=None, use_gpu=False):
         """
         Learn from sampler
-        
+
         Parameters
         ----------
         sampler : Type
@@ -977,7 +1004,7 @@ class HopfieldNetMPF(HopfieldNet):
             Description (default None)
         use_gpu : bool, optional
             Description (default False)
-        
+
         Returns
         -------
         Value : Type

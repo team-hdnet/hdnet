@@ -80,7 +80,7 @@ class Spikes(Restoreable, object):
         """
         Returns underlying numpy array representing spikes, with
         dimensions organized as follows (trials, neurons, bins)
-        
+
         Returns
         -------
         spikes : 3d numpy array
@@ -132,7 +132,7 @@ class Spikes(Restoreable, object):
         """
         Returns number of neurons represented by this class,
         shortcut for :meth:`num_neurons`.
-        
+
         Returns
         -------
         number of neurons : int
@@ -156,7 +156,7 @@ class Spikes(Restoreable, object):
         """
         Returns number of bins represented by this class,
         shortcut for :meth:`num_bins`.
-        
+
         Returns
         -------
         number of bins : int
@@ -238,7 +238,7 @@ class Spikes(Restoreable, object):
         spikes : Spikes
             an instance of :class:`.Spikes` class
         """
-        restricted = self._spikes[:, indices[-self._N:], :]
+        restricted = self._spikes[:, indices, :]
         if copy:
             spikes = Spikes(spikes=restricted)
             spikes._restricted = indices
@@ -272,10 +272,10 @@ class Spikes(Restoreable, object):
         spikes : Spikes
             an instance of :class:`.Spikes` class
         """
-        activity = self.mean_activity()
-        idx = activity.argsort()[::-1]
+        activity = self._spikes[:, :, :].mean(axis=0).mean(axis=2)
+        idx = activity.argsort()
         if top_neurons is None:
-            top_neurons = self.N
+            top_neurons = self._N
         return self.restrict_to_indices(idx[:top_neurons], copy=copy)
 
     def mean_activity(self):
@@ -306,7 +306,7 @@ class Spikes(Restoreable, object):
             Mean activities of all cells in Hz
         """
         return self._spikes[:, :, :].mean(axis=0).mean(axis=1) / \
-               ((self.M / 1000.) * (1. / self.bin_size))
+               ((self._M / 1000.) * (1. / self._bin_size))
 
     def trials_average(self, trials=None):
         """
@@ -336,7 +336,7 @@ class Spikes(Restoreable, object):
         T (num trials) x (window_size * N) x  (M - window_size + 1)
         binary vector out of a spike time series
         reshape: returns T(M - window_size + 1) x (ws * N) numpy binary vector
-        
+
         Parameters
         ----------
         window_size : int, optional
@@ -345,7 +345,7 @@ class Spikes(Restoreable, object):
             Description (default None)
         reshape : bool, optional
             Description (default False)
-        
+
         Returns
         -------
         Value : Type
@@ -372,7 +372,7 @@ class Spikes(Restoreable, object):
         Returns *new* (copied) numpy array of size (TN x M)
         trials: e.g. [1, 5, 6], None is all
         save_png_name: if not None then only saves
-        
+
         Parameters
         ----------
         trials : Type, optional
@@ -383,7 +383,7 @@ class Spikes(Restoreable, object):
             Description (default None)
         save_png_name : Type, optional
             Description (default None)
-        
+
         Returns
         -------
         Value : Type
@@ -397,14 +397,14 @@ class Spikes(Restoreable, object):
             save_matrix_whole_canvas(sub_spikes.reshape((len(trials) * self._N, stop - start)),
                                      save_png_name + '.png', cmap='gray')
         else:
-            return sub_spikes.copy().reshape((len(trials) * self._N, stop - start))
+            return sub_spikes.reshape((len(trials) * self._N, stop - start))
 
     def covariance(self, trials=None, start=0, stop=None, save_png_name=None):
         """
         return *new* numpy array of size (T x N x N) which is covariance matrix betwn neurons
         trials: e.g. [0, 1, 5, 6], None is all
         save_png_name: if not None then only saves
-        
+
         Parameters
         ----------
         trials : Type, optional
@@ -415,7 +415,7 @@ class Spikes(Restoreable, object):
             Description (default None)
         save_png_name : Type, optional
             Description (default None)
-        
+
         Returns
         -------
         Value : Type

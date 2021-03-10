@@ -76,142 +76,147 @@ class SpikeModel(Restoreable, object):
     @property
     def stimulus(self):
         """
-        Missing documentation
-        
+        Getting the stimulus object associated with the spikes_model
+
         Returns
         -------
-        Value : Type
-            Description
+        self._stimulus : Stimulus
+            The Stimulus Object mainly consisting of a numpy array which
+            could give you all the stimuli frames
         """
         return self._stimulus
 
     @property
     def window_size(self):
         """
-        Missing documentation
-        
+        Getting the Window Size of the spikes_model
+
         Returns
         -------
-        Value : Type
-            Description
+        self._window_size : Integer
+            The Window size of the concerned spikes_model
         """
         return self._window_size
 
     @property
     def learner(self):
         """
-        Missing documentation
-        
+        Getting the learner object which shall be used to fit this model
+
         Returns
         -------
-        Value : Type
-            Description
+        self._learner : Learner
+            This object could be used to train a network on the Spikes based on
+            some Training Rule.
         """
         return self._learner
 
     @property
     def original_spikes(self):
         """
-        Missing documentation
-        
+        Getting the original unaltered spikes
+
         Returns
         -------
-        Value : Type
-            Description
+        self._original_spikes : Spikes
+            The original unaltered spikes train
         """
         return self._original_spikes
 
     @property
     def learn_time(self):
         """
-        Missing documentation
-        
+        Returns the total learning/fitting time taken by the latest run learning
+        rule to fit the model over the concerned window_sizes
+
         Returns
         -------
-        Value : Type
-            Description
+        self._learn_time: float
+            The Amount of time taken to fit the latest run learning rule
         """
         return self._learn_time
 
     @property
     def sample_spikes(self):
         """
-        Missing documentation
-        
+        Returns the sample spikes associated with the spikes_model
+
         Returns
         -------
-        Value : Type
-            Description
+        self._sample_spikes : Spikes
+            The Sample spikes associated with the model
         """
         return self._sample_spikes
 
     @property
     def raw_patterns(self):
         """
-        Missing documentation
-        
+        Returns the raw patterns associated with the model
+
         Returns
         -------
-        Value : Type
-            Description
+        self._raw_patterns : PatternsRaw
+            Contains a catalogue of Binary Patterns and their prevalence in the
+            raw spikes train.
         """
         return self._raw_patterns
 
     @property
     def hopfield_patterns(self):
         """
-        Missing documentation
-        
+        Returns the object of PatternsHopfield class associated with the SpikeModel
+
         Returns
         -------
-        Value : Type
-            Description
+        self._hopfield_patterns : PatternsHopfield
+            A catalogue of Hopfield Fixed points of binary vectors alongwith their
+            prevalence
         """
         return self._hopfield_patterns
 
     @property
     def hopfield_spikes(self):
         """
-        Missing documentation
-        
+        Returns the spikes over which we'll apply the Hopfield Network Dynamics
+
         Returns
         -------
-        Value : Type
-            Description
+        self._hopfield_spikes : Spikes
+            These are the spikes, over which we'll be applying the Hopfield
+            Net Dynamics to reach a fixed point.
         """
         return self._hopfield_spikes
 
     def fit(self, trials=None, remove_zeros=True, reshape=False):
         """
-        Missing documentation
-        
+        This helps us fit Hopfield Networks to a sample from the original spikes
+        data
+
         Parameters
-        ----------
-        trials : Type, optional
-            Description (default None)
+        ----------True,
+        trials : Numpy Array, optional
+            Consists of all the trials which we want to have while training
         remove_zeros : bool, optional
-            Remove all 0 training patterns (default True)
+            Remove all 0 training patterns (default True)(As these will vanish while Applying
+            Hopfield Dynamics and have no significance)
         reshape : bool, optional
-            Description (default False)
-        
+            Set to true if you want your 3D Spikes Array squeezed to 2D (default False)
+
         Returns
         -------
-        Value : Type
-            Description
+        void
         """
-        # TODO: take care of remove_zeros
         self._sample_spikes = self.sample_from_model(trials=trials, reshape=reshape)
         self._learner = Learner(spikes=self._sample_spikes)
         self._learner.learn_from_spikes(remove_zeros=remove_zeros)
 
     def chomp(self):
         """
-        Missing documentation
-        
+        Used to chomp/count all occurences of all patterns that occur in the spikes
+
         Returns
         -------
-        Value : Type
-            Description
+        void
         """
         hdlog.info("Chomping samples from model")
         self._raw_patterns = PatternsRaw(save_sequence=True)
@@ -241,39 +246,41 @@ class SpikeModel(Restoreable, object):
         Returns tuple: counts, entropies [, couplings]
         counts, entropies: arrays of size 2 x T x WSizes
         (0: empirical from model sample, 1: dynamics from learned model on sample)
-        
+
         Parameters
         ----------
-        window_sizes : Type, optional
-            Description (default None)
-        trials : Type, optional
-            Description (default None)
+        window_sizes : Numpy Array, optional
+            All Window Sizes over which you'd want to operate (default None)
+        trials : Numpy Array, optional
+            All trials for which you'd want to calculate entropy etc.(default None)
         save_couplings : bool, optional
-            Description (default False)
+            Denotes whether or not you want a copy of the Weight Matrix
+            from all trained HopfieldNets to be returned to you (default False)
         remove_zeros : bool, optional
-            Description (default False)
-        
+            Whether or not you want to remove the zeros in order to ease training (default False)
+
         Returns
         -------
-        Value : Type
-            Description
+        counts, entropies: Numpy arrays of size 2 x T x WSizes
+        (0: empirical from model sample, 1: dynamics from learned model on sample)
+
         """
         if window_sizes is None:
             window_sizes = [1]
         trials = trials or range(self._original_spikes.T)
         counts = np.zeros((2, len(trials), len(window_sizes)))
         entropies = np.zeros((2, len(trials), len(window_sizes)))
-
+        selfi = self        #Buffer Variable to do stuff, as we don't want to change self
         tot_learn_time = 0
 
         for ws, window_size in enumerate(window_sizes):
             for c, trial in enumerate(trials):
                 hdlog.info("Trial %d | ws %d" % (trial, window_size))
 
-                self._window_size = window_size
+                selfi._window_size = window_size
 
                 t = now()
-                self.fit(trials=[trial], remove_zeros=remove_zeros)
+                selfi.fit(trials=[trial], remove_zeros=remove_zeros)
                 diff = now() - t
                 hdlog.info("[%1.3f min]" % (diff / 60.))
                 tot_learn_time += diff
@@ -281,11 +288,11 @@ class SpikeModel(Restoreable, object):
                 if save_couplings:
                     couplings[trial].append(self._learner.network.J.copy())
 
-                self.chomp()
-                entropies[0, c, ws] = self._raw_patterns.entropy()
-                counts[0, c, ws] = len(self._raw_patterns)
-                entropies[1, c, ws] = self._hopfield_patterns.entropy()
-                counts[1, c, ws] = len(self._hopfield_patterns)
+                selfi.chomp()
+                entropies[0, c, ws] = selfi._raw_patterns.entropy()
+                counts[0, c, ws] = len(selfi._raw_patterns)
+                entropies[1, c, ws] = selfi._hopfield_patterns.entropy()
+                counts[1, c, ws] = len(selfi._hopfield_patterns)
 
         hdlog.info("Total learn time: %1.3f mins" % (tot_learn_time / 60.))
         self._learn_time = tot_learn_time
@@ -298,37 +305,38 @@ class SpikeModel(Restoreable, object):
 
     def sample_from_model(self, trials=None, reshape=False):
         """
-        Missing documentation
-        
+        Get a sample from SpikesData appropriately windowed and restricted to only
+        the given trials, and/or reshaped if you want them to
+
         Parameters
         ----------
-        trials : Type, optional
-            Description (default None)
+        trials : Numpy Array, optional
+            The Trials which you want to still keep in your model
         reshape : bool, optional
-            Description (default False)
-        
+            If you want to reduce your 3D Spikes Numpy array to 2D
+
         Returns
         -------
-        Value : Type
-            Description
+        (windowed)self._original_spikes : Spikes
+            The Original Spikes Train provided to us are now windowed,
+            reshaped, restricted to only certain trials
         """
         return self._original_spikes.to_windowed(window_size=self._window_size, trials=trials, reshape=reshape)
 
     def save(self, folder_name='spikes_model', overwrite=False):
         """
         saves as npz's: network, params, spikes file_name
-        
+
         Parameters
         ----------
         folder_name : str, optional
             Description (default 'spikes_model')
         overwrite: bool, optional
             Overwrite flag, whether to overwrite existing files (default False)
-    
+
         Returns
         -------
-        Value : Type
-            Description
+        void
         """
         super(SpikeModel, self)._save(
             'spikes_model.npz', self._SAVE_ATTRIBUTES_V1, self._SAVE_VERSION,
@@ -338,21 +346,19 @@ class SpikeModel(Restoreable, object):
     @classmethod
     def load(cls, folder_name='spikes_model', load_extra=False):
         """
-        Missing documentation
-        
+        Used to load a previously saved spikes_model into Memory
+
         Parameters
         ----------
         folder_name : str, optional
-            Description (default 'spikes_model')
+            The File Name/Directory address where the file is present(default 'spikes_model')
         load_extra : bool, optional
-            Description (default False)
-        
+            Attribute to be later used by loader() (default False)
+
         Returns
         -------
-        Value : Type
-            Description
+        The loaded object of SpikesModel Class
         """
-        # TODO: document
         return super(SpikeModel, cls)._load('spikes_model.npz', has_internal=True,
                                             folder_name=folder_name,
                                             internal_objects=cls._INTERNAL_OBJECTS,
@@ -382,18 +388,17 @@ class BernoulliHomogeneous(SpikeModel):
         X:   T (num trials) x (window_size * N) x  (M - window_size + 1)
         binary vector out of a spike time series
         reshape: returns T(M - window_size + 1) x (ws * N) numpy binary vector
-        
+
         Parameters
         ----------
-        trials : Type, optional
-            Description (default None)
+        trials : Numpy Array, optional
+            The trials which you want to keep in your Spikes Sample (default None)
         reshape : bool, optional
-            Description (default False)
-        
+            Whether or not to reshape the Spikes sample to being 2D(default False)
+
         Returns
         -------
-        Value : Type
-            Description
+        An object of Spikes Class, with BernoulliHomogeneous distribution of spikes
         """
         trials = trials or range(self._original_spikes.T)
         X = np.zeros(
@@ -421,21 +426,23 @@ class BernoulliInhomogeneous(SpikeModel):
 
     def sample_from_model(self, averaging_window_size = 20, trials=None, reshape=False):
         """
-        Missing documentation
-        
+        Returns Spikes which are distributed as per an inhomogeneous Bernoulli distribution
+        i.e. The probability of activation varies over different sections of spikes but is
+        same for those within a particular window only
+
         Parameters
         ----------
         averaging_window_size : int, optional
-            Description (default 20)
+            The Window Size, the averaged probability of whose activation will
+            give us the overall probability for that particular window (default 20)
         trials : Type, optional
-            Description (default None)
+            The trials for which you want to construct your Spikes (default None)
         reshape : bool, optional
-            Description (default False)
-        
+            Whether or not you want to squeeze your spikes to 2D(default False)
+
         Returns
         -------
-        Value : Type
-            Description
+        An Object of Spikes Class containing the inhomogeneous Bernoulli Distribution
         """
         trials = trials or range(self._original_spikes.T)
         X = np.zeros(
@@ -449,7 +456,7 @@ class BernoulliInhomogeneous(SpikeModel):
             ps = []
             for i in range(num_neurons):
                 ps.append(
-                    [spikes[0, i, 0:averaging_window_size].mean()] + [spikes[0, i, (j - 1) * averaging_window_size:j * averaging_window_size].mean() for j
+                    [spikes[0, i, (j - 1) * averaging_window_size:j * averaging_window_size].mean() for j
                                                             in range(1, num_samples / averaging_window_size)])
             ps = np.array(ps)
 
@@ -478,20 +485,19 @@ class Shuffled(SpikeModel):
         """
         returns new Spikes object: permutes spikes in time
         trial_independence: diff permutation for each trial
-        
+
         Parameters
         ----------
-        trials : Type, optional
-            Description (default None)
+        trials : Numpy Array, optional
+            containing the trials we want to sample (default None)
         trial_independence : bool, optional
-            Description (default True)
+            Deciding if we'll have a different permutation for each trial (default True)
         reshape : bool, optional
-            Description (default False)
-        
+            Whether or not we want the Spikes Sample squeezed from 3D to 2D(default False)
+
         Returns
         -------
-        Value : Type
-            Description
+        An Object of Spikes Class containing a shuffled sample of the original spikes
         """
         idx = np.random.permutation(self._original_spikes.M)
         new_arr = np.zeros(self._original_spikes.spikes.shape)
@@ -517,19 +523,18 @@ class Ising(SpikeModel):
 
         Parameters
         ----------
-        J : Type, optional
-            Description (default None)
-        theta : Type, optional
-            Description (default None)
+        J : Numpy Array, optional
+            The Weight Matrix for Ising Model (default None)
+        theta : Numpy Array, optional
+            The threshold Vector for Ising Model (default None)
         trials : Type, optional
-            Description (default None)
+            The trials which you'd want to change (default None)
         reshape : bool, optional
-            Description (default False)
-        
+            Whether or not you'd want to squeeze the spike train to 2D (default False)
+
         Returns
         -------
-        Value : Type
-            Description
+        An object of Spikes Class containing the Ising Model of Spikes
         """
 
         trials = trials or range(self._original_spikes.T)
@@ -557,19 +562,20 @@ class DichotomizedGaussian(SpikeModel):
     """
     def sample_from_model(self, trials=None, reshape=False):
         """
-        Missing documentation
-        
+        Getting a Sample from the DichotomizedGaussian Model, i.e. For each neuron
+        the activation values shall adhere to a certain Gaussian Distribution which
+        shall be created using the original_spikes
+
         Parameters
         ----------
-        trials : Type, optional
-            Description (default None)
+        trials : Numpy Array, optional
+            The Trials which are to be considered (default None)
         reshape : bool, optional
-            Description (default False)
-        
+            Whether or not we are to squeeze the Spikes to 2D (default False)
+
         Returns
         -------
-        Value : Type
-            Description
+        An Object of Spikes Class
         """
         trials = trials or range(self._original_spikes.T)
         spikes_windowed = self._original_spikes.to_windowed(self._window_size, trials)
@@ -611,15 +617,15 @@ class DichotomizedGaussianPoisson(SpikeModel):
 
     def sample_from_model(self, trials=None, reshape=False):
         """
-        Missing documentation
-        
+        Get a Spikes Sample Modelled with DichotomizedGaussian with Poisson marginals
+
         Parameters
         ----------
         trials : Type, optional
             Description (default None)
         reshape : bool, optional
             Description (default False)
-        
+
         Returns
         -------
         Value : Type

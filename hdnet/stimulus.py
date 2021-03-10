@@ -22,7 +22,7 @@ from hdnet.visualization import save_matrix_whole_canvas
 
 class Stimulus(Restoreable, object):
     """ class handling time-series stimuli
-    
+
     Parameters
         stimulus_arr: file_name of data, a numpy M x X array
                     M = number of stimulus (eg. movie) frames
@@ -36,23 +36,25 @@ class Stimulus(Restoreable, object):
 
     def __init__(self, stimulus_arr=None, npz_file=None, h5_file=None, preprocess=True):
         """
-        Missing documentation
-        
+        Initializing the Stimulus, consisting of a stimulus arrays
+        read from the file name provided(if provided!) and setting other
+        variables to their value.
+
         Parameters
         ----------
-        stimulus_arr : Type, optional
-            Description (default None)
-        npz_file : Type, optional
-            Description (default None)
-        h5_file : Type, optional
-            Description (default None)
+        stimulus_arr : Numpy Array, optional
+            If the stimuli frames are already loaded into memory,
+            then passing the array simply(default None)
+        npz_file : String, optional
+            The File name with directory where an array of stimuli data is there (default None)
+        h5_file : String, optional
+             The File name with directory where an array of stimuli data is there (default None)
         preprocess : bool, optional
-            Description (default True)
-        
+            Indicating whether or not you want to preprocess the object (default True)
+
         Returns
         -------
-        Value : Type
-            Description
+        void
         """
         object.__init__(self)
         Restoreable.__init__(self)
@@ -89,43 +91,43 @@ class Stimulus(Restoreable, object):
     @property
     def stimulus_arr(self):
         """
-        Missing documentation
-        
+        Returing the Stimulus Array for the Stimulus Object
+
         Returns
         -------
-        Value : Type
-            Description
+        stimulus_arr : Numpy Array
+            The array consisting of data from all the stimuli frames.
         """
         return self._stimulus_arr
 
     @property
     def M(self):
         """
-        Missing documentation
-        
+        Getting the Number of Stimulus Frames present
+
         Returns
         -------
-        Value : Type
-            Description
+        self._M : Integer
+            The Number of Stimuli Frames present
         """
         return self._M
 
     @property
     def X(self):
         """
-        Missing documentation
-        
+        The dimensions of each stimulus frame
+
         Returns
         -------
-        Value : Type
-            Description
+        self._X : Tuple
+            Tuple summarizing the shape of each stimuli frame
         """
         return self._X
 
     def preprocess(self):
         """
-        Missing documentation
-        
+        Missing Documentation
+
         Returns
         -------
         Value : Type
@@ -137,20 +139,21 @@ class Stimulus(Restoreable, object):
         """
         Returns a matrix or saves a PNG of avg of data between start and stop times
         save_png_name: if not None then only saves picture
-        
+
         Parameters
         ----------
         start : int, optional
-            Description (default 0)
-        stop : Type, optional
-            Description (default None)
-        save_png_name : Type, optional
-            Description (default None)
-        
+            The starting point from where you need to average the stimuli(default 0)
+        stop : int, optional
+            The end point till which you need to average the stimuli(default None)
+        save_png_name : String, optional
+            The name by which you would want to store the averaged matrix (default None)
+
         Returns
         -------
-        Value : Type
-            Description
+        sub_trim_arr : Numpy Array
+            The normalized values of all the stimuli between start and stop
+            Returned only if there's no save_png_name given
         """
         stop = stop or self._M
         sub_stim_arr = self._stimulus_arr[start:stop].mean(axis=0)

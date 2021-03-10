@@ -20,14 +20,14 @@ def sample_from_prob_vector(p, num_samples=1):
     """
     Given numpy probability vector p on N states produce num_samples samples
     returns: a (num_samples) integer vector with state labeled 0, ..., N-1
-    
+
     Parameters
     ----------
     p : Type
         Description
     num_samples : int, optional
         Description (default 1)
-    
+
     Returns
     -------
     Value : Type
@@ -53,14 +53,14 @@ def sample_from_prob_vector(p, num_samples=1):
 def sample_from_bernoulli(p, M=1):
     """
     Returns N x M numpy array with M Bernoulli(p) N-bit samples
-    
+
     Parameters
     ----------
     p : Type
         Description
     M : int, optional
         Description (default 1)
-    
+
     Returns
     -------
     Value : Type
@@ -81,7 +81,7 @@ def energy(J, theta, x):
     """
     Ising Energy of binary pattern x is:
         Ex = -.5 x^T[J-diag(J)]x + theta*x
-    
+
     Parameters
     ----------
     J : Type
@@ -90,7 +90,7 @@ def energy(J, theta, x):
         Description
     x : Type
         Description
-    
+
     Returns
     -------
     Value : Type
@@ -102,14 +102,14 @@ def energy(J, theta, x):
 def integer_to_binary(state, N):
     """
     Given state 0, ..., 2\*\*N - 1, returns corresponding binary vector x
-    
+
     Parameters
     ----------
     state : Type
         Description
     N : Type
         Description
-    
+
     Returns
     -------
     Value : Type
@@ -192,7 +192,7 @@ def sample_from_ising_gibbs(J, theta, num_samples, burn_in = None, sampling_step
 
     if sampling_steps is None:
         sampling_steps = 10 * N
-    
+
     n_sampling_steps = burn_in + (num_samples - 1) * sampling_steps
 
     # sampling dimensions
@@ -217,7 +217,7 @@ def sample_from_ising_gibbs(J, theta, num_samples, burn_in = None, sampling_step
             x[dimensions[si]] = 1
         else:
             x[dimensions[si]] = 0
-        
+
         if si == next_sample:
             next_sample += sampling_steps
             X[:, idx] = x.ravel()
@@ -246,7 +246,7 @@ def ltqnorm(p):
     Time-stamp:  2000-07-19 18:26:14
     E-mail:      pjacklam@online.no
     WWW URL:     `<http://home.online.no/~pjacklam>`_
-    
+
     Returns
     -------
     Value : Type
@@ -297,7 +297,7 @@ def ltqnorm(p):
 def ltqnorm_nd(arr):
     """
     Missing documentation
-    
+
     Returns
     -------
     Value : Type
@@ -317,7 +317,7 @@ def find_latent_gaussian(bin_means, bin_cov, accuracy=1e-10):
     X = 1 <=> U > -g
 
     Adapted from `<www.kyb.mpg.de/bethgegroup/code/efficientsampling>`_
-    
+
     Parameters
     ----------
     bin_means : Type
@@ -326,7 +326,7 @@ def find_latent_gaussian(bin_means, bin_cov, accuracy=1e-10):
         Description
     accuracy : int, optional
         Description (default 1e-10)
-    
+
     Returns
     -------
     Value : Type
@@ -369,27 +369,28 @@ def find_latent_gaussian(bin_means, bin_cov, accuracy=1e-10):
 
 def sample_from_dichotomized_gaussian(bin_means, bin_cov, num_samples, gauss_means=None, gauss_cov=None, accuracy=1e-10):
     """
-    Missing documentation
-    
+    Returns a DichotomizedGaussian Sample of Spikes, upon its usage, out of the
+    original spikes model, it'll return a model with the same mean and variance,
+    but with a Gaussian-like Distribution for each neuron
+
     Parameters
     ----------
-    bin_means : Type
-        Description
-    bin_cov : Type
-        Description
-    num_samples : Type
-        Description
-    gauss_means : Type, optional
-        Description (default None)
+    bin_means : Numpy array
+        contains the mean of activation values of a particular neuron across time
+    bin_cov : Numpy Array
+        contains the co-variance of a particular trial from original_spikes
+    num_samples : int
+        The number of samples which are to be generated
+    gauss_means : Numpy Array, optional
+        The mean of the D-Gaussian(default None)
     gauss_cov : Type, optional
-        Description (default None)
-    accuracy : int, optional
-        Description (default 1e-10)
-    
+        The covariance of the D-Gaussian (default None)
+    accuracy : float, optional
+        Value oof accuracy to be used in calculations(default 1e-10)
+
     Returns
     -------
-    Value : Type
-        Description
+    Numpy array containing a spikes sample modelled on D-Gaussian
     """
     from scipy.linalg import sqrtm
 
@@ -433,14 +434,14 @@ def poisson_marginals(means, accuracy=1e-10):
     correlations', Macke et al., submitted to Neural Computation
 
     Adapted from `<http://www.kyb.mpg.de/bethgegroup/code/efficientsampling>`_
-    
+
     Parameters
     ----------
     means : Type
         Description
     accuracy : int, optional
         Description (default 1e-10)
-    
+
     Returns
     -------
     Value : Type
@@ -456,7 +457,7 @@ def poisson_marginals(means, accuracy=1e-10):
     for k in range(len(means)):
         cmfs.append(poisson.cdf(range(0, int(max(math.ceil(5 * means[k]), 20) + 1)), means[k]))
         pmfs.append(poisson.pmf(range(0, int(max(math.ceil(5 * means[k]), 20) + 1)), means[k]))
-        supps.append(np.where((cmfs[k] <= 1 - accuracy) & (pmfs[k] >= accuracy))[0])
+        supps.append(np.where((cmfs[k] <= 1 - accuracy) & (pmfs[k] >= accuracy)))
         cmfs[k] = cmfs[k][supps[k]]
         pmfs[k] = poisson.pmf(supps[k], means[k])
 
@@ -466,7 +467,7 @@ def poisson_marginals(means, accuracy=1e-10):
 def dg_second_moment(u, gauss_mean1, gauss_mean2, support1, support2):
     """
     Missing documentation
-    
+
     Parameters
     ----------
     u : Type
@@ -479,7 +480,7 @@ def dg_second_moment(u, gauss_mean1, gauss_mean2, support1, support2):
         Description
     support2 : Type
         Description
-    
+
     Returns
     -------
     Value : Type
@@ -523,7 +524,7 @@ def dg_second_moment(u, gauss_mean1, gauss_mean2, support1, support2):
 def find_dg_any_marginal(pmfs, bin_cov, supports, accuracy=1e-10):
     """
     [gammas,Lambda,joints2D] = FindDGAnyMarginal(pmfs,Sigma,supports)
-    Finds the paramters of a Multivariate Discretized Gaussian with specified marginal
+    Finds the parameters of a Multivariate Discretized Gaussian with specified marginal
     distributions and covariance matrix
 
     Inputs:
@@ -553,7 +554,7 @@ def find_dg_any_marginal(pmfs, bin_cov, supports, accuracy=1e-10):
     correlations', Macke et al., submitted to Neural Computation
 
     Adapted from `<http://www.kyb.mpg.de/bethgegroup/code/efficientsampling>`_
-    
+
     Parameters
     ----------
     pmfs : Type
@@ -564,7 +565,7 @@ def find_dg_any_marginal(pmfs, bin_cov, supports, accuracy=1e-10):
         Description
     accuracy : int, optional
         Description (default 1e-10)
-    
+
     Returns
     -------
     Value : Type
@@ -597,14 +598,14 @@ def find_dg_any_marginal(pmfs, bin_cov, supports, accuracy=1e-10):
         if bin_cov[i, i] <= 0 or np.isnan(bin_cov[i, i]):
             bin_cov[i, i] = np.dot(supports[i] ** 2, pmfs[i]) - mu[i] ** 2
 
-    
+
     #numerics for finding the off-diagonal entries. Very inefficient
     #and use of the optimization toolbox is really an overkill for finding the
     #zero-crossing of a one-dimensional funcition on a compact interval
-    
+
     lam = np.zeros((d, d)) * np.nan
     joints = {}
-    
+
     for i in range(d):
         lam[i, i] = 1
         joints[i, i] = pmfs[i]
@@ -633,7 +634,7 @@ def find_dg_any_marginal(pmfs, bin_cov, supports, accuracy=1e-10):
             joints[i, j] = joint
             joints[j, i] = joint.T
 
-    return gammas, lam, joints
+    return np.array(gammas), np.array(lam), np.array(joints)
 
 
 def sample_dg_any_marginal(gauss_means, gauss_cov, num_samples, supports=None):
@@ -649,7 +650,7 @@ def sample_dg_any_marginal(gauss_means, gauss_cov, num_samples, supports=None):
     correlations', Macke et al., submitted to Neural Computation
 
     Adapted from `<http://www.kyb.mpg.de/bethgegroup/code/efficientsampling>`_
-    
+
     Parameters
     ----------
     gauss_means : Type
@@ -660,7 +661,7 @@ def sample_dg_any_marginal(gauss_means, gauss_cov, num_samples, supports=None):
         Description
     supports : Type, optional
         Description (default None)
-    
+
     Returns
     -------
     Value : Type
