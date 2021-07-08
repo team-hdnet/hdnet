@@ -436,8 +436,8 @@ class Spikes(Restoreable, object):
             save_matrix_whole_canvas(new_arr, save_png_name + '.png', cmap='gray')
         else:
             return new_arr
-            
-    def get_frequencies(spikes):
+
+    def get_frequencies(self):
         """
         Utility to return counter object for spiketrain codewords
 
@@ -448,13 +448,14 @@ class Spikes(Restoreable, object):
             counter_codes: 'Counter' object
         """
         temp=[]
-        for it in spikes._spikes[0].T:
-            it=''.join( str(int(a)) for a in it)  
-            temp.append(it)
+        for i in range(self._T):
+            for j in range(self._M):
+                it=''.join( str(int(a)) for a in self._spikes[i,:,j])  
+                temp.append(it)
         counter_codes = Counter(temp)
         return counter_codes
 
-    def scale_and_center(spikes):
+    def scale_and_center(self):
         """
         Utility to return scaled and centered spiketrain as numpy array
 
@@ -464,10 +465,13 @@ class Spikes(Restoreable, object):
         Returns:
             centered_scaled_spikes: 'Numpy Array' object
         """
-        mu = np.mean(spikes._spikes[0].T,axis=0)
-        sd = np.std(spikes._spikes[0].T,axis=0)
-        centered_scaled_spikes = (spikes._spikes[0].T - mu)/sd
-        centered_scaled_spikes[np.isnan(centered_scaled_spikes)] = 0
+        centered_scaled_spikes = []
+        for i in range(self._T):
+            mu = np.mean(self._spikes[i].T,axis=0)
+            sd = np.std(self._spikes[i].T,axis=0)
+            single_centered_scaled_spikes = (self._spikes[i].T - mu)/sd
+            single_centered_scaled_spikes[np.isnan(single_centered_scaled_spikes)] = 0
+            centered_scaled_spikes.append(single_centered_scaled_spikes)
         return centered_scaled_spikes
 
     # i/o
