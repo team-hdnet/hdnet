@@ -29,6 +29,7 @@ from .stats import *
 from .stimulus import *
 from .util import *
 from .visualization import *
+from .spikes_model_validation import *
 
 # end of source
 
