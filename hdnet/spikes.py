@@ -14,6 +14,7 @@
 from __future__ import print_function
 
 import numpy as np
+from collections import Counter
 
 from hdnet.util import hdlog, Restoreable
 from hdnet.visualization import save_matrix_whole_canvas
@@ -435,6 +436,39 @@ class Spikes(Restoreable, object):
             save_matrix_whole_canvas(new_arr, save_png_name + '.png', cmap='gray')
         else:
             return new_arr
+            
+    def get_frequencies(spikes):
+        """
+        Utility to return counter object for spiketrain codewords
+
+        Args:
+            spikes: 'Spikes' object
+
+        Returns: 
+            counter_codes: 'Counter' object
+        """
+        temp=[]
+        for it in spikes._spikes[0].T:
+            it=''.join( str(int(a)) for a in it)  
+            temp.append(it)
+        counter_codes = Counter(temp)
+        return counter_codes
+
+    def scale_and_center(spikes):
+        """
+        Utility to return scaled and centered spiketrain as numpy array
+
+        Args:
+            spikes: 'Spikes' object
+        
+        Returns:
+            centered_scaled_spikes: 'Numpy Array' object
+        """
+        mu = np.mean(spikes._spikes[0].T,axis=0)
+        sd = np.std(spikes._spikes[0].T,axis=0)
+        centered_scaled_spikes = (spikes._spikes[0].T - mu)/sd
+        centered_scaled_spikes[np.isnan(centered_scaled_spikes)] = 0
+        return centered_scaled_spikes
 
     # i/o
 
