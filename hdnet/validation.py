@@ -28,3 +28,24 @@ class Validation:
             Shape varies according to the Validation method used 
         """
         raise NotImplementedError('Must be implemented in subclasses.')
+
+class LogProbabilityRatio(Validation):
+    """
+    Compares log-likelihoods of occurrence of codewords 
+    between experimental data and predicted data
+    """
+    def call(self):
+
+        original_code_freq = self.spikes_true.get_frequencies(self.spikes_true)
+        predicted_code_freq = self.spikes_pred.get_frequencies(self.spikes_pred)
+
+        #since total timebins same for both spike trains, 
+        # log(P(model)/P(data)) = log(freq(model)/freq(data))
+        #calculating only for the common codes between predicted and experimental
+
+        common_codes = list( set(original_code_freq.keys()) & set(predicted_code_freq.keys()) )
+        log_ratios = {}
+        for code in common_codes:
+            log_ratios[code] = np.log(predicted_code_freq[code]/original_code_freq[code])
+
+        return log_ratios
