@@ -49,3 +49,25 @@ class LogProbabilityRatio(Validation):
             log_ratios[code] = np.log(predicted_code_freq[code]/original_code_freq[code])
 
         return log_ratios
+
+class MostFrequentCommonCode(Validation):
+    """
+    Compares top 'N' codewords from experimental data and 
+    predicted data
+    """
+    def call(self,N=10):
+        """
+        Args:
+            N: Number of most frequent codewords to check overlap with
+
+        Returns:
+            common_codes: List of common codewords from Top 'N' occurring of each spiketrain
+        """
+        original_code_freq = self.spikes_true.get_frequencies(self.spikes_true)
+        predicted_code_freq = self.spikes_pred.get_frequencies(self.spikes_pred)
+
+        common_codes = list( set(np.array(original_code_freq.most_common(N))[:,0]) & 
+        set(np.array(predicted_code_freq.most_common(N))[:,0]) )
+        count_common = len(common_codes)
+
+        return common_codes
