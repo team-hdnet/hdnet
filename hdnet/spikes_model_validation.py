@@ -36,8 +36,8 @@ class LogProbabilityRatio(Validation):
     """
     def call(self):
 
-        original_code_freq = self.spikes_true.get_frequencies(self.spikes_true)
-        predicted_code_freq = self.spikes_pred.get_frequencies(self.spikes_pred)
+        original_code_freq = self.spikes_true.get_frequencies()
+        predicted_code_freq = self.spikes_pred.get_frequencies()
 
         #since total timebins same for both spike trains, 
         # log(P(model)/P(data)) = log(freq(model)/freq(data))
@@ -63,8 +63,8 @@ class MostFrequentCommonCode(Validation):
         Returns:
             common_codes: List of common codewords from Top 'N' occurring of each spiketrain
         """
-        original_code_freq = self.spikes_true.get_frequencies(self.spikes_true)
-        predicted_code_freq = self.spikes_pred.get_frequencies(self.spikes_pred)
+        original_code_freq = self.spikes_true.get_frequencies()
+        predicted_code_freq = self.spikes_pred.get_frequencies()
 
         common_codes = list( set(np.array(original_code_freq.most_common(N))[:,0]) & 
         set(np.array(predicted_code_freq.most_common(N))[:,0]) )
