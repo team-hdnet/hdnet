@@ -471,8 +471,58 @@ class Spikes(Restoreable, object):
             sd = np.std(self._spikes[i].T,axis=0)
             single_centered_scaled_spikes = (self._spikes[i].T - mu)/sd
             single_centered_scaled_spikes[np.isnan(single_centered_scaled_spikes)] = 0
-            centered_scaled_spikes.append(single_centered_scaled_spikes)
+            centered_scaled_spikes.append(single_centered_scaled_spikes.T)
+            # print(np.mean(single_centered_scaled_spikes,axis=0))
+            # print(np.std(single_centered_scaled_spikes,axis=0))
+        centered_scaled_spikes = np.asarray(centered_scaled_spikes)
+        # centered_scaled_spikes = np.reshape(np.asarray(centered_scaled_spikes),(self._T,self._N,self._M))
         return centered_scaled_spikes
+
+    def NOrderInteractions(self,N=1,start=0, stop=None,trials=None):
+        """
+        Compares Nth order interaction effects for neurons from experimental data and predicted data
+        Args:
+            N: Interaction between group of neuron of size 'N'
+        Returns:
+            interactions: n^N size matrix of interactions
+        """
+        stop = stop or self._M
+        trials = trials or range(self._T)
+        sub_spikes = self._spikes[trials, :, start:stop]
+
+        if N == 1:
+            mu1 = []
+            for t, trial in enumerate(trials):
+                mu1.append(np.mean(sub_spikes[trial],axis=1))
+            return np.asarray(mu1)
+
+        spikes_true = Spikes(sub_spikes).scale_and_center()
+        # print(spikes_true.shape)
+
+        if N == 2:
+            interactions = np.zeros((len(trials),self._N,self._N))
+            for t, trial in enumerate(trials): 
+                for i in range(self._N):
+                    for j in range(i,self._N):
+                        interactions[t][i][j] = np.inner(spikes_true[trial,i,:],spikes_true[trial,j,:])/(stop-start)
+                        interactions[t][j][i] = interactions[t][i][j]
+            return interactions
+
+        if N == 3:
+            interactions = np.zeros((len(trials),self._N,self._N,self._N))
+            for t, trial in enumerate(trials):
+                for i in range(self._N):
+                    for j in range(i,self._N):
+                        for k in range(j,self._N):
+                            interactions[t][i][j][k] = np.inner(spikes_true[trial,i,:],
+                            np.multiply(spikes_true[trial,j,:],spikes_true[trial,k,:]))/(stop-start)
+                            interactions[t][j][i][k] = interactions[t][i][j][k]
+                            interactions[t][j][k][i] = interactions[t][i][j][k]
+                            interactions[t][k][j][i] = interactions[t][i][j][k]
+                            interactions[t][k][i][j] = interactions[t][i][j][k]
+                            interactions[t][i][k][j] = interactions[t][i][j][k]
+
+            return interactions
 
     # i/o
 
