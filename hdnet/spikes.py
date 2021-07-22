@@ -472,13 +472,10 @@ class Spikes(Restoreable, object):
             single_centered_scaled_spikes = (self._spikes[i].T - mu)/sd
             single_centered_scaled_spikes[np.isnan(single_centered_scaled_spikes)] = 0
             centered_scaled_spikes.append(single_centered_scaled_spikes.T)
-            # print(np.mean(single_centered_scaled_spikes,axis=0))
-            # print(np.std(single_centered_scaled_spikes,axis=0))
         centered_scaled_spikes = np.asarray(centered_scaled_spikes)
-        # centered_scaled_spikes = np.reshape(np.asarray(centered_scaled_spikes),(self._T,self._N,self._M))
         return centered_scaled_spikes
 
-    def NOrderInteractions(self,N=1,start=0, stop=None,trials=None):
+    def NOrderInteractions(self,N=1,start=0, stop=None,trials=None, scale_and_center=True):
         """
         Compares Nth order interaction effects for neurons from experimental data and predicted data
         Args:
@@ -496,8 +493,10 @@ class Spikes(Restoreable, object):
                 mu1.append(np.mean(sub_spikes[trial],axis=1))
             return np.asarray(mu1)
 
-        spikes_true = Spikes(sub_spikes).scale_and_center()
-        # print(spikes_true.shape)
+        if scale_and_center is True:
+            spikes_true = Spikes(sub_spikes).scale_and_center()
+        else:
+            spikes_true = sub_spikes
 
         if N == 2:
             interactions = np.zeros((len(trials),self._N,self._N))
