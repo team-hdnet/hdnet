@@ -175,6 +175,8 @@ def sample_from_ising_metropolis(J, theta, num_samples, burn_in = None, k = None
         Number of samples to draw
     burn_in : int, optional
         Burn in time of Markov chain (default 100*N)
+    k: float, optional
+        Scales probability mass for neurons
     Returns
     -------
     X : 2d numpy array
