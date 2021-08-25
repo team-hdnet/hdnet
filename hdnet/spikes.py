@@ -14,6 +14,7 @@
 from __future__ import print_function
 
 import numpy as np
+from collections import Counter
 
 from hdnet.util import hdlog, Restoreable
 from hdnet.visualization import save_matrix_whole_canvas
@@ -435,6 +436,92 @@ class Spikes(Restoreable, object):
             save_matrix_whole_canvas(new_arr, save_png_name + '.png', cmap='gray')
         else:
             return new_arr
+
+    def get_frequencies(self):
+        """
+        Utility to return counter object for spiketrain codewords
+
+        Args:
+            spikes: 'Spikes' object
+
+        Returns: 
+            counter_codes: 'Counter' object
+        """
+        temp=[]
+        for i in range(self._T):
+            for j in range(self._M):
+                it=''.join( str(int(a)) for a in self._spikes[i,:,j])  
+                temp.append(it)
+        counter_codes = Counter(temp)
+        return counter_codes
+
+    def scale_and_center(self):
+        """
+        Utility to return scaled and centered spiketrain as numpy array
+
+        Args:
+            spikes: 'Spikes' object
+        
+        Returns:
+            centered_scaled_spikes: 'Numpy Array' object
+        """
+        centered_scaled_spikes = []
+        for i in range(self._T):
+            mu = np.mean(self._spikes[i].T,axis=0)
+            sd = np.std(self._spikes[i].T,axis=0)
+            single_centered_scaled_spikes = (self._spikes[i].T - mu)/sd
+            single_centered_scaled_spikes[np.isnan(single_centered_scaled_spikes)] = 0
+            centered_scaled_spikes.append(single_centered_scaled_spikes.T)
+        centered_scaled_spikes = np.asarray(centered_scaled_spikes)
+        return centered_scaled_spikes
+
+    def NOrderInteractions(self,N=1,start=0, stop=None,trials=None, scale_and_center=True):
+        """
+        Compares Nth order interaction effects for neurons from experimental data and predicted data
+        Args:
+            N: Interaction between group of neuron of size 'N'
+        Returns:
+            interactions: n^N size matrix of interactions
+        """
+        stop = stop or self._M
+        trials = trials or range(self._T)
+        sub_spikes = self._spikes[trials, :, start:stop]
+
+        if N == 1:
+            mu1 = []
+            for t, trial in enumerate(trials):
+                mu1.append(np.mean(sub_spikes[trial],axis=1))
+            return np.asarray(mu1)
+
+        if scale_and_center is True:
+            spikes_true = Spikes(sub_spikes).scale_and_center()
+        else:
+            spikes_true = sub_spikes
+
+        if N == 2:
+            interactions = np.zeros((len(trials),self._N,self._N))
+            for t, trial in enumerate(trials): 
+                for i in range(self._N):
+                    for j in range(i,self._N):
+                        interactions[t][i][j] = np.inner(spikes_true[trial,i,:],spikes_true[trial,j,:])/(stop-start)
+                        interactions[t][j][i] = interactions[t][i][j]
+            return interactions
+
+        if N == 3:
+            interactions = np.zeros((len(trials),self._N,self._N,self._N))
+            for t, trial in enumerate(trials):
+                for i in range(self._N):
+                    for j in range(i,self._N):
+                        for k in range(j,self._N):
+                            interactions[t][i][j][k] = np.inner(spikes_true[trial,i,:],
+                            np.multiply(spikes_true[trial,j,:],spikes_true[trial,k,:]))/(stop-start)
+                            interactions[t][j][i][k] = interactions[t][i][j][k]
+                            interactions[t][j][k][i] = interactions[t][i][j][k]
+                            interactions[t][k][j][i] = interactions[t][i][j][k]
+                            interactions[t][k][i][j] = interactions[t][i][j][k]
+                            interactions[t][i][k][j] = interactions[t][i][j][k]
+
+            return interactions
 
     # i/o
 

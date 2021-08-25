@@ -160,6 +160,68 @@ def sample_from_ising_exact(J, theta, num_samples):
 
     return samples
 
+def sample_from_ising_metropolis(J, theta, num_samples, burn_in = None, k = None):
+    """
+    Given an Ising model `J`, `theta` on N sites produces `num_samples` samples
+    from the model using a (MCMC) Metropolis sampler.
+
+    Parameters
+    ----------
+    J : 2d numpy array
+        Coupling strengths of Ising model (symmetric, 0 diagonal values)
+    theta : 1d numpy array
+        Site biases of Ising model
+    num_samples : int
+        Number of samples to draw
+    burn_in : int, optional
+        Burn in time of Markov chain (default 100*N)
+    k: float, optional
+        Scales probability mass for neurons
+    Returns
+    -------
+    X : 2d numpy array
+        array of dimensions N x num_samples containing N samples
+    """
+
+    N = len(theta)
+
+    if burn_in is None:
+        burn_in = 100 * N
+    
+    if k is None:
+        k = 0.01
+    
+    n_sampling_steps = burn_in + num_samples 
+
+    # samples
+    X = []
+
+    # starting vector
+    xold = np.asarray([int(i) for i in np.binary_repr(np.random.randint(0,np.power(2,N)),N)])
+    Eold = -np.inner(theta,xold)+np.inner(xold,np.dot(J,xold))
+    pm = np.exp(-k*np.arange(1,N)); pm /= np.sum(pm)
+    for t in range(n_sampling_steps):
+        m = np.random.choice(N-1,size=1,p=pm)+1
+        foo = np.random.choice(N,size=m,replace=False)
+        xnew = np.zeros(N)
+        for i in range(N):
+            if i in foo:
+                xnew[i] = 1-xold[i]
+            else:
+                xnew[i] = xold[i]
+        Enew = np.inner(-theta,xnew)+np.inner(xnew,np.dot(J,xnew))
+        dE = Enew-Eold
+        acceptance_ratio = np.exp(-dE)
+        u = np.random.uniform()
+        if u<acceptance_ratio:
+            Eold = Enew
+            if t>burn_in-1:
+                X.append(xnew)
+            xold = xnew
+        else:
+            if t>burn_in-1:
+                X.append(xold)
+    return np.transpose(np.asarray(X))
 
 def sample_from_ising_gibbs(J, theta, num_samples, burn_in = None, sampling_steps = None):
     """
