@@ -48,7 +48,7 @@ References
 ----------
 Papers Using HDNET:
 
-[A] Hillar, Christopher and Sohl-Dickstein, Jascha and Koepsell, Kilian, Efficient and optimal binary Hopfield associative memory storage using minimum, 2012.
+[A] Hillar, Christopher and Sohl-Dickstein, Jascha and Koepsell, Kilian, Efficient and optimal binary Hopfield associative memory storage using minimum probability flow, 2012.
 https://arxiv.org/abs/1204.2916v1
 
 [B] Hillar, Christopher and Mehta, Ram and Koepsell, Kilian, A Hopfield recurrent neural network trained on natural images performs state-of-the-art image compression, 2014 IEEE International Conference on Image Processing (ICIP), 2014.
