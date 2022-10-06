@@ -33,7 +33,7 @@ in a few missing or excess spikes (characterized by a low Hamming distance
 to a true, underlying STP).
 
 Our method takes a different aproach. Using Hopfield networks trained
-with *minimum probability flow* (MPF), the occuring raw spatiotemporal
+with *minimum energy flow* (MEF), the occuring raw spatiotemporal
 patterns are grouped into clusters of similar patterns in an unsupervised
 way, assigning to each cluster a *memory* (the fixed point of the
 Hopfield dynamics in each cluster).
@@ -53,6 +53,9 @@ https://www.sciencedirect.com/science/article/pii/S1877050915018165
 
 [B] Effenberger, Felix, and Christopher Hillar. "Discovery of salient low-dimensional dynamical structure in neuronal population activity using hopfield networks." In International Workshop on Similarity-Based Pattern Recognition, pp. 199-208. Springer, Cham, 2015.
 https://link.springer.com/chapter/10.1007/978-3-319-24261-3_16
+
+[C] Hillar, Chan, Taubman, Rolnick, Hidden Hypergraphs, Error-Correcting Codes, and Critical Learning in Hopfield Networks, Entropy, 2021.
+https://www.mdpi.com/1099-4300/23/11/1494/htm
 
 Others:
 
@@ -105,12 +108,8 @@ If you use `hdnet` in your work please cite it using the following BibTeX entry.
 @online{hdnet,
     author      = {Hillar, Christopher  and Effenberger, Felix},
     title       = {\texttt{hdnet} -- a Python package for parallel spike train analysis},
-    volume      = {abs/XXX},
     year        = {2015},
-    eprinttype  = {arxiv},
-    eprint      = {math/0307200v3}
     url         = {https://github.com/team-hdnet/hdnet}
-    //ee        = {http://arxiv.org/abs/XXX},
 }
 ```
 
@@ -121,7 +120,7 @@ Authors
 [Christopher Hillar](http://www.msri.org/people/members/chillar/)  
 Redwood Center for Theoretical Neuroscience  
 UC Berkeley, Berkeley, CA, USA  
-E-mail: chillar@berkeley.edu
+E-mail: hillarmath@gmail.com
 
 [Felix Effenberger](http://personal-homepages.mis.mpg.de/effen/)  
 Max-Planck-Institute for Mathematics in the Sciences  
