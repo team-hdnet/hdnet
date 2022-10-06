@@ -71,6 +71,8 @@ https://mathematical-neuroscience.springeropen.com/articles/10.1186/s13408-017-0
 [I] Hillar, Chan, Taubman, Rolnick, Hidden Hypergraphs, Error-Correcting Codes, and Critical Learning in Hopfield Networks, Entropy, 2021.
 https://www.mdpi.com/1099-4300/23/11/1494/htm
 
+[J] Lamberti, Martina and Hess, Michael and Dias, In{\^e}s and van Putten, Michel and le Feber, Joost and Marzen, Sarah, Maximum entropy models provide functional connectivity estimates in neural networks, 2022.
+
 Others:
 
 [1] S. Grün and S. Rotter. Analysis of parallel spike trains. Springer, 2010  
