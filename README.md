@@ -48,13 +48,27 @@ References
 ----------
 Papers Using HDNET:
 
-[A] Hillar, Christopher, and Felix Effenberger. "Robust discovery of temporal structure in multi-neuron recordings using hopfield networks." Procedia Computer Science 53 (2015): 365-374.
+[A] Hillar, Christopher and Sohl-Dickstein, Jascha and Koepsell, Kilian, Efficient and optimal binary Hopfield associative memory storage using minimum, 2012.
+https://arxiv.org/abs/1204.2916v1
+
+[B] Hillar, Christopher and Mehta, Ram and Koepsell, Kilian, A Hopfield recurrent neural network trained on natural images performs state-of-the-art image compression, 2014 IEEE International Conference on Image Processing (ICIP), 2014.
+
+[C] Hillar, Christopher, and Felix Effenberger. "Robust discovery of temporal structure in multi-neuron recordings using hopfield networks." Procedia Computer Science 53 (2015): 365-374.
 https://www.sciencedirect.com/science/article/pii/S1877050915018165
 
-[B] Effenberger, Felix, and Christopher Hillar. "Discovery of salient low-dimensional dynamical structure in neuronal population activity using hopfield networks." In International Workshop on Similarity-Based Pattern Recognition, pp. 199-208. Springer, Cham, 2015.
+[D] Effenberger, Felix, and Christopher Hillar. "Discovery of salient low-dimensional dynamical structure in neuronal population activity using hopfield networks." In International Workshop on Similarity-Based Pattern Recognition, pp. 199-208. Springer, Cham, 2015.
 https://link.springer.com/chapter/10.1007/978-3-319-24261-3_16
 
-[C] Hillar, Chan, Taubman, Rolnick, Hidden Hypergraphs, Error-Correcting Codes, and Critical Learning in Hopfield Networks, Entropy, 2021.
+[E] Mehta, Ram and Marzen, Sarah and Hillar, Christopher, Exploring discrete approaches to lossy compression schemes for natural image patches, 2015 23rd European Signal Processing Conference (EUSIPCO), 2015.
+
+[F] Hillar, Christopher and Marzen, Sarah, Revisiting perceptual distortion for natural images: Mean discrete structural similarity index, 2017 Data Compression Conference (DCC), 2017.
+
+[G] Hillar, Christopher J and Marzen, Sarah E, Neural network coding of natural images with applications to pure mathematics, Contemporary Mathematics; American Mathematical Sociecty: Providence, RI, USA, 2017.
+
+[H] Hillar, Christopher J and Tran, Ngoc M, Robust exponential memory in Hopfield networks, The Journal of Mathematical Neuroscience, 2018.
+https://mathematical-neuroscience.springeropen.com/articles/10.1186/s13408-017-0056-2
+
+[I] Hillar, Chan, Taubman, Rolnick, Hidden Hypergraphs, Error-Correcting Codes, and Critical Learning in Hopfield Networks, Entropy, 2021.
 https://www.mdpi.com/1099-4300/23/11/1494/htm
 
 Others:
