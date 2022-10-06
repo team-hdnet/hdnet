@@ -631,14 +631,15 @@ class HopfieldNet(Restoreable, object):
 
 class HopfieldNetMPF(HopfieldNet):
     r"""
-    Hopfield network, with training using Minimum Probability Flow (MPF)
-    (Sohl-Dickstein, Battaglino, Deweese, 2009) for training / learning of binary patterns
-
+    Hopfield network, with training using Minimum Energy Flow (MEF)
+    Hillar, Christopher and Sohl-Dickstein, Jascha and Koepsell, Kilian, 
+    Efficient and optimal binary Hopfield associative memory storage using minimum probability flow, 2012. 
+    https://arxiv.org/abs/1204.2916v1
     """
 
     def learn_all(self, X, disp=False):
         """
-        Learn from M memory samples with Minimum Probability Flow (MPF)
+        Learn from M memory samples with Minimum Energy Flow (MEF)
 
         Parameters
         ----------
@@ -671,7 +672,7 @@ class HopfieldNetMPF(HopfieldNet):
         Returns
         -------
         objective_func : numpy array
-            MPF objective function evaluated over patterns X
+            MEF objective function evaluated over patterns X
         """
         if J is None:
             J = self._J.copy()
@@ -719,7 +720,7 @@ class HopfieldNetMPF(HopfieldNet):
 
     def objective_gradient(self, X, J=None, return_K=False):
         """
-        Computes MPF objective gradient on input data X given coupling
+        Computes MEF objective gradient on input data X given coupling
         strengths J.
         
         Parameters
@@ -862,7 +863,7 @@ class HopfieldNetMPF(HopfieldNet):
 
     def store_patterns_using_mpf(self, X, disp=False, **kwargs):
         """
-        Stores patterns in X using Minimum Probability Flow (MPF) learning
+        Stores patterns in X using Minimum Energy Flow (MEF) learning
         rule.
         
         Parameters
@@ -901,8 +902,8 @@ class HopfieldNetMPF(HopfieldNet):
 
     def store_patterns_using_r_mpf(self, X, r = 1, p = .1, m = 10, disp=False, **kwargs):
         """
-        Stores patterns in X using generalized Minimum Probability Flow (MPF) learning
-        rule, r - MPF.
+        Stores patterns in X using generalized Minimum Energy Flow (MEF) learning
+        rule, r - MEF.
         
         Parameters
         ----------
@@ -1004,7 +1005,7 @@ class HopfieldNetMPF(HopfieldNet):
     # representation
 
     def __repr__(self):
-        return '<HopfieldNetwork: {n} nodes, MPF training>'.format(n=self._N)
+        return '<HopfieldNetwork: {n} nodes, MEF training>'.format(n=self._N)
 
 
 # end of source
